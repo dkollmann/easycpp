@@ -19,13 +19,17 @@ func _enter_tree():
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
-	Directory.new().make_dir(tempres)
+	utils.make_dir(tempres)
 	
 	toolwindow = preload("res://addons/easycpp/scenes/tool_window.tscn").instance()
 	
 	add_control_to_dock(DOCK_SLOT_LEFT_UL, toolwindow)
 	
-	self.check_sdk_state()
+	check_sdk_state()
+	
+	if not has_python:
+		# TODO: Show download and install button. Show that after install, the user has to log out and in again
+		pass
 
 
 func _exit_tree():
@@ -57,6 +61,9 @@ func find_python() -> void:
 	OS.execute("where" if utils.is_windows() else "which", ["python"], true, output)
 	
 	if len(output) > 0:
+		# the output is a single multi-line entry, so split it by line again
+		output = output[0].split("\n", false)
+		
 		var exe = output[0].strip_edges()
 		
 		if utils.file_exists(exe):
