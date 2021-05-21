@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://addons/easycpp/resources/textures/python.png" type="Texture" id=1]
 [ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Bold.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://addons/easycpp/resources/textures/status_good.png" type="Texture" id=3]
 [ext_resource path="res://addons/easycpp/resources/theme.tres" type="Theme" id=4]
 [ext_resource path="res://addons/easycpp/scripts/easycpp.gd" type="Script" id=5]
+[ext_resource path="res://addons/easycpp/resources/textures/git.png" type="Texture" id=6]
 
 [sub_resource type="DynamicFont" id=1]
 size = 30
@@ -31,7 +32,7 @@ align = 1
 [node name="SetupStatus" type="GridContainer" parent="."]
 margin_top = 46.0
 margin_right = 300.0
-margin_bottom = 74.0
+margin_bottom = 106.0
 size_flags_horizontal = 3
 columns = 3
 
@@ -54,6 +55,33 @@ text = "Python"
 margin_left = 276.0
 margin_right = 300.0
 margin_bottom = 24.0
+rect_min_size = Vector2( 24, 24 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = ExtResource( 3 )
+
+[node name="GitIcon" type="TextureRect" parent="SetupStatus"]
+margin_top = 32.0
+margin_right = 24.0
+margin_bottom = 56.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = ExtResource( 6 )
+stretch_mode = 1
+
+[node name="GitLabel" type="Label" parent="SetupStatus"]
+margin_left = 28.0
+margin_top = 32.0
+margin_right = 272.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+text = "Git"
+
+[node name="GitStatus" type="TextureRect" parent="SetupStatus"]
+margin_left = 276.0
+margin_top = 32.0
+margin_right = 300.0
+margin_bottom = 56.0
 rect_min_size = Vector2( 24, 24 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
