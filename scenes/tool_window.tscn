@@ -223,4 +223,5 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[connection signal="item_selected" from="BuildSystemButton" to="." method="_on_BuildSystemButton_item_selected"]
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]

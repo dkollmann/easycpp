@@ -41,6 +41,14 @@ func _on_RefreshButton_pressed():
 	check_sdk_state()
 
 
+func _on_BuildSystemButton_item_selected(index):
+	print("Selected build system: " + BuildSystem.keys()[index])
+	
+	buildsystem = index
+	
+	check_sdk_state()
+
+
 func _ready():
 	temppath = ProjectSettings.globalize_path(tempres)
 	
