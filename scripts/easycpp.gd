@@ -28,7 +28,13 @@ var has_python := false
 var has_git := false
 var has_gdcpp := false
 var has_gdheaders := false
+
+var needs_python := true
+var needs_git := true
+
 var allgood := false
+
+var buildsystem :int = BuildSystem.Scons
 
 
 func _on_RefreshButton_pressed():
@@ -44,40 +50,80 @@ func _ready():
 	
 	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
+	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
+	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
+	add_tooltip($SetupStatus/PythonLabel, "Python is required to run Scons.")
+	add_tooltip($SetupStatus/GitLabel, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
+	add_tooltip($SetupStatus/CppLabel, "The godot-cpp files are required to build your code.")
+	add_tooltip($SetupStatus/HeadersLabel, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
+	
 	check_sdk_state()
 
 
-func init_optionbutton(button :OptionButton, setting :String, enumtype, defvalue :int = 0):
+func init_optionbutton(button :OptionButton, setting :String, enumtype, defvalue :int = 0) -> void:
 	for k in enumtype.keys():
 		button.add_item(k)
 	
 	button.select( utils.get_project_setting_enum(setting, enumtype, defvalue) )
 
 
+func add_tooltip(ctrl :Control, tooltip :String) -> void:
+	ctrl.connect("mouse_entered", self, "_on_tooltip_show", [tooltip])
+	ctrl.connect("mouse_exited", self, "_on_tooltip_hide")
+	
+	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
+
+
 func status_res(good :bool) -> Texture:
 	return status_good if good else status_error
+
+
+func _on_tooltip_show(text :String) -> void:
+	$TooltipPanel/TooltipLabel.text = text
+
+
+func _on_tooltip_hide() -> void:
+	$TooltipPanel/TooltipLabel.text = ""
 
 
 func check_sdk_state() -> void:
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
+	# prepare check
+	needs_python = buildsystem == BuildSystem.Scons
+	
 	# handle python
-	pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
-	has_python = utils.file_exists(pythonpath)
+	if needs_python:
+		pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
+		has_python = utils.file_exists(pythonpath)
 	
 	# handle git
 	gitpath = check_installation("Git", funcref(self, "find_git"), setting_gitpath, false, exefilter)
 	has_git = utils.file_exists(gitpath)
 	
 	# handle godot-cpp
-	gdcpppath = check_installation("Godot CPP", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
+	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
 	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
 	
 	# handle godot-cpp
 	gdheaderspath = gdcpppath + "/godot_headers"
 	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
 	
-	allgood = has_python and has_git and has_gdcpp and has_gdcpp and has_gdheaders
+	needs_git = not has_gdcpp  # or not has_gdheaders
+	
+	var wants_python := needs_python and not has_python
+	var wants_git := needs_git and not has_git
+	
+	allgood = not wants_python and not wants_git and has_gdcpp and has_gdcpp and has_gdheaders
+	
+	$SetupStatus/PythonIcon.visible = needs_python
+	$SetupStatus/PythonLabel.visible = needs_python
+	$SetupStatus/PythonStatus.visible = needs_python
+	
+	$SetupStatus/GitIcon.visible = needs_git
+	$SetupStatus/GitLabel.visible = needs_git
+	$SetupStatus/GitStatus.visible = needs_git
 	
 	$SetupStatus/PythonStatus.texture = status_res(has_python)
 	$SetupStatus/GitStatus.texture = status_res(has_git)

@@ -3,5 +3,4 @@
 [ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Regular.ttf" type="DynamicFontData" id=1]
 
 [resource]
-size = 14
 font_data = ExtResource( 1 )

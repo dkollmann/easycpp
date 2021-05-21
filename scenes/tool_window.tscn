@@ -35,46 +35,60 @@ align = 1
 
 [node name="Spacer2" type="Control" parent="."]
 margin_top = 46.0
-margin_right = 300.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 0, 4 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
 
 [node name="BuildSystemLabel" type="Label" parent="."]
 margin_top = 54.0
 margin_right = 300.0
-margin_bottom = 74.0
+margin_bottom = 77.0
 custom_fonts/font = ExtResource( 9 )
 text = "Build System:"
 
 [node name="BuildSystemButton" type="OptionButton" parent="."]
-margin_top = 78.0
+margin_top = 81.0
 margin_right = 300.0
-margin_bottom = 112.0
+margin_bottom = 115.0
 
 [node name="Spacer1" type="Control" parent="."]
-margin_top = 116.0
-margin_right = 300.0
-margin_bottom = 124.0
+margin_top = 119.0
+margin_bottom = 127.0
 rect_min_size = Vector2( 0, 8 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
-margin_top = 128.0
+margin_top = 131.0
 margin_right = 300.0
-margin_bottom = 162.0
-alignment = 2
+margin_bottom = 165.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
-margin_left = 264.0
-margin_right = 300.0
+margin_right = 36.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 10 )
 
+[node name="Spacer1" type="Control" parent="MenuContainer"]
+margin_left = 40.0
+margin_right = 48.0
+rect_min_size = Vector2( 8, 0 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Spacer3" type="Control" parent="."]
+margin_top = 169.0
+margin_bottom = 177.0
+rect_min_size = Vector2( 0, 8 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
 [node name="SetupStatus" type="GridContainer" parent="."]
-margin_top = 166.0
+margin_top = 181.0
 margin_right = 300.0
-margin_bottom = 290.0
+margin_bottom = 305.0
 size_flags_horizontal = 3
 columns = 3
 
@@ -182,5 +196,31 @@ rect_min_size = Vector2( 24, 24 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 texture = ExtResource( 3 )
+
+[node name="Spacer4" type="Control" parent="."]
+margin_top = 309.0
+margin_bottom = 325.0
+rect_min_size = Vector2( 0, 16 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="TooltipPanel" type="PanelContainer" parent="."]
+margin_top = 329.0
+margin_right = 300.0
+margin_bottom = 366.0
+rect_min_size = Vector2( 0, 20 )
+
+[node name="TooltipLabel" type="Label" parent="TooltipPanel"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 293.0
+margin_bottom = 30.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_fonts/font = ExtResource( 9 )
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]
