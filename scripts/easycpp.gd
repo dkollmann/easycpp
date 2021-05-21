@@ -37,18 +37,6 @@ var allgood := false
 var buildsystem :int = BuildSystem.Scons
 
 
-func _on_RefreshButton_pressed():
-	check_sdk_state()
-
-
-func _on_BuildSystemButton_item_selected(index):
-	print("Selected build system: " + BuildSystem.keys()[index])
-	
-	buildsystem = index
-	
-	check_sdk_state()
-
-
 func _ready():
 	temppath = ProjectSettings.globalize_path(tempres)
 	
@@ -60,15 +48,19 @@ func _ready():
 	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
-	add_tooltip($StatusContainer/PythonStatus, "Python is required to run Scons.")
-	add_tooltip($StatusContainer/GitStatus, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
-	add_tooltip($StatusContainer/CppStatus, "The godot-cpp files are required to build your code.")
-	add_tooltip($StatusContainer/HeaderStatus, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
+	
+	var atfunc := funcref(self, "add_tooltip")
+	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run Scons.")
+	$StatusContainer/GitStatus.add_tooltip(atfunc, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
+	$StatusContainer/CppStatus.add_tooltip(atfunc, "The godot-cpp files are required to build your code.")
+	$StatusContainer/HeaderStatus.add_tooltip(atfunc, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
 	
 	check_sdk_state()
 
 
 func init_optionbutton(button :OptionButton, setting :String, enumtype, defvalue :int = 0) -> void:
+	button.clear()
+	
 	for k in enumtype.keys():
 		button.add_item(k)
 	
@@ -85,14 +77,6 @@ func add_tooltip(ctrl :Control, tooltip :String) -> void:
 
 func status_res(good :bool) -> Texture:
 	return status_good if good else status_error
-
-
-func _on_tooltip_show(text :String) -> void:
-	$TooltipPanel/TooltipLabel.text = text
-
-
-func _on_tooltip_hide() -> void:
-	$TooltipPanel/TooltipLabel.text = ""
 
 
 func check_sdk_state() -> void:
@@ -125,13 +109,30 @@ func check_sdk_state() -> void:
 	
 	allgood = not wants_python and not wants_git and has_gdcpp and has_gdcpp and has_gdheaders
 	
+	var canfix_python := not utils.is_windows() or not pythonpath_windowsstore.empty()
+	var canfix_git := not utils.is_windows()
+	
 	$StatusContainer/PythonStatus.visible = needs_python
 	$StatusContainer/GitStatus.visible = needs_git
+	$FixIssuesContainer/FixButton1.visible = false
+	$FixIssuesContainer/FixButton2.visible = false
 	
-	$StatusContainer/PythonStatus.status = status_res(has_python)
-	$StatusContainer/GitStatus.status = status_res(has_git)
-	$StatusContainer/CppStatus.status = status_res(has_gdcpp)
-	$StatusContainer/HeaderStatus.status = status_res(has_gdheaders)
+	$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
+	$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
+	$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
+	$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
+
+
+func set_fixbutton(text :String, fixfunc :String) -> void:
+	var btn := $FixIssuesContainer/FixButton1
+	
+	if btn.visible:
+		btn = $FixIssuesContainer/FixButton2
+	
+	if btn.visible:
+		return
+	
+	btn.connect("pressed", self, fixfunc)
 
 
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
@@ -198,3 +199,58 @@ func find_git() -> String:
 
 func find_godotcpp() -> String:
 	return temppath + "/godot-cpp"
+
+
+func _on_tooltip_show(text :String) -> void:
+	$TooltipPanel/TooltipLabel.text = text
+
+
+func _on_tooltip_hide() -> void:
+	$TooltipPanel/TooltipLabel.text = ""
+
+
+func _on_RefreshButton_pressed():
+	check_sdk_state()
+
+
+func _on_BuildSystemButton_item_selected(index):
+	print("Selected build system: " + BuildSystem.keys()[index])
+	
+	buildsystem = index
+	
+	check_sdk_state()
+
+
+func _on_PythonStatus_fix_pressed():
+	if utils.is_windows():
+		OS.execute(pythonpath_windowsstore, [])
+	else:
+		# TODO: Support linux
+		pass
+
+
+func _on_PythonStatus_www_pressed():
+	OS.shell_open("https://www.python.org/downloads/")
+
+
+func _on_GitStatus_fix_pressed():
+	# TODO: Support linux
+	pass
+
+
+func _on_GitStatus_www_pressed():
+	OS.shell_open("https://git-scm.com/downloads")
+
+
+func _on_CppStatus_fix_pressed():
+	if has_git:
+		# TODO: checkout repository
+		pass
+
+
+func _on_CppStatus_www_pressed():
+	OS.shell_open("https://github.com/godotengine/godot-cpp")
+
+
+func _on_HeaderStatus_www_pressed():
+	OS.shell_open("https://github.com/godotengine/godot-headers")
