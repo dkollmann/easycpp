@@ -6,11 +6,15 @@ static func is_windows() -> bool:
 
 
 static func file_exists(file :String) -> bool:
-	return File.new().file_exists(file)
+	return not file.empty() and File.new().file_exists(file)
+
+
+static func folder_exists(folder :String) -> bool:
+	return not folder.empty() and Directory.new().file_exists(folder)
 
 
 static func make_dir(path :String) -> void:
-	Directory.new().make_dir(path)
+	Directory.new().make_dir_recursive(path)
 
 
 static func get_project_setting(name :String, type :int, defvalue, hint :int = PROPERTY_HINT_NONE, hintstr :String = ""):

@@ -5,16 +5,23 @@ const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const tempres := "res://addons/easycpp/temp"
 const setting_pythonpath := "Easy C++/Python Path"
 const setting_gitpath := "Easy C++/Git Path"
+const setting_gdcpppath := "Easy C++/Godot-CPP Path"
 const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
 const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
+const gdcpppath_testfile := "include/core/Godot.hpp"
+const gdheaderspath_testfile := "nativescript/godot_nativescript.h"
 
 var temppath :String
+var gdcpppath :String
+var gdheaderspath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
 var gitpath :String
 
 var has_python := false
 var has_git := false
+var has_gdcpp := false
+var has_gdheaders := false
 var allgood := false
 
 
@@ -23,15 +30,9 @@ func _ready():
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
-	utils.make_dir(tempres)
+	#utils.make_dir(temppath)
 	
 	check_sdk_state()
-	
-	$SetupStatus/PythonStatus.texture = status_res(has_python)
-
-	if not has_python:
-		# TODO: Show download and install button. Show that after install, the user has to log out and in again
-		pass
 
 
 func status_res(good :bool) -> Texture:
@@ -43,17 +44,26 @@ func check_sdk_state() -> void:
 	
 	# handle python
 	pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
-	has_python = valid_file(pythonpath)
+	has_python = utils.file_exists(pythonpath)
 	
 	# handle git
 	gitpath = check_installation("Git", funcref(self, "find_git"), setting_gitpath, false, exefilter)
-	has_git = valid_file(gitpath)
+	has_git = utils.file_exists(gitpath)
 	
-	allgood = has_python and has_git
-
-
-static func valid_file(file :String) -> bool:
-	return not file.empty() and utils.file_exists(file)
+	# handle godot-cpp
+	gdcpppath = check_installation("Godot CPP", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
+	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
+	
+	# handle godot-cpp
+	gdheaderspath = gdcpppath + "/godot_headers"
+	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
+	
+	allgood = has_python and has_git and has_gdcpp and has_gdcpp and has_gdheaders
+	
+	$SetupStatus/PythonStatus.texture = status_res(has_python)
+	$SetupStatus/GitStatus.texture = status_res(has_git)
+	$SetupStatus/CppStatus.texture = status_res(has_gdcpp)
+	$SetupStatus/HeadersStatus.texture = status_res(has_gdheaders)
 
 
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
@@ -65,7 +75,7 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 		searched = true
 		path = findfunc.call_func()
 	
-	if valid_file(path):
+	if (utils.folder_exists(path) if isfolder else utils.file_exists(path)):
 		print("Found " + name + " path: \"" + path + "\".")
 		
 		if searched:
@@ -116,3 +126,7 @@ func install_python() -> void:
 
 func find_git() -> String:
 	return find_executable("git")
+
+
+func find_godotcpp() -> String:
+	return temppath + "/godot-cpp"
