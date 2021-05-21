@@ -31,3 +31,12 @@ static func get_project_setting(name :String, type :int, defvalue, hint :int = P
 	ProjectSettings.set_initial_value(name, defvalue)
 	
 	return defvalue
+
+
+static func get_project_setting_enum(name :String, enumtype, defvalue :int = 0) -> int:
+	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_ENUM, get_enumoptions(enumtype))
+
+
+static func get_enumoptions(enumtype) -> String:
+	var s := str(enumtype.keys())
+	return s.substr(1, len(s) - 2).replace(" ", "")

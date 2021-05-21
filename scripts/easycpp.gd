@@ -1,8 +1,14 @@
 tool
 extends VBoxContainer
 
+enum BuildSystem {
+	Scons,
+	Cmake
+}
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const tempres := "res://addons/easycpp/temp"
+const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
 const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
@@ -32,7 +38,16 @@ func _ready():
 	
 	#utils.make_dir(temppath)
 	
+	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
+	
 	check_sdk_state()
+
+
+func init_optionbutton(button :OptionButton, setting :String, enumtype, defvalue :int = 0):
+	for k in enumtype.keys():
+		button.add_item(k)
+	
+	button.select( utils.get_project_setting_enum(setting, enumtype, defvalue) )
 
 
 func status_res(good :bool) -> Texture:
