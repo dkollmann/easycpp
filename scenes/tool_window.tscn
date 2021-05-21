@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://addons/easycpp/resources/textures/python.png" type="Texture" id=1]
 [ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Bold.ttf" type="DynamicFontData" id=2]
@@ -9,6 +9,7 @@
 [ext_resource path="res://addons/easycpp/resources/textures/cpp.png" type="Texture" id=7]
 [ext_resource path="res://addons/easycpp/resources/textures/headers.png" type="Texture" id=8]
 [ext_resource path="res://addons/easycpp/resources/fonts/small.tres" type="DynamicFont" id=9]
+[ext_resource path="res://addons/easycpp/resources/textures/refresh.png" type="Texture" id=10]
 
 [sub_resource type="DynamicFont" id=1]
 size = 30
@@ -56,10 +57,24 @@ margin_right = 300.0
 margin_bottom = 124.0
 rect_min_size = Vector2( 0, 8 )
 
-[node name="SetupStatus" type="GridContainer" parent="."]
+[node name="MenuContainer" type="HBoxContainer" parent="."]
 margin_top = 128.0
 margin_right = 300.0
-margin_bottom = 252.0
+margin_bottom = 162.0
+alignment = 2
+
+[node name="RefreshButton" type="Button" parent="MenuContainer"]
+margin_left = 264.0
+margin_right = 300.0
+margin_bottom = 34.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+icon = ExtResource( 10 )
+
+[node name="SetupStatus" type="GridContainer" parent="."]
+margin_top = 166.0
+margin_right = 300.0
+margin_bottom = 290.0
 size_flags_horizontal = 3
 columns = 3
 
@@ -167,3 +182,5 @@ rect_min_size = Vector2( 24, 24 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 texture = ExtResource( 3 )
+
+[connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]

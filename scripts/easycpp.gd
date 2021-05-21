@@ -31,6 +31,10 @@ var has_gdheaders := false
 var allgood := false
 
 
+func _on_RefreshButton_pressed():
+	check_sdk_state()
+
+
 func _ready():
 	temppath = ProjectSettings.globalize_path(tempres)
 	
