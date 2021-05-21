@@ -60,10 +60,10 @@ func _ready():
 	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
-	add_tooltip($SetupStatus/PythonLabel, "Python is required to run Scons.")
-	add_tooltip($SetupStatus/GitLabel, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
-	add_tooltip($SetupStatus/CppLabel, "The godot-cpp files are required to build your code.")
-	add_tooltip($SetupStatus/HeadersLabel, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
+	add_tooltip($StatusContainer/PythonStatus, "Python is required to run Scons.")
+	add_tooltip($StatusContainer/GitStatus, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
+	add_tooltip($StatusContainer/CppStatus, "The godot-cpp files are required to build your code.")
+	add_tooltip($StatusContainer/HeaderStatus, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
 	
 	check_sdk_state()
 
@@ -125,18 +125,13 @@ func check_sdk_state() -> void:
 	
 	allgood = not wants_python and not wants_git and has_gdcpp and has_gdcpp and has_gdheaders
 	
-	$SetupStatus/PythonIcon.visible = needs_python
-	$SetupStatus/PythonLabel.visible = needs_python
-	$SetupStatus/PythonStatus.visible = needs_python
+	$StatusContainer/PythonStatus.visible = needs_python
+	$StatusContainer/GitStatus.visible = needs_git
 	
-	$SetupStatus/GitIcon.visible = needs_git
-	$SetupStatus/GitLabel.visible = needs_git
-	$SetupStatus/GitStatus.visible = needs_git
-	
-	$SetupStatus/PythonStatus.texture = status_res(has_python)
-	$SetupStatus/GitStatus.texture = status_res(has_git)
-	$SetupStatus/CppStatus.texture = status_res(has_gdcpp)
-	$SetupStatus/HeadersStatus.texture = status_res(has_gdheaders)
+	$StatusContainer/PythonStatus.status = status_res(has_python)
+	$StatusContainer/GitStatus.status = status_res(has_git)
+	$StatusContainer/CppStatus.status = status_res(has_gdcpp)
+	$StatusContainer/HeaderStatus.status = status_res(has_gdheaders)
 
 
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:

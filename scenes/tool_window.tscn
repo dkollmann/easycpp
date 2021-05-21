@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://addons/easycpp/resources/textures/python.png" type="Texture" id=1]
 [ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Bold.ttf" type="DynamicFontData" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://addons/easycpp/resources/textures/headers.png" type="Texture" id=8]
 [ext_resource path="res://addons/easycpp/resources/fonts/small.tres" type="DynamicFont" id=9]
 [ext_resource path="res://addons/easycpp/resources/textures/refresh.png" type="Texture" id=10]
+[ext_resource path="res://addons/easycpp/scenes/statusitem.tscn" type="PackedScene" id=11]
 
 [sub_resource type="DynamicFont" id=1]
 size = 30
@@ -85,117 +86,49 @@ rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="SetupStatus" type="GridContainer" parent="."]
+[node name="StatusContainer" type="VBoxContainer" parent="."]
 margin_top = 181.0
 margin_right = 300.0
 margin_bottom = 305.0
-size_flags_horizontal = 3
-columns = 3
 
-[node name="PythonIcon" type="TextureRect" parent="SetupStatus"]
-margin_right = 24.0
-margin_bottom = 24.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 1 )
-stretch_mode = 1
-
-[node name="PythonLabel" type="Label" parent="SetupStatus"]
-margin_left = 28.0
-margin_right = 272.0
+[node name="PythonStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 300.0
 margin_bottom = 28.0
-size_flags_horizontal = 3
+icon = ExtResource( 1 )
 text = "Python"
+status = ExtResource( 3 )
 
-[node name="PythonStatus" type="TextureRect" parent="SetupStatus"]
-margin_left = 276.0
+[node name="GitStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 32.0
 margin_right = 300.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 24, 24 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 3 )
-
-[node name="GitIcon" type="TextureRect" parent="SetupStatus"]
-margin_top = 32.0
-margin_right = 24.0
-margin_bottom = 56.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 6 )
-stretch_mode = 1
-
-[node name="GitLabel" type="Label" parent="SetupStatus"]
-margin_left = 28.0
-margin_top = 32.0
-margin_right = 272.0
 margin_bottom = 60.0
-size_flags_horizontal = 3
-text = "Git"
+icon = ExtResource( 6 )
+text = "Git SCM"
+status = ExtResource( 3 )
 
-[node name="GitStatus" type="TextureRect" parent="SetupStatus"]
-margin_left = 276.0
-margin_top = 32.0
+[node name="CppStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 64.0
 margin_right = 300.0
-margin_bottom = 56.0
-rect_min_size = Vector2( 24, 24 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 3 )
-
-[node name="CppIcon" type="TextureRect" parent="SetupStatus"]
-margin_top = 64.0
-margin_right = 24.0
-margin_bottom = 88.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 7 )
-stretch_mode = 1
-
-[node name="CppLabel" type="Label" parent="SetupStatus"]
-margin_left = 28.0
-margin_top = 64.0
-margin_right = 272.0
 margin_bottom = 92.0
-size_flags_horizontal = 3
+icon = ExtResource( 7 )
 text = "Godot C++"
+status = ExtResource( 3 )
 
-[node name="CppStatus" type="TextureRect" parent="SetupStatus"]
-margin_left = 276.0
-margin_top = 64.0
+[node name="HeaderStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 96.0
 margin_right = 300.0
-margin_bottom = 88.0
-rect_min_size = Vector2( 24, 24 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 3 )
-
-[node name="HeadersIcon" type="TextureRect" parent="SetupStatus"]
-margin_top = 96.0
-margin_right = 24.0
-margin_bottom = 120.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 8 )
-stretch_mode = 1
-
-[node name="HeadersLabel" type="Label" parent="SetupStatus"]
-margin_left = 28.0
-margin_top = 96.0
-margin_right = 272.0
 margin_bottom = 124.0
-size_flags_horizontal = 3
+icon = ExtResource( 8 )
 text = "Godot Headers"
-
-[node name="HeadersStatus" type="TextureRect" parent="SetupStatus"]
-margin_left = 276.0
-margin_top = 96.0
-margin_right = 300.0
-margin_bottom = 120.0
-rect_min_size = Vector2( 24, 24 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture = ExtResource( 3 )
+status = ExtResource( 3 )
 
 [node name="Spacer4" type="Control" parent="."]
 margin_top = 309.0
