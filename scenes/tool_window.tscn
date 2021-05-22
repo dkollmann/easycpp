@@ -52,7 +52,7 @@ margin_top = 81.0
 margin_right = 300.0
 margin_bottom = 115.0
 text = "Scons"
-items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null, "Scons", null, false, 2, null, "Cmake", null, false, 3, null, "Scons", null, false, 4, null, "Cmake", null, false, 5, null, "Scons", null, false, 6, null, "Cmake", null, false, 7, null, "Scons", null, false, 8, null, "Cmake", null, false, 9, null ]
+items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
 selected = 0
 
 [node name="Spacer1" type="Control" parent="."]

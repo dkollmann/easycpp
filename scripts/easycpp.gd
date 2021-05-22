@@ -7,6 +7,7 @@ enum BuildSystem {
 }
 
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
+const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
 const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
@@ -16,7 +17,10 @@ const status_good := preload("res://addons/easycpp/resources/textures/status_goo
 const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
 const gdcpppath_testfile := "include/core/Godot.hpp"
 const gdheaderspath_testfile := "nativescript/godot_nativescript.h"
+const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
+const gdcppgitbranch = "nativescript-1.1"
 
+var toolspath :String
 var temppath :String
 var gdcpppath :String
 var gdheaderspath :String
@@ -39,6 +43,7 @@ var buildsystem :int = BuildSystem.Scons
 
 func _ready():
 	temppath = ProjectSettings.globalize_path(tempres)
+	toolspath = ProjectSettings.globalize_path(toolsres)
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -201,6 +206,31 @@ func find_godotcpp() -> String:
 	return temppath + "/godot-cpp"
 
 
+func git_clone(args :Array, tryfix :bool = true) -> bool:
+	if not has_git:
+		return false
+		
+	var output := []
+	var good := OS.execute(gitpath, args, true, output, true) == 0
+	
+	print(output)
+	
+	if good:
+		return true
+	
+	# try invalid branch name hotfix
+	if tryfix and len(output) > 0 and "fatal: invalid branch name: init.defaultBranch" in output[0]:
+		print("Trying to hotfix invalid default branch name issue...")
+		
+		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], true, output, true)
+	
+		print(output)
+		
+		return git_clone(args, false)
+		
+	return false
+
+
 func _on_tooltip_show(text :String) -> void:
 	$TooltipPanel/TooltipLabel.text = text
 
@@ -244,8 +274,9 @@ func _on_GitStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		# TODO: checkout repository
-		pass
+		git_clone(["clone", "--branch", gdcppgitbranch, gdcppgiturl, gdcpppath])
+		
+	check_sdk_state()
 
 
 func _on_CppStatus_www_pressed():
