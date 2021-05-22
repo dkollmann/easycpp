@@ -6,6 +6,22 @@ enum BuildSystem {
 	Cmake
 }
 
+enum BuildPlatform {
+	Win32,
+	Win64,
+	Linux,
+	macOS,
+	Android,
+	iOS
+}
+
+enum BuildConfiguration {
+	Shipping,
+	Release,
+	Profiling,
+	Debug
+}
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
@@ -57,8 +73,24 @@ func _ready():
 	
 	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
+	$PlatformContainer/PlatformButton.clear()
+	
+	if utils.is_windows():
+		$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
+		$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
+	
+	$PlatformContainer/ConfigurationButton.clear()
+	$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
+	$PlatformContainer/ConfigurationButton.add_item("Release", BuildConfiguration.Release)
+	$PlatformContainer/ConfigurationButton.add_item("Profiling", BuildConfiguration.Profiling)
+	$PlatformContainer/ConfigurationButton.add_item("Debug", BuildConfiguration.Debug)
+	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
+	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
+	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
+	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
+	add_tooltip($MenuContainer/BuildProjectButton, "Build the currently selected project.")
 	
 	var atfunc := funcref(self, "add_tooltip")
 	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
@@ -132,10 +164,18 @@ func check_sdk_state() -> void:
 	
 	allgood = not wants_scons and has_gdcpp and has_gdheaders
 	
-	if allgood and false:
+	$BuildSystemButton.visible = allgood
+	$PlatformLabel.visible = allgood
+	$PlatformContainer.visible = allgood
+	
+	if allgood:
 		$StatusContainer.visible = false
+		
+		$ProjectContainer.visible = true
 	
 	else:
+		$ProjectContainer.visible = false
+		
 		var is_windows := utils.is_windows()
 		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
 		var canfix_pip := not is_windows
@@ -334,3 +374,17 @@ func _on_CppStatus_www_pressed():
 
 func _on_HeaderStatus_www_pressed():
 	OS.shell_open("https://github.com/godotengine/godot-headers")
+
+
+func _on_BuildBindingsButton_pressed():
+	var platform := ""
+	
+	match $PlatformContainer/PlatformButton.selected:
+		BuildPlatform.Win32:
+			platform = "Windows"
+		
+		BuildPlatform.Win64:
+			platform = "Windows"
+	
+	# vsproj=yes
+	OS.execute(pythonpath, ["-m", "SCons", "-j8", "platform=" + platform, "generate_binding=yes"], true)
