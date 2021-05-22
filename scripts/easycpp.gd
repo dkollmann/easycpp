@@ -274,7 +274,7 @@ func _on_GitStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(["clone", "--branch", gdcppgitbranch, gdcppgiturl, gdcpppath])
+		git_clone(["clone", "--recurse-submodules", "--branch", gdcppgitbranch, gdcppgiturl, gdcpppath])
 		
 	check_sdk_state()
 
