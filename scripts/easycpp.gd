@@ -62,8 +62,11 @@ var allgood := false
 
 var buildsystem :int = BuildSystem.SCons
 
+var random := RandomNumberGenerator.new()
 
 func _ready():
+	random.randomize()
+	
 	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
 	
@@ -301,6 +304,30 @@ func git_clone(args :Array, tryfix :bool = true) -> bool:
 	return false
 
 
+func run_batch(name :String, batch :Array) -> int:
+	var ext := ".bat" if utils.is_windows() else ".sh"
+	var fname := "%s/%s_%d%s" % [temppath, name, random.randi(), ext]
+	
+	var file := File.new()
+	file.open(fname, File.WRITE)
+	
+	for l in batch:
+		file.store_string(l)
+	
+	file.close()
+	
+	var output := []
+	
+	var res := OS.execute(fname, [], true, output)
+	
+	var outlines := utils.get_outputlines(output)
+	
+	for l in outlines:
+		print(l)
+	
+	return res
+
+
 func _on_tooltip_show(text :String) -> void:
 	$TooltipPanel/TooltipLabel.text = text
 
@@ -381,10 +408,14 @@ func _on_BuildBindingsButton_pressed():
 	
 	match $PlatformContainer/PlatformButton.selected:
 		BuildPlatform.Win32:
-			platform = "Windows"
+			platform = "windows"
 		
 		BuildPlatform.Win64:
-			platform = "Windows"
+			platform = "windows"
 	
-	# vsproj=yes
-	OS.execute(pythonpath, ["-m", "SCons", "-j8", "platform=" + platform, "generate_binding=yes"], true)
+	run_batch("bindings", [
+		"cd \"" + gdcpppath + "\"\n",
+		
+		# vsproj=yes
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + platform + " generate_binding=yes\n"
+	])
