@@ -2,7 +2,7 @@ tool
 extends VBoxContainer
 
 enum BuildSystem {
-	Scons,
+	SCons,
 	Cmake
 }
 
@@ -11,6 +11,8 @@ const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
 const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
+const setting_pippath := "Easy C++/pip Path"
+const setting_sconspath := "Easy C++/SCons Path"
 const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
 const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
@@ -22,23 +24,27 @@ const gdcppgitbranch = "nativescript-1.1"
 
 var toolspath :String
 var temppath :String
-var gdcpppath :String
-var gdheaderspath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
 var gitpath :String
+var gdcpppath :String
+var gdheaderspath :String
 
 var has_python := false
+var has_pip := false
+var has_scons := false
 var has_git := false
 var has_gdcpp := false
 var has_gdheaders := false
 
 var needs_python := true
+var needs_pip := true
+var needs_scons := true
 var needs_git := true
 
 var allgood := false
 
-var buildsystem :int = BuildSystem.Scons
+var buildsystem :int = BuildSystem.SCons
 
 
 func _ready():
@@ -55,7 +61,9 @@ func _ready():
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	
 	var atfunc := funcref(self, "add_tooltip")
-	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run Scons.")
+	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
+	$StatusContainer/PipStatus.add_tooltip(atfunc, "pip is required to install SCons automatically.")
+	$StatusContainer/SConsStatus.add_tooltip(atfunc, "SCons is the selected build tool.")
 	$StatusContainer/GitStatus.add_tooltip(atfunc, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
 	$StatusContainer/CppStatus.add_tooltip(atfunc, "The godot-cpp files are required to build your code.")
 	$StatusContainer/HeaderStatus.add_tooltip(atfunc, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
@@ -88,12 +96,22 @@ func check_sdk_state() -> void:
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
 	# prepare check
-	needs_python = buildsystem == BuildSystem.Scons
+	needs_python = buildsystem == BuildSystem.SCons
+	needs_pip    = buildsystem == BuildSystem.SCons
+	needs_scons  = buildsystem == BuildSystem.SCons
 	
 	# handle python
 	if needs_python:
 		pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
 		has_python = utils.file_exists(pythonpath)
+	
+	# handle pip
+	if needs_pip:
+		has_pip = find_pythonmodule("pip")
+	
+	# handle SCons
+	if needs_scons:
+		has_scons = find_pythonmodule("SCons")
 	
 	# handle git
 	gitpath = check_installation("Git", funcref(self, "find_git"), setting_gitpath, false, exefilter)
@@ -103,30 +121,35 @@ func check_sdk_state() -> void:
 	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
 	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
 	
-	# handle godot-cpp
+	# handle godot headers
 	gdheaderspath = gdcpppath + "/godot_headers"
 	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
 	
 	needs_git = not has_gdcpp  # or not has_gdheaders
+	needs_pip = not has_scons
 	
-	var wants_python := needs_python and not has_python
-	var wants_git := needs_git and not has_git
+	var wants_scons := needs_scons and not has_scons
 	
-	allgood = not wants_python and not wants_git and has_gdcpp and has_gdcpp and has_gdheaders
+	allgood = not wants_scons and has_gdcpp and has_gdheaders
 	
-	if allgood:
+	if allgood and false:
 		$StatusContainer.visible = false
 	
 	else:
-		var canfix_python := not utils.is_windows()  # or not pythonpath_windowsstore.empty()
-		var canfix_git := not utils.is_windows()
+		var is_windows := utils.is_windows()
+		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
+		var canfix_pip := not is_windows
+		var canfix_scons := has_pip
+		var canfix_git := not is_windows
 		
 		$StatusContainer/PythonStatus.visible = needs_python
+		$StatusContainer/PipStatus.visible = needs_pip
+		$StatusContainer/SConsStatus.visible = needs_scons
 		$StatusContainer/GitStatus.visible = needs_git
-		$FixIssuesContainer/FixButton1.visible = false
-		$FixIssuesContainer/FixButton2.visible = false
 		
 		$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
+		$StatusContainer/PipStatus.set_status(has_pip, true, canfix_pip)
+		$StatusContainer/SConsStatus.set_status(has_scons, true, canfix_scons)
 		$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
 		$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
 		$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
@@ -168,16 +191,27 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 
 
 static func find_executable(exename :String) -> String:
-	var output = []
+	var output := []
 	OS.execute("where" if utils.is_windows() else "which", [exename], true, output)
 	
-	if len(output) > 0:
-		# the output is a single multi-line entry, so split it by line again
-		output = output[0].split("\n", false)
-		
-		return output[0].strip_edges()
-		
+	var lines := utils.get_outputlines(output)
+	
+	if len(lines) > 0:
+		return lines[0]
+	
 	return ""
+
+
+func find_pythonmodule(module :String) -> bool:
+	if not has_python:
+		return false
+	
+	var output := []
+	OS.execute(pythonpath, ["-m", module, "--version"], true, output)
+	
+	var lines := utils.get_outputlines(output)
+	
+	return len(lines) > 0 and not ("No module named" in lines[0])  # lines[0].begins_with(module)
 
 
 func find_python() -> String:
@@ -192,16 +226,6 @@ func find_python() -> String:
 			pythonpath_windowsstore = exe
 	
 	return ""
-
-
-func install_python() -> void:
-	if utils.is_windows():
-		if not pythonpath_windowsstore.empty():
-			# Under Windows 10, this opens the store
-			OS.execute(pythonpath_windowsstore, [])
-	else:
-		# TODO: Install python package
-		pass
 
 
 func find_git() -> String:
@@ -267,6 +291,25 @@ func _on_PythonStatus_fix_pressed():
 
 func _on_PythonStatus_www_pressed():
 	OS.shell_open("https://www.python.org/downloads/")
+
+
+func _on_PipStatus_fix_pressed():
+	# TODO: Support linux
+	pass
+
+
+func _on_PipStatus_www_pressed():
+	OS.shell_open("https://www.python.org/downloads/")
+
+
+func _on_SConsStatus_fix_pressed():
+	OS.execute(pythonpath, ["-m", "pip", "install", "SCons"], true)
+	
+	check_sdk_state()
+
+
+func _on_SConsStatus_www_pressed():
+	OS.shell_open("https://scons.org/pages/download.html")
 
 
 func _on_GitStatus_fix_pressed():

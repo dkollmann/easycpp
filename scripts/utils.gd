@@ -46,3 +46,15 @@ static func execute_shell(cmd :String) -> int:
 	print("Running " + cmd)
 	
 	return OS.execute("cmd.exe", ["/C", cmd])
+
+
+static func get_outputlines(output :Array) -> Array:
+	var lines := []
+	
+	for o in output:
+		var ol = o.split("\n", false)
+		
+		for l in ol:
+			lines.append( l.strip_edges() )
+	
+	return lines
