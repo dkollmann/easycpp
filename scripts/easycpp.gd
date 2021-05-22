@@ -15,8 +15,8 @@ const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
 const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
 const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
-const gdcpppath_testfile := "include/core/Godot.hpp"
-const gdheaderspath_testfile := "nativescript/godot_nativescript.h"
+const gdcpppath_testfile := "/include/core/Godot.hpp"
+const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 const gdcppgitbranch = "nativescript-1.1"
 
