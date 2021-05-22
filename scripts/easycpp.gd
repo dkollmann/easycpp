@@ -446,7 +446,7 @@ func run_makefile(folder :String, args :String):
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
 		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " target=" + trgt + " bits=" + bits + " " + args + "\n"
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " target=" + trgt + " arch=" + bits + " bits=" + bits + " " + args + "\n"
 	])
 
 
