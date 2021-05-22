@@ -412,6 +412,44 @@ func get_vcvars(comp :int) -> String:
 	return ""
 
 
+func run_makefile(folder :String, args :String):
+	var plat := ""
+	var arch := ""
+	var trgt := ""
+	var bits := "64"
+	
+	match platform:
+		BuildPlatform.Win32:
+			plat = "windows"
+			arch = "x86"
+			bits = "32"
+		
+		BuildPlatform.Win64:
+			plat = "windows"
+			arch = "amd64"
+	
+	match buildcfg:
+		BuildConfiguration.Shipping:
+			trgt = "release"
+		
+		BuildConfiguration.Release:
+			trgt = "release"
+		
+		BuildConfiguration.Profiling:
+			trgt = "release_debug"
+		
+		BuildConfiguration.Debug:
+			trgt = "debug"
+	
+	run_batch("bindings", [
+		"cd \"" + folder + "\"\n",
+		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
+		
+		# vsproj=yes
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " target=" + trgt + " bits=" + bits + " " + args + "\n"
+	])
+
+
 func _on_tooltip_show(text :String) -> void:
 	$TooltipPanel/TooltipLabel.text = text
 
@@ -501,39 +539,7 @@ func _on_HeaderStatus_www_pressed():
 
 
 func _on_BuildBindingsButton_pressed():
-	var plat := ""
-	var arch := ""
-	var trgt := ""
-	
-	match platform:
-		BuildPlatform.Win32:
-			plat = "windows"
-			arch = "x86"
-		
-		BuildPlatform.Win64:
-			plat = "windows"
-			arch = "x64"
-	
-	match buildcfg:
-		BuildConfiguration.Shipping:
-			trgt = "release"
-		
-		BuildConfiguration.Release:
-			trgt = "release"
-		
-		BuildConfiguration.Profiling:
-			trgt = "debug"
-		
-		BuildConfiguration.Debug:
-			trgt = "debug"
-	
-	run_batch("bindings", [
-		"cd \"" + gdcpppath + "\"\n",
-		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
-		
-		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " target=" + trgt + " generate_bindings=yes\n"
-	])
+	run_makefile(gdcpppath, "generate_bindings=yes")
 
 
 func _on_PlatformButton_item_selected(index):
@@ -551,4 +557,4 @@ func _on_ConfigurationButton_item_selected(index):
 func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
-			print("Clean bindings")
+			run_makefile(gdcpppath, "--clean")
