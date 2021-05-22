@@ -412,7 +412,7 @@ func get_vcvars(comp :int) -> String:
 	return ""
 
 
-func run_makefile(folder :String, args :String):
+func run_makefile(name :String, folder :String, args :String):
 	var plat := ""
 	var arch := ""
 	var trgt := ""
@@ -441,7 +441,7 @@ func run_makefile(folder :String, args :String):
 		BuildConfiguration.Debug:
 			trgt = "debug"
 	
-	run_batch("bindings", [
+	run_batch(name, [
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
@@ -539,7 +539,7 @@ func _on_HeaderStatus_www_pressed():
 
 
 func _on_BuildBindingsButton_pressed():
-	run_makefile(gdcpppath, "generate_bindings=yes")
+	run_makefile("bindings", gdcpppath, "generate_bindings=yes")
 
 
 func _on_PlatformButton_item_selected(index):
@@ -557,4 +557,4 @@ func _on_ConfigurationButton_item_selected(index):
 func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
-			run_makefile(gdcpppath, "--clean")
+			run_makefile("bindings-clean", gdcpppath, "--clean")
