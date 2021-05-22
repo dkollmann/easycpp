@@ -58,3 +58,20 @@ static func get_outputlines(output :Array) -> Array:
 			lines.append( l.strip_edges() )
 	
 	return lines
+
+
+static func select_folder(folders :Array) -> String:
+	for f in folders:
+		if folder_exists(f):
+			return f
+	
+	return folders[0]
+
+
+static func select_file(root :String, files :Array) -> String:
+	for f in files:
+		var ff = root + "/" + f
+		if file_exists(ff):
+			return ff
+	
+	return root + "/" + files[0]

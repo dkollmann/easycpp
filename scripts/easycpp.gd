@@ -22,21 +22,38 @@ enum BuildConfiguration {
 	Debug
 }
 
+enum Compiler {
+	VisualStudio2015,
+	VisualStudio2017,
+	VisualStudio2019
+}
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
+
 const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
 const setting_pippath := "Easy C++/pip Path"
 const setting_sconspath := "Easy C++/SCons Path"
 const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
+
+const setting_vs2015path := "Easy C++/Compilers/Visual Studio 2015 Path"
+const setting_vs2017path := "Easy C++/Compilers/Visual Studio 2017 Path"
+const setting_vs2019path := "Easy C++/Compilers/Visual Studio 2019 Path"
+
 const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
 const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
+
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 const gdcppgitbranch = "nativescript-1.1"
+
+var vs2015path :String
+var vs2017path :String
+var vs2019path :String
 
 var toolspath :String
 var temppath :String
@@ -45,6 +62,10 @@ var pythonpath_windowsstore :String
 var gitpath :String
 var gdcpppath :String
 var gdheaderspath :String
+
+var has_vs2015 := false
+var has_vs2017 := false
+var has_vs2019 := false
 
 var has_python := false
 var has_pip := false
@@ -67,6 +88,15 @@ var random := RandomNumberGenerator.new()
 func _ready():
 	random.randomize()
 	
+	if utils.is_windows():
+		vs2015path = utils.get_project_setting(setting_vs2015path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
+		vs2017path = utils.get_project_setting(setting_vs2017path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
+		vs2019path = utils.get_project_setting(setting_vs2019path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+		
+		has_vs2015 = not find_vcvars(vs2015path).empty()
+		has_vs2017 = not find_vcvars(vs2017path).empty()
+		has_vs2019 = not find_vcvars(vs2019path).empty()
+	
 	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
 	
@@ -77,10 +107,20 @@ func _ready():
 	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
 	$PlatformContainer/PlatformButton.clear()
+	$PlatformContainer/CompilerButton.clear()
 	
 	if utils.is_windows():
 		$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
 		$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
+		
+		if has_vs2015:
+			$PlatformContainer/CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
+		
+		if has_vs2017:
+			$PlatformContainer/CompilerButton.add_item("Visual Studio 2017", Compiler.VisualStudio2017)
+		
+		if has_vs2019:
+			$PlatformContainer/CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
 	
 	$PlatformContainer/ConfigurationButton.clear()
 	$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
@@ -91,6 +131,7 @@ func _ready():
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
+	add_tooltip($PlatformContainer/CompilerButton, "The compiler used when building.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
 	add_tooltip($MenuContainer/BuildProjectButton, "Build the currently selected project.")
@@ -326,6 +367,19 @@ func run_batch(name :String, batch :Array) -> int:
 		print(l)
 	
 	return res
+
+
+func find_vcvars(vsfolder :String, batchfile :String = "vcvarsall.bat") -> String:
+	var editions := ["Enterprise", "Professional", "Community"]
+	var file := File.new()
+	
+	for e in editions:
+		var f = vsfolder + "\\" + e + "\\VC\\Auxiliary\\Build\\" + batchfile
+		
+		if file.file_exists(f):
+			return f
+	
+	return ""
 
 
 func _on_tooltip_show(text :String) -> void:

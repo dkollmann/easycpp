@@ -30,7 +30,7 @@ __meta__ = {
 }
 
 [node name="TitleLabel" type="Label" parent="."]
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 42.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
@@ -46,17 +46,17 @@ size_flags_vertical = 0
 
 [node name="BuildSystemLabel" type="Label" parent="."]
 margin_top = 54.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 77.0
 custom_fonts/font = ExtResource( 9 )
 text = "Build System:"
 
 [node name="BuildSystemButton" type="OptionButton" parent="."]
 margin_top = 81.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 115.0
-text = "Scons"
-items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
+text = "SCons"
+items = [ "SCons", null, false, 0, null, "Cmake", null, false, 1, null ]
 selected = 0
 
 [node name="Spacer1" type="Control" parent="."]
@@ -68,32 +68,41 @@ size_flags_vertical = 0
 
 [node name="PlatformLabel" type="Label" parent="."]
 margin_top = 131.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 154.0
 custom_fonts/font = ExtResource( 9 )
 text = "Selected Platform:"
 
 [node name="PlatformContainer" type="HBoxContainer" parent="."]
 margin_top = 158.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 192.0
 custom_constants/separation = 8
 
 [node name="PlatformButton" type="OptionButton" parent="PlatformContainer"]
-margin_right = 146.0
+margin_right = 187.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
-text = "Scons"
-items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
+text = "Windows (32-bit)"
+items = [ "Windows (32-bit)", null, false, 0, null, "Windows (64-bit)", null, false, 1, null ]
 selected = 0
 
 [node name="ConfigurationButton" type="OptionButton" parent="PlatformContainer"]
-margin_left = 154.0
-margin_right = 300.0
+margin_left = 195.0
+margin_right = 305.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
-text = "Scons"
-items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
+text = "Shipping"
+items = [ "Shipping", null, false, 0, null, "Release", null, false, 1, null, "Profiling", null, false, 2, null, "Debug", null, false, 3, null ]
+selected = 0
+
+[node name="CompilerButton" type="OptionButton" parent="PlatformContainer"]
+margin_left = 313.0
+margin_right = 423.0
+margin_bottom = 34.0
+size_flags_horizontal = 3
+text = "Shipping"
+items = [ "Shipping", null, false, 0, null, "Release", null, false, 1, null, "Profiling", null, false, 2, null, "Debug", null, false, 3, null ]
 selected = 0
 
 [node name="Spacer3" type="Control" parent="."]
@@ -105,7 +114,7 @@ size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
 margin_top = 208.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 242.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
@@ -139,6 +148,7 @@ size_flags_vertical = 0
 icon = ExtResource( 13 )
 
 [node name="StatusContainer" type="VBoxContainer" parent="."]
+visible = false
 margin_top = 246.0
 margin_right = 300.0
 margin_bottom = 446.0
@@ -196,43 +206,50 @@ margin_bottom = 200.0
 icon = ExtResource( 8 )
 text = "Godot Headers"
 
+[node name="Spacer5" type="Control" parent="."]
+margin_top = 246.0
+margin_bottom = 254.0
+rect_min_size = Vector2( 0, 8 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
 [node name="ProjectContainer" type="VBoxContainer" parent="."]
-margin_top = 450.0
-margin_right = 300.0
-margin_bottom = 511.0
+margin_top = 258.0
+margin_right = 423.0
+margin_bottom = 319.0
 rect_pivot_offset = Vector2( -694.288, -242 )
 
 [node name="CurrentProjectLabel" type="Label" parent="ProjectContainer"]
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 23.0
 custom_fonts/font = ExtResource( 9 )
 text = "Current Project:"
 
 [node name="CurrentProjectButton" type="OptionButton" parent="ProjectContainer"]
 margin_top = 27.0
-margin_right = 300.0
+margin_right = 423.0
 margin_bottom = 61.0
 text = "Scons"
 items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
 selected = 0
 
 [node name="Spacer4" type="Control" parent="."]
-margin_top = 515.0
-margin_bottom = 531.0
+margin_top = 323.0
+margin_bottom = 339.0
 rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 535.0
-margin_right = 300.0
-margin_bottom = 572.0
+margin_top = 343.0
+margin_right = 423.0
+margin_bottom = 380.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
 margin_left = 7.0
 margin_top = 7.0
-margin_right = 293.0
+margin_right = 416.0
 margin_bottom = 30.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
