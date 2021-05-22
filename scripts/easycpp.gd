@@ -73,6 +73,7 @@ var has_scons := false
 var has_git := false
 var has_gdcpp := false
 var has_gdheaders := false
+var has_compiler := false
 
 var needs_python := true
 var needs_pip := true
@@ -109,25 +110,12 @@ func _ready():
 	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
 	$PlatformContainer/PlatformButton.clear()
-	$PlatformContainer/CompilerButton.clear()
 	
 	if utils.is_windows():
 		$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
 		$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
-		
-		if has_vs2015:
-			$PlatformContainer/CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
-		
-		if has_vs2017:
-			$PlatformContainer/CompilerButton.add_item("Visual Studio 2017", Compiler.VisualStudio2017)
-		
-		if has_vs2019:
-			$PlatformContainer/CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
 	
 	platform = $PlatformContainer/PlatformButton.get_selected_id()
-	
-	if len($PlatformContainer/CompilerButton.items) > 0:
-		compiler = $PlatformContainer/CompilerButton.get_selected_id()
 	
 	$PlatformContainer/ConfigurationButton.clear()
 	$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
@@ -138,7 +126,7 @@ func _ready():
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
-	add_tooltip($PlatformContainer/CompilerButton, "The compiler used when building.")
+	add_tooltip($CompilerButton, "The compiler used when building.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
 	add_tooltip($MenuContainer/BuildProjectButton, "Build the currently selected project.")
@@ -150,6 +138,7 @@ func _ready():
 	$StatusContainer/GitStatus.add_tooltip(atfunc, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
 	$StatusContainer/CppStatus.add_tooltip(atfunc, "The godot-cpp files are required to build your code.")
 	$StatusContainer/HeaderStatus.add_tooltip(atfunc, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
+	$StatusContainer/CompilerStatus.add_tooltip(atfunc, "A compiler is needed to compile your code.")
 	
 	check_sdk_state()
 
@@ -208,12 +197,31 @@ func check_sdk_state() -> void:
 	gdheaderspath = gdcpppath + "/godot_headers"
 	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
 	
+	# handle compiler
+	compiler = -1
+	$CompilerButton.clear()
+	
+	if utils.is_windows():
+		if has_vs2015:
+			$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
+		
+		if has_vs2017:
+			$CompilerButton.add_item("Visual Studio 2017", Compiler.VisualStudio2017)
+		
+		if has_vs2019:
+			$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
+	
+	if len($CompilerButton.items) > 0:
+		compiler = $CompilerButton.get_selected_id()
+	
+	has_compiler = compiler >= 0
+	
 	needs_git = not has_gdcpp  # or not has_gdheaders
 	needs_pip = not has_scons
 	
 	var wants_scons := needs_scons and not has_scons
 	
-	allgood = not wants_scons and has_gdcpp and has_gdheaders
+	allgood = not wants_scons and has_gdcpp and has_gdheaders and has_compiler and false
 	
 	$BuildSystemButton.visible = allgood
 	$PlatformLabel.visible = allgood
@@ -244,20 +252,9 @@ func check_sdk_state() -> void:
 		$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
 		$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
 		$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
+		$StatusContainer/CompilerStatus.set_status(has_compiler, true, true)
 		
 		$StatusContainer.visible = true
-
-
-func set_fixbutton(text :String, fixfunc :String) -> void:
-	var btn := $FixIssuesContainer/FixButton1
-	
-	if btn.visible:
-		btn = $FixIssuesContainer/FixButton2
-	
-	if btn.visible:
-		return
-	
-	btn.connect("pressed", self, fixfunc)
 
 
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
@@ -463,6 +460,19 @@ func _on_GitStatus_www_pressed():
 	OS.shell_open("https://git-scm.com/downloads")
 
 
+func _on_CompilerStatus_fix_pressed():
+	if utils.is_windows():
+		OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
+
+
+func _on_CompilerStatus_www_pressed():
+	if utils.is_windows():
+		OS.shell_open("https://visualstudio.microsoft.com/vs/older-downloads/")
+	else:
+		# TODO: Support linux
+		pass
+
+
 func _on_CppStatus_fix_pressed():
 	if has_git:
 		git_clone(["clone", "--recurse-submodules", "--branch", gdcppgitbranch, gdcppgiturl, gdcpppath])
@@ -505,4 +515,4 @@ func _on_PlatformButton_item_selected(index):
 
 
 func _on_CompilerButton_item_selected(index):
-	compiler = $PlatformContainer/CompilerButton.items(index).value
+	compiler = $CompilerButton.items(index).value
