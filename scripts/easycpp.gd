@@ -215,7 +215,7 @@ func set_fixbutton(text :String, fixfunc :String) -> void:
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
 	var searched := false
 	
-	var path = utils.get_project_setting(setting_name, TYPE_STRING, "", PROPERTY_HINT_DIR if isfolder else PROPERTY_HINT_FILE, filter)
+	var path = utils.get_project_setting(setting_name, TYPE_STRING, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
 	if path.empty():
 		searched = true
