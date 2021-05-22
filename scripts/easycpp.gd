@@ -28,6 +28,11 @@ enum Compiler {
 	VisualStudio2019
 }
 
+enum Submenu {
+	CleanBindings,
+	CleanCurrentProject
+}
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
@@ -119,6 +124,10 @@ func _ready():
 	
 	platform = $PlatformContainer/PlatformButton.get_selected_id()
 	
+	$MenuContainer/SubmenuButton.get_popup().clear()
+	$MenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
+	$MenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
+	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
@@ -126,6 +135,7 @@ func _ready():
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
 	add_tooltip($MenuContainer/BuildProjectButton, "Build the currently selected project.")
+	add_tooltip($MenuContainer/SubmenuButton, "Additional functions...")
 	
 	var atfunc := funcref(self, "add_tooltip")
 	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
@@ -536,3 +546,9 @@ func _on_CompilerButton_item_selected(index):
 
 func _on_ConfigurationButton_item_selected(index):
 	buildcfg = $PlatformContainer/ConfigurationButton.get_selected_id()
+
+
+func _on_Submenu_id_pressed(id):
+	match id:
+		Submenu.CleanBindings:
+			print("Clean bindings")
