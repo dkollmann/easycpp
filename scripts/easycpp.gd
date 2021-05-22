@@ -221,7 +221,7 @@ func check_sdk_state() -> void:
 	
 	var wants_scons := needs_scons and not has_scons
 	
-	allgood = not wants_scons and has_gdcpp and has_gdheaders and has_compiler and false
+	allgood = not wants_scons and has_gdcpp and has_gdheaders and has_compiler
 	
 	$BuildSystemButton.visible = allgood
 	$PlatformLabel.visible = allgood

@@ -62,45 +62,45 @@ selected = 0
 
 [node name="Spacer6" type="Control" parent="."]
 margin_top = 119.0
-margin_bottom = 127.0
-rect_min_size = Vector2( 0, 8 )
+margin_bottom = 121.0
+rect_min_size = Vector2( 0, 2 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="CompilerLabel" type="Label" parent="."]
-margin_top = 131.0
+margin_top = 125.0
 margin_right = 305.0
-margin_bottom = 154.0
+margin_bottom = 148.0
 custom_fonts/font = ExtResource( 9 )
 text = "Compiler:"
 
 [node name="CompilerButton" type="OptionButton" parent="."]
-margin_top = 158.0
+margin_top = 152.0
 margin_right = 305.0
-margin_bottom = 192.0
+margin_bottom = 186.0
 size_flags_horizontal = 3
 text = "Visual Studio 2019"
 items = [ "Visual Studio 2019", null, false, 2, null ]
 selected = 0
 
 [node name="Spacer1" type="Control" parent="."]
-margin_top = 196.0
-margin_bottom = 204.0
+margin_top = 190.0
+margin_bottom = 198.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="PlatformLabel" type="Label" parent="."]
-margin_top = 208.0
+margin_top = 202.0
 margin_right = 305.0
-margin_bottom = 231.0
+margin_bottom = 225.0
 custom_fonts/font = ExtResource( 9 )
 text = "Selected Platform:"
 
 [node name="PlatformContainer" type="HBoxContainer" parent="."]
-margin_top = 235.0
+margin_top = 229.0
 margin_right = 305.0
-margin_bottom = 269.0
+margin_bottom = 263.0
 custom_constants/separation = 8
 
 [node name="PlatformButton" type="OptionButton" parent="PlatformContainer"]
@@ -121,16 +121,16 @@ items = [ "Shipping", null, false, 0, null, "Release", null, false, 1, null, "Pr
 selected = 0
 
 [node name="Spacer3" type="Control" parent="."]
-margin_top = 273.0
-margin_bottom = 281.0
+margin_top = 267.0
+margin_bottom = 275.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
-margin_top = 285.0
+margin_top = 279.0
 margin_right = 305.0
-margin_bottom = 319.0
+margin_bottom = 313.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
 margin_right = 36.0
@@ -163,16 +163,16 @@ size_flags_vertical = 0
 icon = ExtResource( 13 )
 
 [node name="Spacer5" type="Control" parent="."]
-margin_top = 323.0
-margin_bottom = 331.0
+margin_top = 317.0
+margin_bottom = 325.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="StatusContainer" type="VBoxContainer" parent="."]
-margin_top = 335.0
+margin_top = 329.0
 margin_right = 305.0
-margin_bottom = 555.0
+margin_bottom = 549.0
 
 [node name="PythonStatus" parent="StatusContainer" instance=ExtResource( 11 )]
 anchor_right = 0.0
@@ -237,9 +237,9 @@ icon = ExtResource( 8 )
 text = "Godot Headers"
 
 [node name="ProjectContainer" type="VBoxContainer" parent="."]
-margin_top = 559.0
+margin_top = 553.0
 margin_right = 305.0
-margin_bottom = 620.0
+margin_bottom = 614.0
 rect_pivot_offset = Vector2( -694.288, -242 )
 
 [node name="CurrentProjectLabel" type="Label" parent="ProjectContainer"]
@@ -257,16 +257,16 @@ items = [ "Scons", null, false, 0, null, "Cmake", null, false, 1, null ]
 selected = 0
 
 [node name="Spacer4" type="Control" parent="."]
-margin_top = 624.0
-margin_bottom = 640.0
+margin_top = 618.0
+margin_bottom = 634.0
 rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 644.0
+margin_top = 638.0
 margin_right = 305.0
-margin_bottom = 681.0
+margin_bottom = 675.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
