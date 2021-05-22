@@ -285,6 +285,7 @@ __meta__ = {
 [connection signal="item_selected" from="BuildSystemButton" to="." method="_on_BuildSystemButton_item_selected"]
 [connection signal="item_selected" from="CompilerButton" to="." method="_on_CompilerButton_item_selected"]
 [connection signal="item_selected" from="PlatformContainer/PlatformButton" to="." method="_on_PlatformButton_item_selected"]
+[connection signal="item_selected" from="PlatformContainer/ConfigurationButton" to="." method="_on_ConfigurationButton_item_selected"]
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildBindingsButton" to="." method="_on_BuildBindingsButton_pressed"]
 [connection signal="fix_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_fix_pressed"]

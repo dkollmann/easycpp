@@ -84,6 +84,7 @@ var allgood := false
 
 var buildsystem :int = BuildSystem.SCons
 var platform :int = -1
+var buildcfg :int = BuildConfiguration.Debug
 var compiler :int = -1
 
 var random := RandomNumberGenerator.new()
@@ -107,7 +108,8 @@ func _ready():
 	
 	#utils.make_dir(temppath)
 	
-	init_optionbutton($BuildSystemButton, setting_buildsystem, BuildSystem)
+	init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
+	init_optionbutton($PlatformContainer/ConfigurationButton, BuildConfiguration, buildcfg)
 	
 	$PlatformContainer/PlatformButton.clear()
 	
@@ -116,12 +118,6 @@ func _ready():
 		$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
 	
 	platform = $PlatformContainer/PlatformButton.get_selected_id()
-	
-	$PlatformContainer/ConfigurationButton.clear()
-	$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
-	$PlatformContainer/ConfigurationButton.add_item("Release", BuildConfiguration.Release)
-	$PlatformContainer/ConfigurationButton.add_item("Profiling", BuildConfiguration.Profiling)
-	$PlatformContainer/ConfigurationButton.add_item("Debug", BuildConfiguration.Debug)
 	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
@@ -143,11 +139,17 @@ func _ready():
 	check_sdk_state()
 
 
-func init_optionbutton(button :OptionButton, setting :String, enumtype, defvalue :int = 0) -> void:
+func init_optionbutton(button :OptionButton, enumtype, defvalue :int = 0) -> void:
 	button.clear()
 	
 	for k in enumtype.keys():
 		button.add_item(k)
+	
+	button.select(defvalue)
+
+
+func init_optionbutton_setting(button :OptionButton, setting :String, enumtype, defvalue :int = 0) -> void:
+	init_optionbutton(button, enumtype, defvalue)
 	
 	button.select( utils.get_project_setting_enum(setting, enumtype, defvalue) )
 
@@ -491,6 +493,7 @@ func _on_HeaderStatus_www_pressed():
 func _on_BuildBindingsButton_pressed():
 	var plat := ""
 	var arch := ""
+	var trgt := ""
 	
 	match platform:
 		BuildPlatform.Win32:
@@ -501,12 +504,25 @@ func _on_BuildBindingsButton_pressed():
 			plat = "windows"
 			arch = "x64"
 	
+	match buildcfg:
+		BuildConfiguration.Shipping:
+			trgt = "release"
+		
+		BuildConfiguration.Release:
+			trgt = "release"
+		
+		BuildConfiguration.Profiling:
+			trgt = "debug"
+		
+		BuildConfiguration.Debug:
+			trgt = "debug"
+	
 	run_batch("bindings", [
 		"cd \"" + gdcpppath + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
 		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " generate_bindings=yes\n"
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " target=" + trgt + " generate_bindings=yes\n"
 	])
 
 
@@ -515,4 +531,8 @@ func _on_PlatformButton_item_selected(index):
 
 
 func _on_CompilerButton_item_selected(index):
-	compiler = $CompilerButton.items(index).value
+	compiler = $CompilerButton.get_selected_id()
+
+
+func _on_ConfigurationButton_item_selected(index):
+	buildcfg = $PlatformContainer/ConfigurationButton.get_selected_id()
