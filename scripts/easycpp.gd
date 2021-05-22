@@ -496,7 +496,7 @@ func _on_BuildBindingsButton_pressed():
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
 		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " generate_binding=yes\n"
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " generate_bindings=yes\n"
 	])
 
 
