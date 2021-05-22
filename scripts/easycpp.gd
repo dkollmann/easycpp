@@ -82,6 +82,8 @@ var needs_git := true
 var allgood := false
 
 var buildsystem :int = BuildSystem.SCons
+var platform :int = -1
+var compiler :int = -1
 
 var random := RandomNumberGenerator.new()
 
@@ -121,6 +123,11 @@ func _ready():
 		
 		if has_vs2019:
 			$PlatformContainer/CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
+	
+	platform = $PlatformContainer/PlatformButton.get_selected_id()
+	
+	if len($PlatformContainer/CompilerButton.items) > 0:
+		compiler = $PlatformContainer/CompilerButton.get_selected_id()
 	
 	$PlatformContainer/ConfigurationButton.clear()
 	$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
@@ -369,15 +376,29 @@ func run_batch(name :String, batch :Array) -> int:
 	return res
 
 
-func find_vcvars(vsfolder :String, batchfile :String = "vcvarsall.bat") -> String:
-	var editions := ["Enterprise", "Professional", "Community"]
+func find_vcvars(vsfolder :String) -> String:
+	var editions := ["Enterprise", "Professional", "Community", "WDExpress"]
 	var file := File.new()
 	
 	for e in editions:
-		var f = vsfolder + "\\" + e + "\\VC\\Auxiliary\\Build\\" + batchfile
+		var f = vsfolder + "\\" + e + "\\VC\\Auxiliary\\Build\\vcvarsall.bat"
 		
 		if file.file_exists(f):
 			return f
+	
+	return ""
+
+
+func get_vcvars(comp :int) -> String:
+	match comp:
+		Compiler.VisualStudio2015:
+			return find_vcvars(vs2015path)
+		
+		Compiler.VisualStudio2017:
+			return find_vcvars(vs2017path)
+		
+		Compiler.VisualStudio2019:
+			return find_vcvars(vs2019path)
 	
 	return ""
 
@@ -458,18 +479,30 @@ func _on_HeaderStatus_www_pressed():
 
 
 func _on_BuildBindingsButton_pressed():
-	var platform := ""
+	var plat := ""
+	var arch := ""
 	
-	match $PlatformContainer/PlatformButton.selected:
+	match platform:
 		BuildPlatform.Win32:
-			platform = "windows"
+			plat = "windows"
+			arch = "x86"
 		
 		BuildPlatform.Win64:
-			platform = "windows"
+			plat = "windows"
+			arch = "x64"
 	
 	run_batch("bindings", [
 		"cd \"" + gdcpppath + "\"\n",
+		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
 		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons -j4 platform=" + platform + " generate_binding=yes\n"
+		"\"" + pythonpath + "\" -m SCons -j4 platform=" + plat + " generate_binding=yes\n"
 	])
+
+
+func _on_PlatformButton_item_selected(index):
+	platform = $PlatformContainer/PlatformButton.get_selected_id()
+
+
+func _on_CompilerButton_item_selected(index):
+	compiler = $PlatformContainer/CompilerButton.items(index).value
