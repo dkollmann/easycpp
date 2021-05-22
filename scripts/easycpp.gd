@@ -114,18 +114,24 @@ func check_sdk_state() -> void:
 	
 	allgood = not wants_python and not wants_git and has_gdcpp and has_gdcpp and has_gdheaders
 	
-	var canfix_python := not utils.is_windows() or not pythonpath_windowsstore.empty()
-	var canfix_git := not utils.is_windows()
+	if allgood:
+		$StatusContainer.visible = false
 	
-	$StatusContainer/PythonStatus.visible = needs_python
-	$StatusContainer/GitStatus.visible = needs_git
-	$FixIssuesContainer/FixButton1.visible = false
-	$FixIssuesContainer/FixButton2.visible = false
-	
-	$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
-	$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
-	$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
-	$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
+	else:
+		var canfix_python := not utils.is_windows()  # or not pythonpath_windowsstore.empty()
+		var canfix_git := not utils.is_windows()
+		
+		$StatusContainer/PythonStatus.visible = needs_python
+		$StatusContainer/GitStatus.visible = needs_git
+		$FixIssuesContainer/FixButton1.visible = false
+		$FixIssuesContainer/FixButton2.visible = false
+		
+		$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
+		$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
+		$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
+		$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
+		
+		$StatusContainer.visible = true
 
 
 func set_fixbutton(text :String, fixfunc :String) -> void:

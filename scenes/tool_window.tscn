@@ -135,36 +135,10 @@ rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="FixIssuesContainer" type="HBoxContainer" parent="."]
+[node name="TooltipPanel" type="PanelContainer" parent="."]
 margin_top = 341.0
 margin_right = 300.0
-margin_bottom = 341.0
-custom_constants/separation = 8
-
-[node name="FixButton1" type="Button" parent="FixIssuesContainer"]
-visible = false
-margin_right = 146.0
-margin_bottom = 34.0
-size_flags_horizontal = 3
-
-[node name="FixButton2" type="Button" parent="FixIssuesContainer"]
-visible = false
-margin_left = 154.0
-margin_right = 300.0
-margin_bottom = 34.0
-size_flags_horizontal = 3
-
-[node name="Spacer5" type="Control" parent="."]
-margin_top = 345.0
-margin_bottom = 361.0
-rect_min_size = Vector2( 0, 16 )
-size_flags_horizontal = 0
-size_flags_vertical = 0
-
-[node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 365.0
-margin_right = 300.0
-margin_bottom = 402.0
+margin_bottom = 378.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
