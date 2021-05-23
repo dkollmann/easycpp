@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "runprocess_threaded.h"
 
 // CRunInTerminalDlg dialog
 class CRunInTerminalDlg : public CDialogEx
@@ -21,14 +22,11 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	runprocess_threaded<wchar_t> m_runprocess;
 	std::vector<wchar_t> m_text;
 	CEdit* m_textedit = NULL;
 	int m_minWidth = 0;
 	int m_minHeight = 0;
-
-	const static size_t ProcessBufferSize = 256;
-
-	wchar_t m_processBuffer[ProcessBufferSize] = { 0 };
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -36,10 +34,9 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 
-	void OnRunProcessData();
-
 public:
 //	afx_msg void OnEnChangeEdit1();
 //	afx_msg void OnEnChangeEdit1();
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

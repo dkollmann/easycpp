@@ -7,7 +7,6 @@
 #include "RunInTerminal.h"
 #include "RunInTerminalDlg.h"
 #include "afxdialogex.h"
-#include "runprocess.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -33,6 +32,7 @@ BEGIN_MESSAGE_MAP(CRunInTerminalDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_GETMINMAXINFO()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -47,7 +47,7 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	m_text.reserve(ProcessBufferSize * 10);
+	m_text.reserve(1024);
 	m_text.push_back(0);  // always have the terminating zero
 
 	m_textedit = static_cast<CEdit*>(GetDlgItem(IDC_EDIT1));
@@ -58,6 +58,8 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	m_minWidth = rect.Width();
 	m_minHeight = rect.Height();
 
+	SetTimer(1234, 500, nullptr);
+
 	std::wstring cmd = GetCommandLine();
 	size_t pos = cmd.find(L"--run");
 
@@ -65,7 +67,7 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	{
 		std::wstring run = cmd.substr(pos + 6);
 
-		runprocess<wchar_t>::exec(run.c_str(), m_processBuffer, ProcessBufferSize, [](const wchar_t*, size_t, void* userdata) { static_cast<CRunInTerminalDlg*>(userdata)->OnRunProcessData(); }, this);
+		m_runprocess.exec(run.c_str());
 	}
 	else
 	{
@@ -119,16 +121,14 @@ void CRunInTerminalDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 	lpMMI->ptMinTrackSize.y = m_minHeight;
 }
 
-void CRunInTerminalDlg::OnRunProcessData()
+void CRunInTerminalDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	ASSERT(m_text.size() > 0);
+	if (nIDEvent == 1234)
+	{
+		m_runprocess.read(m_text);
 
-	size_t len = std::wcslen(m_processBuffer);
-	size_t pos = m_text.size() - 1;
+		m_textedit->SetWindowText(m_text.data());
+	}
 
-	m_text.resize(m_text.size() + len);
-
-	std::memcpy(m_text.data() + pos, m_processBuffer, (len + 1) * sizeof(wchar_t));
-
-	m_textedit->SetWindowText(m_text.data());
+	CDialogEx::OnTimer(nIDEvent);
 }

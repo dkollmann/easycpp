@@ -34,7 +34,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="runprocess.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="runprocess_threaded.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
