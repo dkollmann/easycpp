@@ -61,6 +61,7 @@ var vs2017path :String
 var vs2019path :String
 
 var toolspath :String
+var runinterminalpath :String
 var temppath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
@@ -108,6 +109,7 @@ func _ready():
 	
 	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
+	runinterminalpath = toolspath + "/RunInTerminal.exe"
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -379,14 +381,20 @@ func run_batch(name :String, batch :Array) -> int:
 	
 	file.close()
 	
-	var output := []
+	var res :int
 	
-	var res := OS.execute(fname, [], true, output)
+	if utils.is_windows():
+		res = OS.execute(runinterminalpath, ["--run", fname], true)
 	
-	var outlines := utils.get_outputlines(output)
-	
-	for l in outlines:
-		print(l)
+	else:
+		var output := []
+		
+		res = OS.execute(fname, [], true, output)
+		
+		var outlines := utils.get_outputlines(output)
+		
+		for l in outlines:
+			print(l)
 	
 	return res
 
