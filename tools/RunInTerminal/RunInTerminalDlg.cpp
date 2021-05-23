@@ -47,6 +47,11 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
+	m_text.reserve(ProcessBufferSize * 10);
+	m_text.push_back(0);  // always have the terminating zero
+
+	m_textedit = static_cast<CEdit*>(GetDlgItem(IDC_EDIT1));
+
 	CRect rect;
 	GetWindowRect(&rect);
 
@@ -116,5 +121,14 @@ void CRunInTerminalDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 
 void CRunInTerminalDlg::OnRunProcessData()
 {
+	ASSERT(m_text.size() > 0);
 
+	size_t len = std::wcslen(m_processBuffer);
+	size_t pos = m_text.size() - 1;
+
+	m_text.resize(m_text.size() + len);
+
+	std::memcpy(m_text.data() + pos, m_processBuffer, (len + 1) * sizeof(wchar_t));
+
+	m_textedit->SetWindowText(m_text.data());
 }

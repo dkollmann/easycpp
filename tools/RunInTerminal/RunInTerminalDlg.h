@@ -1,9 +1,6 @@
-
-// RunInTerminalDlg.h : header file
-//
-
 #pragma once
 
+#include <vector>
 
 // CRunInTerminalDlg dialog
 class CRunInTerminalDlg : public CDialogEx
@@ -24,6 +21,8 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	std::vector<wchar_t> m_text;
+	CEdit* m_textedit = NULL;
 	int m_minWidth = 0;
 	int m_minHeight = 0;
 
