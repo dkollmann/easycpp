@@ -27,11 +27,17 @@ protected:
 	int m_minWidth = 0;
 	int m_minHeight = 0;
 
+	const static size_t ProcessBufferSize = 256;
+
+	wchar_t m_processBuffer[ProcessBufferSize] = { 0 };
+
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+	void OnRunProcessData();
 
 public:
 //	afx_msg void OnEnChangeEdit1();

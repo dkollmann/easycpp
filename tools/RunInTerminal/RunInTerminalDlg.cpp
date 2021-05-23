@@ -7,6 +7,7 @@
 #include "RunInTerminal.h"
 #include "RunInTerminalDlg.h"
 #include "afxdialogex.h"
+#include "runprocess.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,22 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	m_minWidth = rect.Width();
 	m_minHeight = rect.Height();
 
+	std::wstring cmd = GetCommandLine();
+	size_t pos = cmd.find(L"--run");
+
+	if (pos != std::wstring::npos)
+	{
+		std::wstring run = cmd.substr(pos + 6);
+
+		runprocess<wchar_t>::exec(run.c_str(), m_processBuffer, ProcessBufferSize, [](const wchar_t*, size_t, void* userdata) { static_cast<CRunInTerminalDlg*>(userdata)->OnRunProcessData(); }, this);
+	}
+	else
+	{
+		MessageBox(L"Please use the following syntax to run this program:\nRunInTerminal.exe --run <executable> <args>", L"Missing Argument");
+
+		PostQuitMessage(1);
+	}
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -95,4 +112,9 @@ void CRunInTerminalDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	lpMMI->ptMinTrackSize.x = m_minWidth;
 	lpMMI->ptMinTrackSize.y = m_minHeight;
+}
+
+void CRunInTerminalDlg::OnRunProcessData()
+{
+
 }
