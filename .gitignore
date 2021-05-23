@@ -1,1 +1,6 @@
 temp/
+
+tools/RunInTerminal/.vs/
+tools/RunInTerminal/Debug/
+tools/RunInTerminal/Release/
+tools/RunInTerminal/*.user
