@@ -24,13 +24,17 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	int m_minWidth = 0;
+	int m_minHeight = 0;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
 public:
 //	afx_msg void OnEnChangeEdit1();
 //	afx_msg void OnEnChangeEdit1();
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };

@@ -31,6 +31,7 @@ void CRunInTerminalDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CRunInTerminalDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
 
@@ -45,7 +46,11 @@ BOOL CRunInTerminalDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
+	CRect rect;
+	GetWindowRect(&rect);
+
+	m_minWidth = rect.Width();
+	m_minHeight = rect.Height();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -84,4 +89,10 @@ void CRunInTerminalDlg::OnPaint()
 HCURSOR CRunInTerminalDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+void CRunInTerminalDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	lpMMI->ptMinTrackSize.x = m_minWidth;
+	lpMMI->ptMinTrackSize.y = m_minHeight;
 }
