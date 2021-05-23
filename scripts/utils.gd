@@ -75,3 +75,32 @@ static func select_file(root :String, files :Array) -> String:
 			return ff
 	
 	return root + "/" + files[0]
+
+
+static func find_resources(path :String, fileext :String, recursive :bool) -> Array:
+	var folders := [path]
+	var files := []
+	var dir := Directory.new()
+	
+	for f in folders:
+		if dir.file_exists(f + "/.gdignore"):
+			continue
+		
+		dir.open(f)
+		dir.list_dir_begin(true, true)
+		
+		var file := dir.get_next()
+		while file != '':
+			var p = f + "/" + file
+			
+			if dir.dir_exists(p):
+				folders.append(p)
+			
+			elif file.ends_with(fileext):
+				files.append(p)
+			
+			file = dir.get_next()
+		
+		dir.list_dir_end()
+	
+	return files

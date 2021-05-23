@@ -242,6 +242,12 @@ func check_sdk_state() -> void:
 	if allgood:
 		$StatusContainer.visible = false
 		
+		$ProjectContainer/CurrentProjectButton.clear()
+		
+		var gdnatives := utils.find_resources("res://", ".gdns", true)
+		for gdn in gdnatives:
+			$ProjectContainer/CurrentProjectButton.add_item(gdn)
+		
 		$ProjectContainer.visible = true
 	
 	else:
