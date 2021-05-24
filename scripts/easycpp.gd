@@ -61,6 +61,7 @@ var vs2017path :String
 var vs2019path :String
 
 var toolspath :String
+var runinterminalpath :String
 var temppath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
@@ -108,6 +109,7 @@ func _ready():
 	
 	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
+	runinterminalpath = toolspath + "/rit.exe"
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -379,14 +381,20 @@ func run_batch(name :String, batch :Array) -> int:
 	
 	file.close()
 	
-	var output := []
+	var res :int
 	
-	var res := OS.execute(fname, [], true, output)
+	if utils.is_windows():
+		res = OS.execute(runinterminalpath, ["--run", fname], true)
 	
-	var outlines := utils.get_outputlines(output)
-	
-	for l in outlines:
-		print(l)
+	else:
+		var output := []
+		
+		res = OS.execute(fname, [], true, output)
+		
+		var outlines := utils.get_outputlines(output)
+		
+		for l in outlines:
+			print(l)
 	
 	return res
 
@@ -460,11 +468,13 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 	var argstr := PoolStringArray(args).join(" ")
 	
 	run_batch(name, [
+		"@echo off\n",
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
 		# vsproj=yes
-		"\"" + pythonpath + "\" -m SCons " + argstr + "\n"
+		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
+		"pause\n"
 	])
 
 
