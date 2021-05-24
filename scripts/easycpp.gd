@@ -136,8 +136,11 @@ func _ready():
 	add_tooltip($CompilerButton, "The compiler used when building.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
-	add_tooltip($MenuContainer/BuildProjectButton, "Build the currently selected project.")
+	add_tooltip($MenuContainer/GenerateVSButton, "Generate and open the Visual Studio project.")
+	add_tooltip($MenuContainer/BuildLibraryButton, "Build the currently selected library.")
+	add_tooltip($MenuContainer/NewLibraryButton, "Create a new GDNative library.")
 	add_tooltip($MenuContainer/SubmenuButton, "Additional functions...")
+	add_tooltip($LibraryContainer/CurrentLibraryButton, "The current GDNative library which will be built.")
 	
 	var atfunc := funcref(self, "add_tooltip")
 	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
@@ -244,16 +247,16 @@ func check_sdk_state() -> void:
 	if allgood:
 		$StatusContainer.visible = false
 		
-		$ProjectContainer/CurrentProjectButton.clear()
+		$LibraryContainer/CurrentLibraryButton.clear()
 		
 		var gdnatives := utils.find_resources("res://", ".gdns", true)
 		for gdn in gdnatives:
-			$ProjectContainer/CurrentProjectButton.add_item(gdn)
+			$LibraryContainer/CurrentLibraryButton.add_item(gdn)
 		
-		$ProjectContainer.visible = true
+		$LibraryContainer.visible = true
 	
 	else:
-		$ProjectContainer.visible = false
+		$LibraryContainer.visible = false
 		
 		var is_windows := utils.is_windows()
 		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
