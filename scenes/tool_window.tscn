@@ -134,7 +134,6 @@ size_flags_vertical = 0
 margin_top = 279.0
 margin_right = 458.0
 margin_bottom = 313.0
-custom_constants/separation = 4
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
 margin_right = 36.0
@@ -150,48 +149,54 @@ rect_min_size = Vector2( 8, 0 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="BuildBindingsButton" type="Button" parent="MenuContainer"]
+[node name="BuildMenuContainer" type="HBoxContainer" parent="MenuContainer"]
 margin_left = 52.0
-margin_right = 88.0
+margin_right = 458.0
+margin_bottom = 34.0
+size_flags_horizontal = 3
+custom_constants/separation = 4
+
+[node name="BuildBindingsButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+margin_right = 36.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 14 )
 
-[node name="GenerateVSButton" type="Button" parent="MenuContainer"]
-margin_left = 92.0
-margin_right = 128.0
+[node name="GenerateVSButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 40.0
+margin_right = 76.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 17 )
 
-[node name="BuildLibraryButton" type="Button" parent="MenuContainer"]
-margin_left = 132.0
-margin_right = 168.0
+[node name="BuildLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 80.0
+margin_right = 116.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 13 )
 
-[node name="Spacer2" type="Control" parent="MenuContainer"]
-margin_left = 172.0
-margin_right = 378.0
+[node name="Spacer2" type="Control" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 120.0
+margin_right = 326.0
 rect_min_size = Vector2( 8, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
-[node name="NewLibraryButton" type="Button" parent="MenuContainer"]
-margin_left = 382.0
-margin_right = 418.0
+[node name="NewLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 330.0
+margin_right = 366.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 18 )
 
-[node name="SubmenuButton" type="MenuButton" parent="MenuContainer"]
-margin_left = 422.0
-margin_right = 458.0
+[node name="SubmenuButton" type="MenuButton" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 370.0
+margin_right = 406.0
 margin_bottom = 34.0
 icon = ExtResource( 16 )
 flat = false
@@ -275,7 +280,7 @@ text = "Godot Headers"
 [node name="LibraryContainer" type="VBoxContainer" parent="."]
 margin_top = 329.0
 margin_right = 458.0
-margin_bottom = 390.0
+margin_bottom = 417.0
 rect_pivot_offset = Vector2( -694.288, -242 )
 
 [node name="CurrentLibraryLabel" type="Label" parent="LibraryContainer"]
@@ -292,17 +297,24 @@ text = "res:///src/kinematic_character/char_con.gdns"
 items = [ "res:///src/kinematic_character/char_con.gdns", null, false, 0, null, "res:///src/kinematic_character/colworld.gdns", null, false, 1, null, "res:///src/cpp_constructors/bin/testclass.gdns", null, false, 2, null, "res:///src/simple/bin/simple.gdns", null, false, 3, null ]
 selected = 0
 
+[node name="CurrentLibraryPathLabel" type="Label" parent="LibraryContainer"]
+margin_top = 65.0
+margin_right = 458.0
+margin_bottom = 88.0
+custom_fonts/font = ExtResource( 9 )
+autowrap = true
+
 [node name="Spacer4" type="Control" parent="."]
-margin_top = 394.0
-margin_bottom = 410.0
+margin_top = 421.0
+margin_bottom = 437.0
 rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 414.0
+margin_top = 441.0
 margin_right = 458.0
-margin_bottom = 451.0
+margin_bottom = 478.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
@@ -323,7 +335,7 @@ __meta__ = {
 [connection signal="item_selected" from="PlatformContainer/PlatformButton" to="." method="_on_PlatformButton_item_selected"]
 [connection signal="item_selected" from="PlatformContainer/ConfigurationButton" to="." method="_on_ConfigurationButton_item_selected"]
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]
-[connection signal="pressed" from="MenuContainer/BuildBindingsButton" to="." method="_on_BuildBindingsButton_pressed"]
+[connection signal="pressed" from="MenuContainer/BuildMenuContainer/BuildBindingsButton" to="." method="_on_BuildBindingsButton_pressed"]
 [connection signal="fix_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_fix_pressed"]
 [connection signal="www_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_www_pressed"]
 [connection signal="fix_pressed" from="StatusContainer/PipStatus" to="." method="_on_PipStatus_fix_pressed"]
@@ -337,3 +349,4 @@ __meta__ = {
 [connection signal="fix_pressed" from="StatusContainer/CppStatus" to="." method="_on_CppStatus_fix_pressed"]
 [connection signal="www_pressed" from="StatusContainer/CppStatus" to="." method="_on_CppStatus_www_pressed"]
 [connection signal="www_pressed" from="StatusContainer/HeaderStatus" to="." method="_on_HeaderStatus_www_pressed"]
+[connection signal="item_selected" from="LibraryContainer/CurrentLibraryButton" to="." method="_on_CurrentLibraryButton_item_selected"]

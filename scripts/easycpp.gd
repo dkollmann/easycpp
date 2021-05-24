@@ -93,6 +93,8 @@ var platform :int = -1
 var buildcfg :int = BuildConfiguration.Debug
 var compiler :int = -1
 
+var gdnlibs := { }
+
 var random := RandomNumberGenerator.new()
 
 func _ready():
@@ -126,20 +128,20 @@ func _ready():
 	
 	platform = $PlatformContainer/PlatformButton.get_selected_id()
 	
-	$MenuContainer/SubmenuButton.get_popup().clear()
-	$MenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
-	$MenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
 	add_tooltip($CompilerButton, "The compiler used when building.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
-	add_tooltip($MenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
-	add_tooltip($MenuContainer/GenerateVSButton, "Generate and open the Visual Studio project.")
-	add_tooltip($MenuContainer/BuildLibraryButton, "Build the currently selected library.")
-	add_tooltip($MenuContainer/NewLibraryButton, "Create a new GDNative library.")
-	add_tooltip($MenuContainer/SubmenuButton, "Additional functions...")
+	add_tooltip($MenuContainer/BuildMenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
+	add_tooltip($MenuContainer/BuildMenuContainer/GenerateVSButton, "Generate and open the Visual Studio project.")
+	add_tooltip($MenuContainer/BuildMenuContainer/BuildLibraryButton, "Build the currently selected library.")
+	add_tooltip($MenuContainer/BuildMenuContainer/NewLibraryButton, "Create a new GDNative library.")
+	add_tooltip($MenuContainer/BuildMenuContainer/SubmenuButton, "Additional functions...")
 	add_tooltip($LibraryContainer/CurrentLibraryButton, "The current GDNative library which will be built.")
 	
 	var atfunc := funcref(self, "add_tooltip")
@@ -243,15 +245,24 @@ func check_sdk_state() -> void:
 	$BuildSystemButton.visible = allgood
 	$PlatformLabel.visible = allgood
 	$PlatformContainer.visible = allgood
+	$MenuContainer/BuildMenuContainer.visible = allgood
 	
 	if allgood:
 		$StatusContainer.visible = false
 		
 		$LibraryContainer/CurrentLibraryButton.clear()
 		
-		var gdnatives := utils.find_resources("res://", ".gdns", true)
+		gdnlibs = { }
+		var gdnatives := utils.find_resources("res://", ".gdnlib", true)
 		for gdn in gdnatives:
-			$LibraryContainer/CurrentLibraryButton.add_item(gdn)
+			var fname = gdn.get_file()
+			var start := 3 if fname.begins_with("lib") else 0
+			var label = fname.substr(start, len(fname) - start - 7)
+			gdnlibs[label] = gdn
+			$LibraryContainer/CurrentLibraryButton.add_item(label)
+		
+		if len(gdnatives) > 0:
+			$LibraryContainer/CurrentLibraryPathLabel.text = gdnatives[0]
 		
 		$LibraryContainer.visible = true
 	
@@ -271,11 +282,11 @@ func check_sdk_state() -> void:
 		
 		$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
 		$StatusContainer/PipStatus.set_status(has_pip, true, canfix_pip)
+		$StatusContainer/CompilerStatus.set_status(has_compiler, true, true)
 		$StatusContainer/SConsStatus.set_status(has_scons, true, canfix_scons)
 		$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
 		$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
 		$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
-		$StatusContainer/CompilerStatus.set_status(has_compiler, true, true)
 		
 		$StatusContainer.visible = true
 
@@ -589,3 +600,7 @@ func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
 			run_makefile("bindings-clean", gdcpppath, ["--clean"])
+
+
+func _on_CurrentLibraryButton_item_selected(index):
+	$LibraryContainer/CurrentLibraryPathLabel.text = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ]
