@@ -63,6 +63,7 @@ var vs2019path :String
 
 var toolspath :String
 var runinterminalpath :String
+var shortpathpath :String
 var temppath :String
 var templatespath :String
 var pythonpath :String
@@ -114,6 +115,7 @@ func _ready():
 	toolspath = ProjectSettings.globalize_path(toolsres)
 	templatespath = ProjectSettings.globalize_path(templatesres)
 	runinterminalpath = toolspath + "/rit.exe"
+	shortpathpath = toolspath + "/shortpath.bat"
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -474,6 +476,8 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 	
 	args.append_array(additionalargs)
 	
+	var cpp := get_shortpath(gdcpppath)
+	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
 	run_batch(name, [
@@ -481,8 +485,8 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
-		"set CPP_BINDINGS=\"" + gdcpppath + "\"\n",
-		"set GODOT_HEADERS=\"" + gdheaderspath + "\"\n",
+		"set CPP_BINDINGS=\"" + cpp + "\"\n",
+		"set GODOT_HEADERS=\"" + hdr + "\"\n",
 		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
 		"pause\n"
 	])
@@ -498,6 +502,15 @@ func copy_files(from :String, to :String) -> bool:
 	else:
 		# TODO: Support linux
 		return false
+
+
+func get_shortpath(path :String) -> String:
+	if utils.is_windows():
+		var output := []
+		OS.execute(shortpathpath, [path], true, output)
+		return output[0].strip_edges(false, true)
+	
+	return path
 
 
 func _on_tooltip_show(text :String) -> void:
