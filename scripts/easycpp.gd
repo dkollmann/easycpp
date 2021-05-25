@@ -55,6 +55,8 @@ const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 const gdcppgitbranch = "nativescript-1.1"
 
 
+var editorbase :Control
+
 var vs2015path :String
 var vs2017path :String
 var vs2019path :String
@@ -151,10 +153,6 @@ func _ready():
 	$StatusContainer/CompilerStatus.add_tooltip(atfunc, "A compiler is needed to compile your code.")
 	
 	check_sdk_state()
-
-
-func set_editorinterface(ei :EditorInterface):
-	editorinterface = ei
 
 
 func init_optionbutton(button :OptionButton, enumtype, defvalue :int = 0) -> void:
@@ -484,6 +482,11 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 	])
 
 
+func place_ineditorui(ctrl :Control) -> void:
+	ctrl.set_position( (editorbase.get_rect().size - ctrl.get_rect().size) / 2 )
+	editorbase.add_child(ctrl)
+
+
 func _on_tooltip_show(text :String) -> void:
 	$TooltipPanel/TooltipLabel.text = text
 
@@ -591,10 +594,14 @@ func _on_CurrentLibraryButton_item_selected(index):
 
 
 func _on_NewLibraryButton_pressed():
-	#var dlg := EditorFileDialog.new()
+	var dlg := FileDialog.new()
 	
-	#get_tree().get_b.add_child(dlg)
-	#dlg.access = EditorFileDialog.ACCESS_RESOURCES
-	#dlg.mode = EditorFileDialog.MODE_OPEN_DIR
-	#dlg.show_modal()
-	pass
+	#dlg.set_size( Vector2(600, 400) )
+	dlg.access = FileDialog.ACCESS_RESOURCES
+	dlg.mode = FileDialog.MODE_OPEN_DIR
+	dlg.current_path = "res://src"
+	dlg.current_dir = "res://src"
+
+	place_ineditorui(dlg)
+	dlg.show()
+	dlg.invalidate()
