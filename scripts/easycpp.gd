@@ -93,6 +93,7 @@ var buildcfg :int = BuildConfiguration.Debug
 var compiler :int = -1
 
 var gdnlibs := { }
+var currentgdnlib :String
 
 var random := RandomNumberGenerator.new()
 
@@ -254,7 +255,9 @@ func check_sdk_state() -> void:
 			$LibraryContainer/CurrentLibraryButton.add_item(label)
 		
 		if len(gdnatives) > 0:
-			$LibraryContainer/CurrentLibraryPathLabel.text = gdnatives[0].get_base_dir()
+			currentgdnlib = gdnatives[0]
+			
+			$LibraryContainer/CurrentLibraryPathLabel.text = currentgdnlib.get_base_dir()
 		
 		$LibraryContainer.visible = true
 	
@@ -385,6 +388,8 @@ func run_batch(name :String, batch :Array) -> int:
 	
 	file.close()
 	
+	print("Running \"" + fname + "\"...")
+	
 	var res :int
 	
 	if utils.is_windows():
@@ -476,7 +481,8 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
 		
-		# vsproj=yes
+		"set CPP_BINDINGS=\"" + gdcpppath + "\"\n",
+		"set GODOT_HEADERS=\"" + gdheaderspath + "\"\n",
 		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
 		"pause\n"
 	])
@@ -597,7 +603,9 @@ func _on_Submenu_id_pressed(id):
 
 
 func _on_CurrentLibraryButton_item_selected(index):
-	$LibraryContainer/CurrentLibraryPathLabel.text = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ].get_base_dir()
+	currentgdnlib = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ]
+	
+	$LibraryContainer/CurrentLibraryPathLabel.text = currentgdnlib.get_base_dir()
 
 
 func _on_NewLibraryButton_pressed():
@@ -614,3 +622,12 @@ func _on_NewLibraryFileDialog_dir_selected(dir):
 	copy_files(templatespath + "/gdnative", dirlocal)
 	
 	check_sdk_state()
+
+
+func _on_GenerateVSButton_pressed():
+	if not utils.file_exists(currentgdnlib):
+		return
+	
+	var path := ProjectSettings.globalize_path(currentgdnlib)
+	
+	run_makefile("vsproj", path.get_base_dir(), ["vsproj=yes"])

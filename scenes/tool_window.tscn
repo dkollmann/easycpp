@@ -324,6 +324,7 @@ current_path = "res://src/src"
 [connection signal="item_selected" from="PlatformContainer/ConfigurationButton" to="." method="_on_ConfigurationButton_item_selected"]
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/BuildBindingsButton" to="." method="_on_BuildBindingsButton_pressed"]
+[connection signal="pressed" from="MenuContainer/BuildMenuContainer/GenerateVSButton" to="." method="_on_GenerateVSButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/NewLibraryButton" to="." method="_on_NewLibraryButton_pressed"]
 [connection signal="fix_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_fix_pressed"]
 [connection signal="www_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_www_pressed"]
