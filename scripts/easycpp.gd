@@ -596,11 +596,12 @@ func _on_CurrentLibraryButton_item_selected(index):
 func _on_NewLibraryButton_pressed():
 	var dlg := FileDialog.new()
 	
-	#dlg.set_size( Vector2(600, 400) )
+	dlg.set_size( Vector2(800, 800) )
 	dlg.access = FileDialog.ACCESS_RESOURCES
 	dlg.mode = FileDialog.MODE_OPEN_DIR
 	dlg.current_path = "res://src"
 	dlg.current_dir = "res://src"
+	dlg.window_title = "Select folder for new library..."
 
 	place_ineditorui(dlg)
 	dlg.show()
