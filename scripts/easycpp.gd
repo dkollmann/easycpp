@@ -1,6 +1,7 @@
 tool
 extends VBoxContainer
 
+
 enum BuildPlatform {
 	Win32,
 	Win64,
@@ -28,9 +29,11 @@ enum Submenu {
 	CleanCurrentProject
 }
 
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
+const templatesres := "res://addons/easycpp/templates"
 
 const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
@@ -51,6 +54,7 @@ const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 const gdcppgitbranch = "nativescript-1.1"
 
+
 var vs2015path :String
 var vs2017path :String
 var vs2019path :String
@@ -58,6 +62,7 @@ var vs2019path :String
 var toolspath :String
 var runinterminalpath :String
 var temppath :String
+var templatespath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
 var gitpath :String
@@ -89,6 +94,7 @@ var gdnlibs := { }
 
 var random := RandomNumberGenerator.new()
 
+
 func _ready():
 	random.randomize()
 	
@@ -103,6 +109,7 @@ func _ready():
 	
 	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
+	templatespath = ProjectSettings.globalize_path(templatesres)
 	runinterminalpath = toolspath + "/rit.exe"
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
@@ -144,6 +151,10 @@ func _ready():
 	$StatusContainer/CompilerStatus.add_tooltip(atfunc, "A compiler is needed to compile your code.")
 	
 	check_sdk_state()
+
+
+func set_editorinterface(ei :EditorInterface):
+	editorinterface = ei
 
 
 func init_optionbutton(button :OptionButton, enumtype, defvalue :int = 0) -> void:
@@ -238,16 +249,14 @@ func check_sdk_state() -> void:
 		$LibraryContainer/CurrentLibraryButton.clear()
 		
 		gdnlibs = { }
-		var gdnatives := utils.find_resources("res://", ".gdnlib", true)
+		var gdnatives := utils.find_resources("res://", "SConstruct", true)
 		for gdn in gdnatives:
-			var fname = gdn.get_file()
-			var start := 3 if fname.begins_with("lib") else 0
-			var label = fname.substr(start, len(fname) - start - 7)
+			var label = gdn.get_base_dir().get_file()
 			gdnlibs[label] = gdn
 			$LibraryContainer/CurrentLibraryButton.add_item(label)
 		
 		if len(gdnatives) > 0:
-			$LibraryContainer/CurrentLibraryPathLabel.text = gdnatives[0]
+			$LibraryContainer/CurrentLibraryPathLabel.text = gdnatives[0].get_base_dir()
 		
 		$LibraryContainer.visible = true
 	
@@ -578,4 +587,14 @@ func _on_Submenu_id_pressed(id):
 
 
 func _on_CurrentLibraryButton_item_selected(index):
-	$LibraryContainer/CurrentLibraryPathLabel.text = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ]
+	$LibraryContainer/CurrentLibraryPathLabel.text = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ].get_base_dir()
+
+
+func _on_NewLibraryButton_pressed():
+	#var dlg := EditorFileDialog.new()
+	
+	#get_tree().get_b.add_child(dlg)
+	#dlg.access = EditorFileDialog.ACCESS_RESOURCES
+	#dlg.mode = EditorFileDialog.MODE_OPEN_DIR
+	#dlg.show_modal()
+	pass
