@@ -487,7 +487,11 @@ func center_in_editor(ctrl :Control) -> void:
 
 
 func copy_files(from :String, to :String) -> bool:
-	return false  # return OS.execute() == 0
+	if utils.is_windows():
+		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0
+	else:
+		# TODO: Support linux
+		return false
 
 
 func _on_tooltip_show(text :String) -> void:
@@ -607,4 +611,6 @@ func _on_NewLibraryFileDialog_dir_selected(dir):
 	
 	var dirlocal := ProjectSettings.globalize_path(dir)
 	
-	Directory.new().copy(templatespath + "/gdnative", dirlocal)
+	copy_files(templatespath + "/gdnative", dirlocal)
+	
+	check_sdk_state()
