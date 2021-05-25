@@ -308,6 +308,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="NewLibraryFileDialog" type="FileDialog" parent="."]
+margin_right = 800.0
+margin_bottom = 800.0
+rect_min_size = Vector2( 300, 105 )
+window_title = "Select folder for new library..."
+resizable = true
+mode = 2
+current_dir = "res://src"
+current_file = "src"
+current_path = "res://src/src"
+
 [connection signal="item_selected" from="CompilerButton" to="." method="_on_CompilerButton_item_selected"]
 [connection signal="item_selected" from="PlatformContainer/PlatformButton" to="." method="_on_PlatformButton_item_selected"]
 [connection signal="item_selected" from="PlatformContainer/ConfigurationButton" to="." method="_on_ConfigurationButton_item_selected"]
@@ -328,3 +339,4 @@ __meta__ = {
 [connection signal="www_pressed" from="StatusContainer/CppStatus" to="." method="_on_CppStatus_www_pressed"]
 [connection signal="www_pressed" from="StatusContainer/HeaderStatus" to="." method="_on_HeaderStatus_www_pressed"]
 [connection signal="item_selected" from="LibraryContainer/CurrentLibraryButton" to="." method="_on_CurrentLibraryButton_item_selected"]
+[connection signal="dir_selected" from="NewLibraryFileDialog" to="." method="_on_NewLibraryFileDialog_dir_selected"]

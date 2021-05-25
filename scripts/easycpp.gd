@@ -482,9 +482,12 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 	])
 
 
-func place_ineditorui(ctrl :Control) -> void:
+func center_in_editor(ctrl :Control) -> void:
 	ctrl.set_position( (editorbase.get_rect().size - ctrl.get_rect().size) / 2 )
-	editorbase.add_child(ctrl)
+
+
+func copy_files(from :String, to :String) -> bool:
+	return false  # return OS.execute() == 0
 
 
 func _on_tooltip_show(text :String) -> void:
@@ -594,15 +597,14 @@ func _on_CurrentLibraryButton_item_selected(index):
 
 
 func _on_NewLibraryButton_pressed():
-	var dlg := FileDialog.new()
+	center_in_editor($NewLibraryFileDialog)
 	
-	dlg.set_size( Vector2(800, 800) )
-	dlg.access = FileDialog.ACCESS_RESOURCES
-	dlg.mode = FileDialog.MODE_OPEN_DIR
-	dlg.current_path = "res://src"
-	dlg.current_dir = "res://src"
-	dlg.window_title = "Select folder for new library..."
+	$NewLibraryFileDialog.popup()
 
-	place_ineditorui(dlg)
-	dlg.show()
-	dlg.invalidate()
+
+func _on_NewLibraryFileDialog_dir_selected(dir):
+	print("Creating new library in path \"" + dir + "\".")
+	
+	var dirlocal := ProjectSettings.globalize_path(dir)
+	
+	Directory.new().copy(templatespath + "/gdnative", dirlocal)
