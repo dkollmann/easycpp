@@ -10,7 +10,7 @@ static func file_exists(file :String) -> bool:
 
 
 static func folder_exists(folder :String) -> bool:
-	return not folder.empty() and Directory.new().file_exists(folder)
+	return not folder.empty() and Directory.new().dir_exists(folder)
 
 
 static func make_dir(path :String) -> void:
