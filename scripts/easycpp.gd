@@ -52,7 +52,6 @@ const status_error := preload("res://addons/easycpp/resources/textures/status_er
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
-const gdcppgitbranch = "nativescript-1.1"
 
 
 var editorbase :Control
@@ -96,10 +95,14 @@ var compiler :int = -1
 var gdnlibs := { }
 var currentgdnlib :String
 
+var godotversion :String
 var random := RandomNumberGenerator.new()
 
 
 func _ready():
+	var ver := Engine.get_version_info()
+	godotversion = str(ver.major) + "." + str(ver.minor)
+	
 	random.randomize()
 	
 	if utils.is_windows():
@@ -217,7 +220,7 @@ func check_sdk_state() -> void:
 		has_git = utils.file_exists(gitpath)
 	
 	# handle godot headers
-	gdheaderspath = gdcpppath + "/godot_headers"
+	gdheaderspath = gdcpppath + "/godot-headers"
 	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
 	
 	# handle compiler
@@ -581,7 +584,7 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(["clone", "--recurse-submodules", "--branch", gdcppgitbranch, gdcppgiturl, gdcpppath])
+		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, gdcpppath])
 		
 	check_sdk_state()
 
@@ -652,3 +655,12 @@ func _on_GenerateVSButton_pressed():
 	var path := ProjectSettings.globalize_path(currentgdnlib)
 	
 	run_makefile("vsproj", path.get_base_dir(), ["vsproj=yes"])
+
+
+func _on_BuildLibraryButton_pressed():
+	if not utils.file_exists(currentgdnlib):
+		return
+	
+	var path := ProjectSettings.globalize_path(currentgdnlib)
+	
+	run_makefile("lib", path.get_base_dir(), [])
