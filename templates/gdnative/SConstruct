@@ -1,12 +1,17 @@
 #!python
 import os
 
+targetname = "test"
+
 # platform= makes it in line with Godots scons file, keeping p for backwards compatibility
 platform = ARGUMENTS.get("p", "linux")
 platform = ARGUMENTS.get("platform", platform)
 
 # arch= defines the architecture to build for
 target_arch = ARGUMENTS.get('a', ARGUMENTS.get('arch', '64'))
+
+# vsproj= defines if we generate a Visual Studio project
+vsproj = ARGUMENTS.get("vsproj", "no")
 
 # This makes sure to keep the session environment variables on windows,
 # that way you can run scons in a vs 2017 prompt and it will find all the required tools
@@ -48,9 +53,9 @@ elif platform == "windows":
         env.Append(CCFLAGS=["-O2", "-EHsc", "-DNDEBUG", "/MD"])
 
 
-def add_sources(sources, dir):
+def add_sources(sources, dir, ext):
     for f in os.listdir(dir):
-        if f.endswith(".cpp"):
+        if f.endswith(ext):
             sources.append(dir + "/" + f)
 
 
@@ -78,7 +83,27 @@ elif platform == "windows":
 env.Append(LIBPATH=[godot_bindings_path + "/bin/"])
 
 sources = []
-add_sources(sources, "src")
+add_sources(sources, "src", ".cpp")
 
-library = env.SharedLibrary(target="bin/libconstructor", source=sources)
-Default(library)
+library = env.SharedLibrary(target="bin/lib" + targetname, source=sources)
+
+if vsproj == "yes":
+    headers = []
+    #add_sources(headers, godot_headers_path, ".h")
+
+    env.MSVSProject(target = targetname + env['MSVSPROJECTSUFFIX'],
+                srcs = sources,
+                incs = headers,
+                #localincs = barlocalincs,
+                #resources = barresources,
+                #misc = barmisc,
+                #buildtarget = library,
+                variant = target
+                )
+
+    #env.MSVSSolution(target = targetname + env['MSVSSOLUTIONSUFFIX'],
+    #             projects = [targetname + env['MSVSPROJECTSUFFIX']],
+    #             variant = target)
+
+else:
+    Default(library)
