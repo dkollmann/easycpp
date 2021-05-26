@@ -41,6 +41,7 @@ const templatesres := "res://addons/easycpp/templates"
 
 const setting_buildsystem := "Easy C++/Build System"
 const setting_pythonpath := "Easy C++/Python Path"
+const setting_cmakepath := "Easy C++/Cmake Path"
 const setting_pippath := "Easy C++/pip Path"
 const setting_sconspath := "Easy C++/SCons Path"
 const setting_gitpath := "Easy C++/Git Path"
@@ -71,6 +72,7 @@ var temppath :String
 var templatespath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
+var cmakepath :String
 var gitpath :String
 var gdcpppath :String
 var gdheaderspath :String
@@ -82,6 +84,7 @@ var has_vs2019 := false
 var has_python := false
 var has_pip := false
 var has_scons := false
+var has_cmake := false
 var has_git := false
 var has_gdcpp := false
 var has_gdheaders := false
@@ -90,6 +93,7 @@ var has_compiler := false
 var needs_python := true
 var needs_pip := true
 var needs_scons := true
+var needs_cmake := true
 var needs_git := true
 
 var allgood := false
@@ -163,6 +167,7 @@ func _ready():
 	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
 	$StatusContainer/PipStatus.add_tooltip(atfunc, "pip is required to install SCons automatically.")
 	$StatusContainer/SConsStatus.add_tooltip(atfunc, "SCons is the selected build tool.")
+	$StatusContainer/CmakeStatus.add_tooltip(atfunc, "Cmake is the selected build tool.")
 	$StatusContainer/GitStatus.add_tooltip(atfunc, "Git is required to check out the godot-cpp files and headers. You can also download them yourself.")
 	$StatusContainer/CppStatus.add_tooltip(atfunc, "The godot-cpp files are required to build your code.")
 	$StatusContainer/HeaderStatus.add_tooltip(atfunc, "The godot header files are required to build your code and must bne placed inside the godot-cpp folder.")
@@ -205,6 +210,7 @@ func check_sdk_state() -> void:
 	needs_python = buildsystem == BuildSystem.SCons
 	needs_pip    = buildsystem == BuildSystem.SCons
 	needs_scons  = buildsystem == BuildSystem.SCons
+	needs_cmake  = buildsystem == BuildSystem.Cmake
 	
 	# handle python
 	if needs_python:
@@ -218,6 +224,11 @@ func check_sdk_state() -> void:
 	# handle SCons
 	if needs_scons:
 		has_scons = find_pythonmodule("SCons")
+	
+	# handle Cmake
+	if needs_cmake:
+		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), setting_cmakepath, false, exefilter)
+		has_cmake = utils.file_exists(cmakepath)
 	
 	# handle godot-cpp
 	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
@@ -257,8 +268,9 @@ func check_sdk_state() -> void:
 	needs_pip = not has_scons
 	
 	var wants_scons := needs_scons and not has_scons
+	var wants_cmake := needs_cmake and not has_cmake
 	
-	allgood = not wants_scons and has_gdcpp and has_gdheaders and has_compiler
+	allgood = not wants_scons and not wants_cmake and has_gdcpp and has_gdheaders and has_compiler
 	
 	$PlatformLabel.visible = allgood
 	$PlatformContainer.visible = allgood
@@ -290,17 +302,20 @@ func check_sdk_state() -> void:
 		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
 		var canfix_pip := not is_windows
 		var canfix_scons := has_pip
+		var canfix_cmake := not is_windows
 		var canfix_git := not is_windows
 		
 		$StatusContainer/PythonStatus.visible = needs_python
 		$StatusContainer/PipStatus.visible = needs_pip
 		$StatusContainer/SConsStatus.visible = needs_scons
+		$StatusContainer/CmakeStatus.visible = needs_cmake
 		$StatusContainer/GitStatus.visible = needs_git
 		
 		$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
 		$StatusContainer/PipStatus.set_status(has_pip, true, canfix_pip)
 		$StatusContainer/CompilerStatus.set_status(has_compiler, true, true)
 		$StatusContainer/SConsStatus.set_status(has_scons, true, canfix_scons)
+		$StatusContainer/CmakeStatus.set_status(has_cmake, true, canfix_cmake)
 		$StatusContainer/GitStatus.set_status(has_git, true, canfix_git)
 		$StatusContainer/CppStatus.set_status(has_gdcpp, true, has_git)
 		$StatusContainer/HeaderStatus.set_status(has_gdheaders, true, false)
@@ -363,6 +378,17 @@ func find_python() -> String:
 		if utils.is_windows():
 			# Under Windows 10, this opens the store
 			pythonpath_windowsstore = exe
+	
+	return ""
+
+
+func find_cmake() -> String:
+	var exe := find_executable("cmake")
+	
+	if exe.empty() and utils.is_windows():
+		var p := "C:\\Program Files\\CMake\\bin\\cmake.exe"
+		if utils.file_exists(p):
+			return p
 	
 	return ""
 
@@ -690,3 +716,11 @@ func _on_BuildLibraryButton_pressed():
 	var path := ProjectSettings.globalize_path(currentgdnlib)
 	
 	run_makefile("lib", path.get_base_dir(), [])
+
+
+func _on_CmakeStatus_fix_pressed():
+	pass # Replace with function body.
+
+
+func _on_CmakeStatus_www_pressed():
+	pass # Replace with function body.
