@@ -1,6 +1,10 @@
 tool
 extends VBoxContainer
 
+enum BuildSystem {
+	SCons,
+	Cmake
+}
 
 enum BuildPlatform {
 	Win32,
@@ -83,11 +87,14 @@ var has_gdcpp := false
 var has_gdheaders := false
 var has_compiler := false
 
+var needs_python := true
 var needs_pip := true
+var needs_scons := true
 var needs_git := true
 
 var allgood := false
 
+var buildsystem :int = BuildSystem.SCons
 var platform :int = -1
 var buildcfg :int = BuildConfiguration.Debug
 var compiler :int = -1
@@ -124,6 +131,7 @@ func _ready():
 	
 	#utils.make_dir(temppath)
 	
+	init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
 	init_optionbutton($PlatformContainer/ConfigurationButton, BuildConfiguration, buildcfg)
 	
 	$PlatformContainer/PlatformButton.clear()
@@ -139,6 +147,7 @@ func _ready():
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Current Library", Submenu.CleanCurrentLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
+	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
 	add_tooltip($CompilerButton, "The compiler used when building.")
@@ -192,21 +201,23 @@ func status_res(good :bool) -> Texture:
 func check_sdk_state() -> void:
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
-	has_pip = false
-	has_git = false
+	# prepare check
+	needs_python = buildsystem == BuildSystem.SCons
+	needs_pip    = buildsystem == BuildSystem.SCons
+	needs_scons  = buildsystem == BuildSystem.SCons
 	
 	# handle python
-	pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
-	has_python = utils.file_exists(pythonpath)
-	
-	# handle SCons
-	has_scons = find_pythonmodule("SCons")
-	
-	needs_pip = not has_scons
+	if needs_python:
+		pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
+		has_python = utils.file_exists(pythonpath)
 	
 	# handle pip
 	if needs_pip:
 		has_pip = find_pythonmodule("pip")
+	
+	# handle SCons
+	if needs_scons:
+		has_scons = find_pythonmodule("SCons")
 	
 	# handle godot-cpp
 	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
@@ -242,7 +253,12 @@ func check_sdk_state() -> void:
 	
 	has_compiler = compiler >= 0
 	
-	allgood = has_scons and has_gdcpp and has_gdheaders and has_compiler
+	needs_git = not has_gdcpp  # or not has_gdheaders
+	needs_pip = not has_scons
+	
+	var wants_scons := needs_scons and not has_scons
+	
+	allgood = not wants_scons and has_gdcpp and has_gdheaders and has_compiler
 	
 	$PlatformLabel.visible = allgood
 	$PlatformContainer.visible = allgood
@@ -276,7 +292,9 @@ func check_sdk_state() -> void:
 		var canfix_scons := has_pip
 		var canfix_git := not is_windows
 		
+		$StatusContainer/PythonStatus.visible = needs_python
 		$StatusContainer/PipStatus.visible = needs_pip
+		$StatusContainer/SConsStatus.visible = needs_scons
 		$StatusContainer/GitStatus.visible = needs_git
 		
 		$StatusContainer/PythonStatus.set_status(has_python, true, canfix_python)
@@ -526,6 +544,14 @@ func _on_tooltip_hide() -> void:
 
 
 func _on_RefreshButton_pressed():
+	check_sdk_state()
+
+
+func _on_BuildSystemButton_item_selected(index):
+	print("Selected build system: " + BuildSystem.keys()[index])
+	
+	buildsystem = index
+	
 	check_sdk_state()
 
 
