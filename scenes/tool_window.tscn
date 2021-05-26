@@ -34,7 +34,7 @@ __meta__ = {
 }
 
 [node name="TitleLabel" type="Label" parent="."]
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 42.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
@@ -50,14 +50,14 @@ size_flags_vertical = 0
 
 [node name="CompilerLabel" type="Label" parent="."]
 margin_top = 54.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 77.0
 custom_fonts/font = ExtResource( 9 )
 text = "Compiler:"
 
 [node name="CompilerButton" type="OptionButton" parent="."]
 margin_top = 81.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 115.0
 size_flags_horizontal = 3
 text = "Visual Studio 2019"
@@ -73,19 +73,19 @@ size_flags_vertical = 0
 
 [node name="PlatformLabel" type="Label" parent="."]
 margin_top = 131.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 154.0
 custom_fonts/font = ExtResource( 9 )
 text = "Selected Platform:"
 
 [node name="PlatformContainer" type="HBoxContainer" parent="."]
 margin_top = 158.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 192.0
 custom_constants/separation = 8
 
 [node name="PlatformButton" type="OptionButton" parent="PlatformContainer"]
-margin_right = 225.0
+margin_right = 187.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
 text = "Windows (32-bit)"
@@ -93,8 +93,8 @@ items = [ "Windows (32-bit)", null, false, 0, null, "Windows (64-bit)", null, fa
 selected = 0
 
 [node name="ConfigurationButton" type="OptionButton" parent="PlatformContainer"]
-margin_left = 233.0
-margin_right = 458.0
+margin_left = 195.0
+margin_right = 300.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
 text = "Debug"
@@ -110,7 +110,7 @@ size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
 margin_top = 208.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 242.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
@@ -129,7 +129,7 @@ size_flags_vertical = 0
 
 [node name="BuildMenuContainer" type="HBoxContainer" parent="MenuContainer"]
 margin_left = 52.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
 custom_constants/separation = 4
@@ -159,22 +159,22 @@ icon = ExtResource( 13 )
 
 [node name="Spacer2" type="Control" parent="MenuContainer/BuildMenuContainer"]
 margin_left = 120.0
-margin_right = 326.0
+margin_right = 168.0
 rect_min_size = Vector2( 8, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
 [node name="NewLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 330.0
-margin_right = 366.0
+margin_left = 172.0
+margin_right = 208.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 18 )
 
 [node name="SubmenuButton" type="MenuButton" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 370.0
-margin_right = 406.0
+margin_left = 212.0
+margin_right = 248.0
 margin_bottom = 34.0
 icon = ExtResource( 16 )
 flat = false
@@ -257,29 +257,30 @@ text = "Godot Headers"
 
 [node name="LibraryContainer" type="VBoxContainer" parent="."]
 margin_top = 258.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 346.0
 rect_pivot_offset = Vector2( -694.288, -242 )
 
 [node name="CurrentLibraryLabel" type="Label" parent="LibraryContainer"]
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 23.0
 custom_fonts/font = ExtResource( 9 )
 text = "Current GDNative Library:"
 
 [node name="CurrentLibraryButton" type="OptionButton" parent="LibraryContainer"]
 margin_top = 27.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 61.0
-text = "res:///src/kinematic_character/char_con.gdns"
-items = [ "res:///src/kinematic_character/char_con.gdns", null, false, 0, null, "res:///src/kinematic_character/colworld.gdns", null, false, 1, null, "res:///src/cpp_constructors/bin/testclass.gdns", null, false, 2, null, "res:///src/simple/bin/simple.gdns", null, false, 3, null ]
+text = "cpp_constructors"
+items = [ "cpp_constructors", null, false, 0, null, "kinematic_character", null, false, 1, null, "simple", null, false, 2, null, "test", null, false, 3, null ]
 selected = 0
 
 [node name="CurrentLibraryPathLabel" type="Label" parent="LibraryContainer"]
 margin_top = 65.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 88.0
 custom_fonts/font = ExtResource( 9 )
+text = "res:///src/cpp_constructors"
 autowrap = true
 
 [node name="Spacer4" type="Control" parent="."]
@@ -291,14 +292,14 @@ size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
 margin_top = 370.0
-margin_right = 458.0
+margin_right = 300.0
 margin_bottom = 407.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
 margin_left = 7.0
 margin_top = 7.0
-margin_right = 451.0
+margin_right = 293.0
 margin_bottom = 30.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -312,7 +313,7 @@ __meta__ = {
 margin_right = 800.0
 margin_bottom = 800.0
 rect_min_size = Vector2( 300, 105 )
-window_title = "Select folder for new library..."
+window_title = "Open a Directory"
 resizable = true
 mode = 2
 current_dir = "res://src"

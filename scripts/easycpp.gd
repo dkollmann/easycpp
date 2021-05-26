@@ -26,7 +26,7 @@ enum Compiler {
 
 enum Submenu {
 	CleanBindings,
-	CleanCurrentProject
+	CleanCurrentLibrary
 }
 
 
@@ -133,6 +133,7 @@ func _ready():
 	
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Current Library", Submenu.CleanCurrentLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
@@ -613,6 +614,13 @@ func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
 			run_makefile("bindings-clean", gdcpppath, ["--clean"])
+		Submenu.CleanCurrentLibrary:
+			if not utils.file_exists(currentgdnlib):
+				return
+	
+			var path := ProjectSettings.globalize_path(currentgdnlib)
+			
+			run_makefile("lib-clean", path.get_base_dir(), ["--clean"])
 
 
 func _on_CurrentLibraryButton_item_selected(index):
