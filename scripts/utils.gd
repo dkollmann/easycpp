@@ -54,6 +54,15 @@ static func get_outputlines(output :Array) -> Array:
 	return lines
 
 
+static func print_outputlines(output :Array) -> Array:
+	var lines := get_outputlines(output)
+	
+	for l in lines:
+		print(l)
+	
+	return lines
+
+
 static func select_folder(folders :Array) -> String:
 	for f in folders:
 		if folder_exists(f):

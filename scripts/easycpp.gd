@@ -401,32 +401,43 @@ func find_godotcpp() -> String:
 	return temppath + "/godot-cpp"
 
 
+func git_defaultbranch() -> String:
+	var branch := ""
+	var output := []
+	
+	OS.execute(gitpath, ["config", "--get", "init.defaultbranch"], true, output)
+	
+	if len(output) > 0:
+		branch = output[0].strip_edges(false, true)
+	
+	return branch
+
+
+func git_fixdefaultbranch() -> void:
+	var defbranch := git_defaultbranch()
+	
+	print("Git default branch: \"" + defbranch + "\".")
+	
+	if defbranch.empty():
+		print("Trying to hotfix invalid default branch name issue...")
+		
+		var output := []
+		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], true, output, true)
+		
+		utils.print_outputlines(output)
+
+
 func git_clone(args :Array, tryfix :bool = true) -> bool:
 	if not has_git:
 		return false
-		
-	var output := []
-	var good := OS.execute(gitpath, args, true, output, true) == 0
 	
-	print(output)
+	git_fixdefaultbranch()
 	
-	if good:
-		return true
-	
-	# try invalid branch name hotfix
-	if tryfix and len(output) > 0 and "fatal: invalid branch name: init.defaultBranch" in output[0]:
-		print("Trying to hotfix invalid default branch name issue...")
-		
-		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], true, output, true)
-		
-		print(output)
-		
-		return git_clone(args, false)
-		
-	return false
+	return run_shell(gitpath, args) == 0
 
 
 func run_shell(exe :String, args :Array = []) -> int:
+	var output := []
 	var res :int
 	
 	if utils.is_windows():
@@ -438,14 +449,12 @@ func run_shell(exe :String, args :Array = []) -> int:
 		res = OS.execute(runinterminalpath, args2, true)
 	
 	else:
-		var output := []
-		
 		res = OS.execute(exe, args, true, output)
-		
-		var outlines := utils.get_outputlines(output)
-		
-		for l in outlines:
-			print(l)
+	
+	var outlines := utils.get_outputlines(output)
+	
+	for l in outlines:
+		print(l)
 	
 	return res
 
