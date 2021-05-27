@@ -418,12 +418,36 @@ func git_clone(args :Array, tryfix :bool = true) -> bool:
 		print("Trying to hotfix invalid default branch name issue...")
 		
 		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], true, output, true)
-	
+		
 		print(output)
 		
 		return git_clone(args, false)
 		
 	return false
+
+
+func run_shell(exe :String, args :Array = []) -> int:
+	var res :int
+	
+	if utils.is_windows():
+		var args2 = ["--run", exe]
+		
+		if len(args) > 0:
+			args2.append_array(args)
+		
+		res = OS.execute(runinterminalpath, args2, true)
+	
+	else:
+		var output := []
+		
+		res = OS.execute(exe, args, true, output)
+		
+		var outlines := utils.get_outputlines(output)
+		
+		for l in outlines:
+			print(l)
+	
+	return res
 
 
 func run_batch(name :String, batch :Array) -> int:
@@ -440,22 +464,7 @@ func run_batch(name :String, batch :Array) -> int:
 	
 	print("Running \"" + fname + "\"...")
 	
-	var res :int
-	
-	if utils.is_windows():
-		res = OS.execute(runinterminalpath, ["--run", fname], true)
-	
-	else:
-		var output := []
-		
-		res = OS.execute(fname, [], true, output)
-		
-		var outlines := utils.get_outputlines(output)
-		
-		for l in outlines:
-			print(l)
-	
-	return res
+	return run_shell(fname)
 
 
 func find_vcvars(vsfolder :String) -> String:
@@ -719,8 +728,9 @@ func _on_BuildLibraryButton_pressed():
 
 
 func _on_CmakeStatus_fix_pressed():
-	pass # Replace with function body.
+	# TODO: Support linux
+	pass
 
 
 func _on_CmakeStatus_www_pressed():
-	pass # Replace with function body.
+	OS.shell_open("https://cmake.org/download/")

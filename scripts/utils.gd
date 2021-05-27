@@ -42,12 +42,6 @@ static func get_enumoptions(enumtype) -> String:
 	return s.substr(1, len(s) - 2).replace(" ", "")
 
 
-static func execute_shell(cmd :String) -> int:
-	print("Running " + cmd)
-	
-	return OS.execute("cmd.exe", ["/C", cmd])
-
-
 static func get_outputlines(output :Array) -> Array:
 	var lines := []
 	
