@@ -537,7 +537,9 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 		"platform=" + plat,
 		"target=" + trgt,
 		"arch=" + bits,
-		"bits=" + bits
+		"bits=" + bits,
+		"cpp_bindings=\"" + gdcpppath + "\"",
+		"godot_headers=\"" + gdheaderspath + "\""
 	]
 	
 	args.append_array(additionalargs)
