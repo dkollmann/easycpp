@@ -710,12 +710,23 @@ func _on_NewLibraryButton_pressed():
 	$NewLibraryFileDialog.popup()
 
 
-func _on_NewLibraryFileDialog_dir_selected(dir):
+func _on_NewLibraryFileDialog_dir_selected(dir :String):
 	print("Creating new library in path \"" + dir + "\".")
 	
 	var dirlocal := ProjectSettings.globalize_path(dir)
 	
 	copy_files(templatespath + "/gdnative", dirlocal)
+	
+	var f := File.new()
+	if f.open(dirlocal + "/SConstruct", File.READ) == OK:
+		var content := f.get_as_text()
+		f.close()
+		
+		content = content.replace("$$libname$$", dir.get_file())
+		
+		if f.open(dirlocal + "/SConstruct", File.WRITE) == OK:
+			f.store_string(content)
+			f.close()
 	
 	check_sdk_state()
 

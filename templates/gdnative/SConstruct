@@ -4,7 +4,7 @@ import os
 import sys
 import subprocess
 
-targetname = "test"
+targetname = "$$libname$$"
 
 if sys.version_info < (3,):
     def decode_utf8(x):
