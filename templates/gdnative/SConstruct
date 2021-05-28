@@ -456,18 +456,15 @@ if env['platform'] == 'ios':
 if env['platform'] == 'javascript':
     arch_suffix = 'wasm'
 
-'''
-library = env.StaticLibrary(
-    target='bin/' + 'libgodot-cpp.{}.{}.{}{}'.format(
-        env['platform'],
-        env['target'],
-        arch_suffix,
-        env['LIBSUFFIX']
-    ), source=sources
-)
-'''
 
-library = env.SharedLibrary(target="bin/lib" + targetname, source=sources)
+outputfile = 'bin/lib{}.{}.{}.{}'.format(
+                        targetname,
+                        env['platform'],
+                        env['target'],
+                        arch_suffix
+                    )
+
+library = env.SharedLibrary(target=outputfile, source=sources)
 
 if env["vsproj"]:
     headers = []
