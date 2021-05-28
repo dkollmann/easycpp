@@ -52,7 +52,7 @@ if (os.name=="nt"):
 
 def add_sources(sources, dir, extension):
     for f in os.listdir(dir):
-        if f.endswith('.' + extension):
+        if f.endswith(extension):
             sources.append(dir + '/' + f)
 
 
@@ -469,7 +469,7 @@ library = env.StaticLibrary(
 
 library = env.SharedLibrary(target="bin/lib" + targetname, source=sources)
 
-if env["vsproj"] == "yes":
+if env["vsproj"]:
     headers = []
     #add_sources(headers, godot_headers_path, ".h")
 
@@ -480,7 +480,7 @@ if env["vsproj"] == "yes":
                 #resources = barresources,
                 #misc = barmisc,
                 #buildtarget = library,
-                variant = target
+                variant = env["target"]
                 )
 
     #env.MSVSSolution(target = targetname + env['MSVSSOLUTIONSUFFIX'],
