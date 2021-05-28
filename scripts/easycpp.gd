@@ -735,7 +735,7 @@ func _on_BuildLibraryButton_pressed():
 	
 	var path := ProjectSettings.globalize_path(currentgdnlib)
 	
-	run_makefile("lib", path.get_base_dir(), [])
+	run_makefile("lib", path.get_base_dir())
 
 
 func _on_CmakeStatus_fix_pressed():
