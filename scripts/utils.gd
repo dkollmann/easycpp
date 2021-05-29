@@ -17,6 +17,17 @@ static func make_dir(path :String) -> void:
 	Directory.new().make_dir_recursive(path)
 
 
+static func make_dir_ignored(path :String) -> void:
+	Directory.new().make_dir_recursive(path)
+	
+	var fn := path + "/.gdignore"
+	var f := File.new()
+	
+	if not f.file_exists(fn):
+		f.open(fn, File.WRITE)
+		f.close()
+
+
 static func get_project_setting(name :String, type :int, defvalue, hint :int = PROPERTY_HINT_NONE, hintstr :String = ""):
 	if ProjectSettings.has_setting(name):
 		return ProjectSettings.get(name)

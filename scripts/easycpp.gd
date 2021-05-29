@@ -33,6 +33,11 @@ enum Submenu {
 	CleanCurrentLibrary
 }
 
+enum BatchfilesLocation {
+	TemporaryFolder,
+	BuildFolder
+}
+
 enum VisualProjectLocation {
 	TemporaryFolder,
 	ProjectFolder,
@@ -53,9 +58,10 @@ const setting_sconspath := "Easy C++/SCons Path"
 const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
 const setting_temppath := "Easy C++/Temporary Folder"
+const setting_buildfolder := "Easy C++/Build Folder"
+const setting_batchfilelocation := "Easy C++/Batchfile Location"
 const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
 const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
-const setting_vsproj_buildfolder := "Easy C++/Visual Studio/Build Folder"
 
 const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
@@ -79,6 +85,7 @@ var toolspath :String
 var runinterminalpath :String
 var shortpathpath :String
 var temppath :String
+var buildfolderpath :String
 var templatespath :String
 var pythonpath :String
 var pythonpath_windowsstore :String
@@ -115,6 +122,7 @@ var compiler :int = -1
 
 var gdnlibs := { }
 var currentgdnlib :String
+var currentgdnlib_name :String
 
 var godotversion :String
 var random := RandomNumberGenerator.new()
@@ -126,11 +134,13 @@ func _ready():
 	
 	random.randomize()
 	
+	# make sure the settings exists
+	get_batchfilelocation()
+	
 	if utils.is_windows():
 		# make sure the settings exists
 		get_vsproj_location()
 		get_vsproj_subfolder()
-		get_vsproj_buildfolder()
 		
 		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
 		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
@@ -217,6 +227,10 @@ func check_sdk_state() -> void:
 	# handle temporary folder
 	temppath = ProjectSettings.globalize_path(tempres)
 	temppath = utils.get_project_setting_string(setting_temppath, temppath, PROPERTY_HINT_GLOBAL_DIR)
+	
+	# handle build folder
+	buildfolderpath = ProjectSettings.globalize_path("res://build")
+	buildfolderpath = utils.get_project_setting_string(setting_buildfolder, buildfolderpath, PROPERTY_HINT_GLOBAL_DIR)
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -306,6 +320,7 @@ func check_sdk_state() -> void:
 		
 		if len(gdnatives) > 0:
 			currentgdnlib = gdnatives[0]
+			currentgdnlib_name = currentgdnlib.get_base_dir().get_file()
 			
 			$LibraryContainer/CurrentLibraryPathLabel.text = currentgdnlib.get_base_dir()
 		
@@ -475,10 +490,31 @@ func run_shell(exe :String, args :Array = []) -> int:
 	return res
 
 
-func run_batch(name :String, batch :Array) -> int:
-	var ext := ".bat" if utils.is_windows() else ".sh"
-	var fname := "%s/%s_%d%s" % [temppath, name, random.randi(), ext]
+func get_batchfilelocation() -> int:
+	return utils.get_project_setting_enum_keys(setting_batchfilelocation, "Temporary Folder,Build Folder")
+
+
+func run_batch_build(name :String, batch :Array) -> int:
+	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
+		return run_batch_temp(name, batch)
 	
+	utils.make_dir_ignored(buildfolderpath)
+	
+	var ext := ".bat" if utils.is_windows() else ".sh"
+	var fname := "%s/%s%s" % [buildfolderpath, name, ext]
+	
+	return run_batch(fname, batch)
+
+
+func run_batch_temp(name :String, batch :Array) -> int:
+	var ext := ".bat" if utils.is_windows() else ".sh"
+	#var fname := "%s/%s_%d%s" % [temppath, name, random.randi(), ext]
+	var fname := "%s/%s%s" % [temppath, name, ext]
+	
+	return run_batch(fname, batch)
+
+
+func run_batch(fname :String, batch :Array) -> int:
 	var file := File.new()
 	file.open(fname, File.WRITE)
 	
@@ -519,7 +555,42 @@ func get_vcvars(comp :int) -> String:
 	return ""
 
 
-func run_makefile(name :String, folder :String, additionalargs :Array = []):
+func get_config_string(separator :String = "_") -> String:
+	var plat := ""
+	#var arch := ""
+	var trgt := ""
+	var bits := "64"
+	
+	match platform:
+		BuildPlatform.Win32:
+			plat = "windows"
+			#arch = "x86"
+			bits = "32"
+		
+		BuildPlatform.Win64:
+			plat = "windows"
+			#arch = "amd64"
+	
+	match buildcfg:
+		BuildConfiguration.Shipping:
+			trgt = "release"
+		
+		BuildConfiguration.Release:
+			trgt = "release"
+		
+		BuildConfiguration.Profiling:
+			trgt = "release_debug"
+		
+		BuildConfiguration.Debug:
+			trgt = "debug"
+	
+	return plat + separator + trgt + separator + bits
+
+
+func get_config_filename(name :String, separator :String = "_") -> String:
+	return name + separator + get_config_string(separator)
+
+func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
 	var plat := ""
 	var arch := ""
 	var trgt := ""
@@ -564,7 +635,7 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []):
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
-	run_batch(name, [
+	return run_batch_build(name, [
 		"@echo off\n",
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
@@ -686,7 +757,7 @@ func _on_HeaderStatus_www_pressed():
 
 
 func _on_BuildBindingsButton_pressed():
-	run_makefile("bindings", gdcpppath, ["generate_bindings=yes"])
+	run_makefile(get_config_filename("bindings"), gdcpppath, ["generate_bindings=yes"])
 
 
 func _on_PlatformButton_item_selected(index):
@@ -704,18 +775,20 @@ func _on_ConfigurationButton_item_selected(index):
 func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
-			run_makefile("bindings-clean", gdcpppath, ["--clean"])
+			run_makefile(get_config_filename("bindings-clean"), gdcpppath, ["--clean"])
+		
 		Submenu.CleanCurrentLibrary:
 			if not utils.file_exists(currentgdnlib):
 				return
 	
 			var path := ProjectSettings.globalize_path(currentgdnlib)
 			
-			run_makefile("lib-clean", path.get_base_dir(), ["--clean"])
+			run_makefile(get_config_filename(currentgdnlib_name + "-clean"), path.get_base_dir(), ["--clean"])
 
 
 func _on_CurrentLibraryButton_item_selected(index):
 	currentgdnlib = gdnlibs[ $LibraryContainer/CurrentLibraryButton.text ]
+	currentgdnlib_name = currentgdnlib.get_base_dir().get_file()
 	
 	$LibraryContainer/CurrentLibraryPathLabel.text = currentgdnlib.get_base_dir()
 
@@ -755,10 +828,6 @@ func get_vsproj_subfolder() -> String:
 	return utils.get_project_setting_string(setting_vsproj_subfolder)
 
 
-func get_vsproj_buildfolder() -> String:
-	return utils.get_project_setting_string(setting_vsproj_buildfolder, ProjectSettings.globalize_path("res://build"), PROPERTY_HINT_GLOBAL_DIR)
-
-
 func _on_GenerateVSButton_pressed():
 	print("Generating Visual Studio projects and solution...")
 	
@@ -781,7 +850,7 @@ func _on_GenerateVSButton_pressed():
 			perproject = true
 		
 		VisualProjectLocation.BuildFolder:  # all files are placed in a build folder inside the project
-			folder_solution = get_vsproj_buildfolder()
+			folder_solution = buildfolderpath
 			folder_projects = folder_solution
 			perproject = false
 	
@@ -821,7 +890,7 @@ func _on_BuildLibraryButton_pressed():
 	
 	var path := ProjectSettings.globalize_path(currentgdnlib)
 	
-	run_makefile("lib", path.get_base_dir())
+	run_makefile(get_config_filename(currentgdnlib_name), path.get_base_dir())
 
 
 func _on_CmakeStatus_fix_pressed():
