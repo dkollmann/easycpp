@@ -175,11 +175,6 @@ opts.Add(BoolVariable(
 	"Generate a template version of the Node class's get_node.",
 	True
 ))
-opts.Add(BoolVariable(
-    'vsproj',
-    'Generate a Visual Studio project.',
-    False
-))
 
 opts.Update(env)
 Help(opts.GenerateHelpText(env))
@@ -466,23 +461,4 @@ outputfile = 'bin/lib{}.{}.{}.{}'.format(
 
 library = env.SharedLibrary(target=outputfile, source=sources)
 
-if env["vsproj"]:
-    headers = []
-    #add_sources(headers, godot_headers_path, ".h")
-
-    env.MSVSProject(target = targetname + env['MSVSPROJECTSUFFIX'],
-                srcs = sources,
-                incs = headers,
-                #localincs = barlocalincs,
-                #resources = barresources,
-                #misc = barmisc,
-                #buildtarget = library,
-                variant = env["target"]
-                )
-
-    #env.MSVSSolution(target = targetname + env['MSVSSOLUTIONSUFFIX'],
-    #             projects = [targetname + env['MSVSPROJECTSUFFIX']],
-    #             variant = target)
-
-else:
-    Default(library)
+Default(library)
