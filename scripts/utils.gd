@@ -107,3 +107,9 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 		dir.list_dir_end()
 	
 	return files
+
+
+static func get_uuid(input :String) -> String:
+	var md5 := input.md5_text().to_upper()
+	
+	return "{%s-%s-%s-%s-%s}" % [md5.substr(0, 8), md5.substr(8, 4), md5.substr(12, 4), md5.substr(16, 4), md5.substr(20, 8)]

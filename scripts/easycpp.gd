@@ -732,12 +732,31 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 
 
 func _on_GenerateVSButton_pressed():
-	if not utils.file_exists(currentgdnlib):
-		return
+	print("Generating Visual Studio projects and solution...")
 	
-	var path := ProjectSettings.globalize_path(currentgdnlib)
+	var root := ProjectSettings.globalize_path("res://")
 	
-	run_makefile("vsproj", path.get_base_dir(), ["vsproj=yes"])
+	var uuids := {}
+	
+	for lib in gdnlibs:
+		print("  Generating projects for \"" + lib + "\"...")
+		
+		var libdir = gdnlibs[lib].get_base_dir()
+	
+		var f := File.new()
+		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
+			var content := f.get_as_text()
+			f.close()
+			
+			var uuid := utils.get_uuid(lib)
+			
+			uuids[lib] = uuid
+			
+			content = content.replace("$$projectguid$$", uuid)
+			
+			if f.open(libdir + "/" + lib + ".vcxproj", File.WRITE) == OK:
+				f.store_string(content)
+				f.close()
 
 
 func _on_BuildLibraryButton_pressed():
