@@ -37,6 +37,18 @@ static func get_project_setting_enum(name :String, enumtype, defvalue :int = 0) 
 	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_ENUM, get_enumoptions(enumtype))
 
 
+static func get_project_setting_enum_keys(name :String, keys :String, defvalue :int = 0) -> int:
+	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_ENUM, keys)
+
+
+static func get_project_setting_bool(name :String, defvalue :bool) -> bool:
+	return get_project_setting(name, TYPE_BOOL, defvalue)
+
+
+static func get_project_setting_string(name :String, defvalue :String = "", hint :int = PROPERTY_HINT_NONE, hintstr :String = "") -> String:
+	return get_project_setting(name, TYPE_STRING, defvalue, hint, hintstr).strip_edges()
+
+
 static func get_enumoptions(enumtype) -> String:
 	var s := str(enumtype.keys())
 	return s.substr(1, len(s) - 2).replace(" ", "")

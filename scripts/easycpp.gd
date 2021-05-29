@@ -33,6 +33,12 @@ enum Submenu {
 	CleanCurrentLibrary
 }
 
+enum VisualProjectLocation {
+	TemporaryFolder,
+	ProjectFolder,
+	BuildFolder
+}
+
 
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
@@ -46,10 +52,14 @@ const setting_pippath := "Easy C++/pip Path"
 const setting_sconspath := "Easy C++/SCons Path"
 const setting_gitpath := "Easy C++/Git Path"
 const setting_gdcpppath := "Easy C++/Godot-CPP Path"
+const setting_temppath := "Easy C++/Temporary Folder"
+const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
+const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
+const setting_vsproj_buildfolder := "Easy C++/Visual Studio/Build Folder"
 
-const setting_vs2015path := "Easy C++/Compilers/Visual Studio 2015 Path"
-const setting_vs2017path := "Easy C++/Compilers/Visual Studio 2017 Path"
-const setting_vs2019path := "Easy C++/Compilers/Visual Studio 2019 Path"
+const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
+const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
+const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
 
 const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
 const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
@@ -117,23 +127,23 @@ func _ready():
 	random.randomize()
 	
 	if utils.is_windows():
-		vs2015path = utils.get_project_setting(setting_vs2015path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
-		vs2017path = utils.get_project_setting(setting_vs2017path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
-		vs2019path = utils.get_project_setting(setting_vs2019path, TYPE_STRING, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+		# make sure the settings exists
+		get_vsproj_location()
+		get_vsproj_subfolder()
+		get_vsproj_buildfolder()
+		
+		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
+		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
+		vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
 		
 		has_vs2015 = not find_vcvars(vs2015path).empty()
 		has_vs2017 = not find_vcvars(vs2017path).empty()
 		has_vs2019 = not find_vcvars(vs2019path).empty()
 	
-	temppath = ProjectSettings.globalize_path(tempres)
 	toolspath = ProjectSettings.globalize_path(toolsres)
 	templatespath = ProjectSettings.globalize_path(templatesres)
 	runinterminalpath = toolspath + "/rit.exe"
 	shortpathpath = toolspath + "/shortpath.bat"
-	
-	print("Easy C++ temporary folder: \"" + temppath + "\".")
-	
-	#utils.make_dir(temppath)
 	
 	init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
 	init_optionbutton($PlatformContainer/ConfigurationButton, BuildConfiguration, buildcfg)
@@ -204,6 +214,12 @@ func status_res(good :bool) -> Texture:
 
 
 func check_sdk_state() -> void:
+	# handle temporary folder
+	temppath = ProjectSettings.globalize_path(tempres)
+	temppath = utils.get_project_setting_string(setting_temppath, temppath, PROPERTY_HINT_GLOBAL_DIR)
+	
+	print("Easy C++ temporary folder: \"" + temppath + "\".")
+	
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
 	# prepare check
@@ -326,7 +342,7 @@ func check_sdk_state() -> void:
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
 	var searched := false
 	
-	var path = utils.get_project_setting(setting_name, TYPE_STRING, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
+	var path := utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
 	if path.empty():
 		searched = true
@@ -731,11 +747,47 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 	check_sdk_state()
 
 
+func get_vsproj_location() -> int:
+	return utils.get_project_setting_enum_keys(setting_vsproj_location, "Temporary Folder,Project Folder,Build Folder")
+
+
+func get_vsproj_subfolder() -> String:
+	return utils.get_project_setting_string(setting_vsproj_subfolder)
+
+
+func get_vsproj_buildfolder() -> String:
+	return utils.get_project_setting_string(setting_vsproj_buildfolder, ProjectSettings.globalize_path("res://build"), PROPERTY_HINT_GLOBAL_DIR)
+
+
 func _on_GenerateVSButton_pressed():
 	print("Generating Visual Studio projects and solution...")
 	
-	var root := ProjectSettings.globalize_path("res://")
+	# determine some settings
+	var location := get_vsproj_location()
 	
+	var folder_solution := ""
+	var folder_projects := ""
+	var perproject := true
+	
+	match location:
+		VisualProjectLocation.TemporaryFolder:  # all files are placed in a temporary folder
+			folder_solution = temppath + "/vsproj"
+			folder_projects = folder_solution
+			perproject = false
+		
+		VisualProjectLocation.ProjectFolder:  # the solution is placed in the root and the project files are put in their individual folders
+			folder_solution = ProjectSettings.globalize_path("res://")
+			folder_projects = get_vsproj_subfolder()
+			perproject = true
+		
+		VisualProjectLocation.BuildFolder:  # all files are placed in a build folder inside the project
+			folder_solution = get_vsproj_buildfolder()
+			folder_projects = folder_solution
+			perproject = false
+	
+	utils.make_dir(folder_solution)
+	
+	# start generating files
 	var uuids := {}
 	
 	for lib in gdnlibs:
@@ -754,9 +806,13 @@ func _on_GenerateVSButton_pressed():
 			
 			content = content.replace("$$projectguid$$", uuid)
 			
-			if f.open(libdir + "/" + lib + ".vcxproj", File.WRITE) == OK:
+			var outfile = (libdir if perproject else folder_solution) + "/" + lib + ".vcxproj"
+			
+			if f.open(outfile, File.WRITE) == OK:
 				f.store_string(content)
 				f.close()
+	
+	print("  Generating solution...")
 
 
 func _on_BuildLibraryButton_pressed():
