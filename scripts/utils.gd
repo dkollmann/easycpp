@@ -52,6 +52,10 @@ static func get_project_setting_enum_keys(name :String, keys :String, defvalue :
 	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_ENUM, keys)
 
 
+static func get_project_setting_flags(name :String, enumtype, defvalue :int = 0) -> int:
+	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_FLAGS, get_enumoptions(enumtype))
+
+
 static func get_project_setting_bool(name :String, defvalue :bool) -> bool:
 	return get_project_setting(name, TYPE_BOOL, defvalue)
 
@@ -136,3 +140,7 @@ static func get_uuid(input :String) -> String:
 	var md5 := input.md5_text().to_upper()
 	
 	return "{%s-%s-%s-%s-%s}" % [md5.substr(0, 8), md5.substr(8, 4), md5.substr(12, 4), md5.substr(16, 4), md5.substr(20, 8)]
+
+
+static func hasbit(bits :int, value :int) -> bool:
+	return (bits & (1 << value)) != 0

@@ -62,6 +62,8 @@ const setting_buildfolder := "Easy C++/Build Folder"
 const setting_batchfilelocation := "Easy C++/Batchfile Location"
 const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
 const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
+const setting_buildconfigurations := "Easy C++/Build Configurations"
+const setting_buildplatforms := "Easy C++/Build Platforms"
 
 const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
@@ -117,7 +119,7 @@ var allgood := false
 
 var buildsystem :int = BuildSystem.SCons
 var platform :int = -1
-var buildcfg :int = BuildConfiguration.Debug
+var buildcfg :int = -1
 var compiler :int = -1
 
 var gdnlibs := { }
@@ -136,6 +138,8 @@ func _ready():
 	
 	# make sure the settings exists
 	get_batchfilelocation()
+	get_supported_buildplatforms()
+	get_supported_buildconfigs()
 	
 	if utils.is_windows():
 		# make sure the settings exists
@@ -156,15 +160,34 @@ func _ready():
 	shortpathpath = toolspath + "/shortpath.bat"
 	
 	init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
-	init_optionbutton($PlatformContainer/ConfigurationButton, BuildConfiguration, buildcfg)
 	
 	$PlatformContainer/PlatformButton.clear()
+	$PlatformContainer/ConfigurationButton.clear()
+	
+	var platforms := get_supported_buildplatforms()
+	var buildconfigs := get_supported_buildconfigs()
 	
 	if utils.is_windows():
-		$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
-		$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
+		if utils.hasbit(buildconfigs, BuildPlatform.Win32):
+			$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
+		
+		if utils.hasbit(buildconfigs, BuildPlatform.Win64):
+			$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
+	
+	if utils.hasbit(buildconfigs, BuildConfiguration.Shipping):
+		$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
+	
+	if utils.hasbit(buildconfigs, BuildConfiguration.Release):
+		$PlatformContainer/ConfigurationButton.add_item("Release", BuildConfiguration.Release)
+	
+	if utils.hasbit(buildconfigs, BuildConfiguration.Profiling):
+		$PlatformContainer/ConfigurationButton.add_item("Profiling", BuildConfiguration.Profiling)
+	
+	if utils.hasbit(buildconfigs, BuildConfiguration.Debug):
+		$PlatformContainer/ConfigurationButton.add_item("Debug", BuildConfiguration.Debug)
 	
 	platform = $PlatformContainer/PlatformButton.get_selected_id()
+	buildcfg = $PlatformContainer/ConfigurationButton.get_selected_id()
 	
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
@@ -222,6 +245,13 @@ func add_tooltip(ctrl :Control, tooltip :String) -> void:
 func status_res(good :bool) -> Texture:
 	return status_good if good else status_error
 
+
+func get_supported_buildplatforms() -> int:
+	return utils.get_project_setting_flags(setting_buildplatforms, BuildPlatform, (1 << BuildPlatform.Win64) | (1 << BuildPlatform.Linux))
+
+
+func get_supported_buildconfigs() -> int:
+	return utils.get_project_setting_flags(setting_buildconfigurations, BuildConfiguration, (1 << BuildConfiguration.Debug) | (1 << BuildConfiguration.Release))
 
 func check_sdk_state() -> void:
 	# handle temporary folder
@@ -860,6 +890,8 @@ func _on_GenerateVSButton_pressed():
 	print("Generating Visual Studio projects and solution...")
 	
 	# determine some settings
+	var configs := get_supported_buildconfigs()
+	var platforms := get_supported_buildplatforms()
 	var location := get_vsproj_location()
 	
 	var folder_solution := ""
@@ -891,6 +923,11 @@ func _on_GenerateVSButton_pressed():
 		print("  Generating projects for \"" + lib + "\"...")
 		
 		var libdir = gdnlibs[lib].get_base_dir()
+		var outdir =  libdir if perproject else folder_solution
+		
+		if utils.hasbit(configs, BuildConfiguration.Debug):
+			var make_build := create_makefile(BuildPlatform.Win64, BuildConfiguration.Debug, lib, outdir)
+			var make_rebuild := create_makefile(BuildPlatform.Win64, BuildConfiguration.Debug, lib + "-clean", outdir, ["--clean"])
 	
 		var f := File.new()
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
@@ -903,7 +940,7 @@ func _on_GenerateVSButton_pressed():
 			
 			content = content.replace("$$projectguid$$", uuid)
 			
-			var outfile = (libdir if perproject else folder_solution) + "/" + lib + ".vcxproj"
+			var outfile = outdir + "/" + lib + ".vcxproj"
 			
 			if f.open(outfile, File.WRITE) == OK:
 				f.store_string(content)
