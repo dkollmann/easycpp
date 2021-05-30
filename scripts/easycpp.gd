@@ -494,27 +494,27 @@ func get_batchfilelocation() -> int:
 	return utils.get_project_setting_enum_keys(setting_batchfilelocation, "Temporary Folder,Build Folder")
 
 
-func run_batch_build(name :String, batch :Array) -> int:
+func create_batch_build(name :String, batch :Array) -> String:
 	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
-		return run_batch_temp(name, batch)
+		return create_batch_temp(name, batch)
 	
 	utils.make_dir_ignored(buildfolderpath)
 	
 	var ext := ".bat" if utils.is_windows() else ".sh"
 	var fname := "%s/%s%s" % [buildfolderpath, name, ext]
 	
-	return run_batch(fname, batch)
+	return create_batch(fname, batch)
 
 
-func run_batch_temp(name :String, batch :Array) -> int:
+func create_batch_temp(name :String, batch :Array) -> String:
 	var ext := ".bat" if utils.is_windows() else ".sh"
 	#var fname := "%s/%s_%d%s" % [temppath, name, random.randi(), ext]
 	var fname := "%s/%s%s" % [temppath, name, ext]
 	
-	return run_batch(fname, batch)
+	return create_batch(fname, batch)
 
 
-func run_batch(fname :String, batch :Array) -> int:
+func create_batch(fname :String, batch :Array) -> String:
 	var file := File.new()
 	file.open(fname, File.WRITE)
 	
@@ -522,6 +522,25 @@ func run_batch(fname :String, batch :Array) -> int:
 		file.store_string(l)
 	
 	file.close()
+	
+	print("Creating \"" + fname + "\"...")
+	
+	return fname
+
+
+func run_batch_build(name :String, batch :Array) -> int:
+	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
+		return run_batch_temp(name, batch)
+	
+	var fname := create_batch_build(name, batch)
+	
+	print("Running \"" + fname + "\"...")
+	
+	return run_shell(fname)
+
+
+func run_batch_temp(name :String, batch :Array) -> int:
+	var fname := create_batch_temp(name, batch)
 	
 	print("Running \"" + fname + "\"...")
 	
@@ -590,13 +609,14 @@ func get_config_string(separator :String = "_") -> String:
 func get_config_filename(name :String, separator :String = "_") -> String:
 	return name + separator + get_config_string(separator)
 
-func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
+
+func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, additionalargs :Array = []) -> String:
 	var plat := ""
 	var arch := ""
 	var trgt := ""
 	var bits := "64"
 	
-	match platform:
+	match pltfrm:
 		BuildPlatform.Win32:
 			plat = "windows"
 			arch = "x86"
@@ -606,7 +626,7 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []) -> i
 			plat = "windows"
 			arch = "amd64"
 	
-	match buildcfg:
+	match bldcfg:
 		BuildConfiguration.Shipping:
 			trgt = "release"
 		
@@ -635,7 +655,7 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []) -> i
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
-	return run_batch_build(name, [
+	return create_batch_build(name, [
 		"@echo off\n",
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
@@ -645,6 +665,14 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []) -> i
 		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
 		"pause\n"
 	])
+
+
+func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
+	var fname := create_makefile(platform, buildcfg, name, folder, additionalargs)
+	
+	print("Running \"" + fname + "\"...")
+	
+	return run_shell(fname)
 
 
 func center_in_editor(ctrl :Control) -> void:
