@@ -74,9 +74,6 @@ const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
 const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
 
-const status_good := preload("res://addons/easycpp/resources/textures/status_good.png")
-const status_error := preload("res://addons/easycpp/resources/textures/status_error.png")
-
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
@@ -245,10 +242,6 @@ func add_tooltip(ctrl :Control, tooltip :String) -> void:
 	
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
-
-
-func status_res(good :bool) -> Texture:
-	return status_good if good else status_error
 
 
 func get_supported_buildplatforms() -> int:
@@ -562,25 +555,6 @@ func create_batch(fname :String, batch :Array) -> String:
 	return fname
 
 
-func run_batch_build(name :String, batch :Array) -> int:
-	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
-		return run_batch_temp(name, batch)
-	
-	var fname := create_batch_build(name, batch)
-	
-	print("Running \"" + fname + "\"...")
-	
-	return run_shell(fname)
-
-
-func run_batch_temp(name :String, batch :Array) -> int:
-	var fname := create_batch_temp(name, batch)
-	
-	print("Running \"" + fname + "\"...")
-	
-	return run_shell(fname)
-
-
 func find_vcvars(vsfolder :String) -> String:
 	var editions := ["Enterprise", "Professional", "Community", "WDExpress"]
 	var file := File.new()
@@ -606,42 +580,6 @@ func get_vcvars(comp :int) -> String:
 			return find_vcvars(vs2019path)
 	
 	return ""
-
-
-func get_config_string(separator :String = "_") -> String:
-	var plat := ""
-	#var arch := ""
-	var trgt := ""
-	var bits := "64"
-	
-	match platform:
-		BuildPlatform.Win32:
-			plat = "windows"
-			#arch = "x86"
-			bits = "32"
-		
-		BuildPlatform.Win64:
-			plat = "windows"
-			#arch = "amd64"
-	
-	match buildcfg:
-		BuildConfiguration.Shipping:
-			trgt = "release"
-		
-		BuildConfiguration.Release:
-			trgt = "release"
-		
-		BuildConfiguration.Profiling:
-			trgt = "release_debug"
-		
-		BuildConfiguration.Debug:
-			trgt = "debug"
-	
-	return plat + separator + trgt + separator + bits
-
-
-func get_config_filename(name :String, separator :String = "_") -> String:
-	return name + separator + get_config_string(separator)
 
 
 func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
@@ -749,14 +687,6 @@ func create_all_makefiles(folder :String, lib :String, additionalargs :Array = [
 
 func create_bindings_makefiles() -> Dictionary:
 	return create_all_makefiles(gdcpppath, "bindings", ["generate_bindings=yes"])
-
-
-func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
-	var fname := create_makefile(platform, buildcfg, name, "", folder, additionalargs)
-	
-	print("Running \"" + fname + "\"...")
-	
-	return run_shell(fname)
 
 
 func run_makefile_dict(dict :Dictionary, platform :int, config :int, action :int) -> int:
