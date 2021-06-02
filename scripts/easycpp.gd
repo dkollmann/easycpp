@@ -909,10 +909,12 @@ func _on_Submenu_id_pressed(id):
 		Submenu.CleanCurrentLibrary:
 			if not utils.file_exists(currentgdnlib):
 				return
-				
-			var path := ProjectSettings.globalize_path(currentgdnlib)
 			
-			run_makefile(get_config_filename(currentgdnlib_name + "-clean"), path.get_base_dir(), ["--clean"])
+			var path := ProjectSettings.globalize_path(currentgdnlib).get_base_dir()
+			
+			var batchfiles := create_all_makefiles(path, currentgdnlib_name)
+			
+			run_makefile_dict_current(batchfiles, BuildAction.Clean)
 
 
 func _on_CurrentLibraryButton_item_selected(index):
@@ -1025,9 +1027,11 @@ func _on_BuildLibraryButton_pressed():
 	if not utils.file_exists(currentgdnlib):
 		return
 	
-	var path := ProjectSettings.globalize_path(currentgdnlib)
+	var path := ProjectSettings.globalize_path(currentgdnlib).get_base_dir()
 	
-	run_makefile(get_config_filename(currentgdnlib_name), path.get_base_dir())
+	var batchfiles := create_all_makefiles(path, currentgdnlib_name)
+	
+	run_makefile_dict_current(batchfiles, BuildAction.Build)
 
 
 func _on_CmakeStatus_fix_pressed():
