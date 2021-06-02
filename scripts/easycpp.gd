@@ -22,6 +22,11 @@ enum BuildConfiguration {
 	Debug
 }
 
+enum BuildAction {
+	Build,
+	Clean
+}
+
 enum Compiler {
 	VisualStudio2015,
 	VisualStudio2017,
@@ -640,8 +645,9 @@ func get_config_filename(name :String, separator :String = "_") -> String:
 	return name + separator + get_config_string(separator)
 
 
-func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, additionalargs :Array = []) -> String:
+func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
 	var plat := ""
+	var platname := ""
 	var arch := ""
 	var trgt := ""
 	var bits := "64"
@@ -649,11 +655,13 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, add
 	match pltfrm:
 		BuildPlatform.Win32:
 			plat = "windows"
+			platname = "win32"
 			arch = "x86"
 			bits = "32"
 		
 		BuildPlatform.Win64:
 			plat = "windows"
+			platname = "win64"
 			arch = "amd64"
 	
 	match bldcfg:
@@ -664,7 +672,7 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, add
 			trgt = "release"
 		
 		BuildConfiguration.Profiling:
-			trgt = "release_debug"
+			trgt = "profiling"
 		
 		BuildConfiguration.Debug:
 			trgt = "debug"
@@ -681,11 +689,12 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, add
 	
 	args.append_array(additionalargs)
 	
+	var fname := name + "_" + platname + "_" + trgt + post
 	var cpp := get_shortpath(gdcpppath)
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
-	return create_batch_build(name, [
+	return create_batch_build(fname, [
 		"@echo off\n",
 		"cd \"" + folder + "\"\n",
 		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
@@ -697,8 +706,50 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, folder :String, add
 	])
 
 
+static func get_buildconfig_index(platform :int, config :int, action :int) -> int:
+	return platform + config * 10 + action * 100
+
+
+func create_all_makefiles_for_config(platform :int, config :int, folder :String, lib :String, batchfiles :Dictionary):
+	var make_build := create_makefile(platform, config, lib, "-build", folder)
+	var make_clean := create_makefile(platform, config, lib, "-clean", folder, ["--clean"])
+	
+	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Build) ] = make_build
+	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Clean) ] = make_clean
+
+
+func create_all_makefiles_for_platform(platform :int, folder :String, lib :String, batchfiles :Dictionary):
+	var configs := get_supported_buildconfigs()
+	
+	if utils.hasbit(configs, BuildConfiguration.Shipping):
+		create_all_makefiles_for_config(platform, BuildConfiguration.Shipping, folder, lib, batchfiles)
+	
+	if utils.hasbit(configs, BuildConfiguration.Release):
+		create_all_makefiles_for_config(platform, BuildConfiguration.Release, folder, lib, batchfiles)
+	
+	if utils.hasbit(configs, BuildConfiguration.Profiling):
+		create_all_makefiles_for_config(platform, BuildConfiguration.Profiling, folder, lib, batchfiles)
+	
+	if utils.hasbit(configs, BuildConfiguration.Debug):
+		create_all_makefiles_for_config(platform, BuildConfiguration.Debug, folder, lib, batchfiles)
+
+
+func create_all_makefiles(folder :String, lib :String) -> Dictionary:
+	var batchfiles := {}
+	var platforms := get_supported_buildplatforms()
+	
+	if utils.is_windows():
+		if utils.hasbit(platforms, BuildPlatform.Win32):
+			create_all_makefiles_for_platform(BuildPlatform.Win32, folder, lib, batchfiles)
+		
+		if utils.hasbit(platforms, BuildPlatform.Win64):
+			create_all_makefiles_for_platform(BuildPlatform.Win64, folder, lib, batchfiles)
+	
+	return batchfiles
+
+
 func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
-	var fname := create_makefile(platform, buildcfg, name, folder, additionalargs)
+	var fname := create_makefile(platform, buildcfg, name, "", folder, additionalargs)
 	
 	print("Running \"" + fname + "\"...")
 	
@@ -925,10 +976,8 @@ func _on_GenerateVSButton_pressed():
 		var libdir = gdnlibs[lib].get_base_dir()
 		var outdir =  libdir if perproject else folder_solution
 		
-		if utils.hasbit(configs, BuildConfiguration.Debug):
-			var make_build := create_makefile(BuildPlatform.Win64, BuildConfiguration.Debug, lib, outdir)
-			var make_rebuild := create_makefile(BuildPlatform.Win64, BuildConfiguration.Debug, lib + "-clean", outdir, ["--clean"])
-	
+		var batchfiles := create_all_makefiles(outdir, lib)
+		
 		var f := File.new()
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
 			var content := f.get_as_text()
