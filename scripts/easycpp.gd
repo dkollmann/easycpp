@@ -533,21 +533,20 @@ func create_batch_build(name :String, batch :Array) -> String:
 	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
 		return create_batch_temp(name, batch)
 	
-	utils.make_dir_ignored(buildfolderpath)
-	
-	var ext := ".bat" if utils.is_windows() else ".sh"
-	var fname := "%s/%s%s" % [buildfolderpath, name, ext]
-	
-	return create_batch(fname, batch)
+	return create_batch_dir(buildfolderpath, name, batch)
 
 
 func create_batch_temp(name :String, batch :Array) -> String:
+	return create_batch_dir(temppath, name, batch)
+
+
+func create_batch_dir(folder :String, name :String, batch :Array) -> String:
+	utils.make_dir_ignored(folder)
+	
 	var ext := ".bat" if utils.is_windows() else ".sh"
-	#var fname := "%s/%s_%d%s" % [temppath, name, random.randi(), ext]
-	var fname := "%s/%s%s" % [temppath, name, ext]
+	var fname := "%s/%s%s" % [folder, name, ext]
 	
 	return create_batch(fname, batch)
-
 
 func create_batch(fname :String, batch :Array) -> String:
 	var file := File.new()
@@ -710,42 +709,46 @@ static func get_buildconfig_index(platform :int, config :int, action :int) -> in
 	return platform + config * 10 + action * 100
 
 
-func create_all_makefiles_for_config(platform :int, config :int, folder :String, lib :String, batchfiles :Dictionary):
-	var make_build := create_makefile(platform, config, lib, "-build", folder)
-	var make_clean := create_makefile(platform, config, lib, "-clean", folder, ["--clean"])
+func create_all_makefiles_for_config(platform :int, config :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
+	var make_build := create_makefile(platform, config, lib, "-build", folder, additionalargs)
+	var make_clean := create_makefile(platform, config, lib, "-clean", folder, additionalargs + ["--clean"])
 	
 	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Build) ] = make_build
 	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Clean) ] = make_clean
 
 
-func create_all_makefiles_for_platform(platform :int, folder :String, lib :String, batchfiles :Dictionary):
+func create_all_makefiles_for_platform(platform :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
 	var configs := get_supported_buildconfigs()
 	
 	if utils.hasbit(configs, BuildConfiguration.Shipping):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Shipping, folder, lib, batchfiles)
+		create_all_makefiles_for_config(platform, BuildConfiguration.Shipping, folder, lib, additionalargs, batchfiles)
 	
 	if utils.hasbit(configs, BuildConfiguration.Release):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Release, folder, lib, batchfiles)
+		create_all_makefiles_for_config(platform, BuildConfiguration.Release, folder, lib, additionalargs, batchfiles)
 	
 	if utils.hasbit(configs, BuildConfiguration.Profiling):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Profiling, folder, lib, batchfiles)
+		create_all_makefiles_for_config(platform, BuildConfiguration.Profiling, folder, lib, additionalargs, batchfiles)
 	
 	if utils.hasbit(configs, BuildConfiguration.Debug):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Debug, folder, lib, batchfiles)
+		create_all_makefiles_for_config(platform, BuildConfiguration.Debug, folder, lib, additionalargs, batchfiles)
 
 
-func create_all_makefiles(folder :String, lib :String) -> Dictionary:
+func create_all_makefiles(folder :String, lib :String, additionalargs :Array = []) -> Dictionary:
 	var batchfiles := {}
 	var platforms := get_supported_buildplatforms()
 	
 	if utils.is_windows():
 		if utils.hasbit(platforms, BuildPlatform.Win32):
-			create_all_makefiles_for_platform(BuildPlatform.Win32, folder, lib, batchfiles)
+			create_all_makefiles_for_platform(BuildPlatform.Win32, folder, lib, additionalargs, batchfiles)
 		
 		if utils.hasbit(platforms, BuildPlatform.Win64):
-			create_all_makefiles_for_platform(BuildPlatform.Win64, folder, lib, batchfiles)
+			create_all_makefiles_for_platform(BuildPlatform.Win64, folder, lib, additionalargs, batchfiles)
 	
 	return batchfiles
+
+
+func create_bindings_makefiles() -> Dictionary:
+	return create_all_makefiles(gdcpppath, "bindings", ["generate_bindings=yes"])
 
 
 func run_makefile(name :String, folder :String, additionalargs :Array = []) -> int:
@@ -754,6 +757,19 @@ func run_makefile(name :String, folder :String, additionalargs :Array = []) -> i
 	print("Running \"" + fname + "\"...")
 	
 	return run_shell(fname)
+
+
+func run_makefile_dict(dict :Dictionary, platform :int, config :int, action :int) -> int:
+	var idx := get_buildconfig_index(platform, config, action)
+	var fname = dict[idx]
+	
+	print("Running \"" + fname + "\"...")
+	
+	return run_shell(fname)
+
+
+func run_makefile_dict_current(dict :Dictionary, action :int) -> int:
+	return run_makefile_dict(dict, platform, buildcfg, action)
 
 
 func center_in_editor(ctrl :Control) -> void:
@@ -866,7 +882,9 @@ func _on_HeaderStatus_www_pressed():
 
 
 func _on_BuildBindingsButton_pressed():
-	run_makefile(get_config_filename("bindings"), gdcpppath, ["generate_bindings=yes"])
+	var batchfiles := create_bindings_makefiles()
+	
+	run_makefile_dict_current(batchfiles, BuildAction.Build)
 
 
 func _on_PlatformButton_item_selected(index):
@@ -884,12 +902,14 @@ func _on_ConfigurationButton_item_selected(index):
 func _on_Submenu_id_pressed(id):
 	match id:
 		Submenu.CleanBindings:
-			run_makefile(get_config_filename("bindings-clean"), gdcpppath, ["--clean"])
+			var batchfiles := create_bindings_makefiles()
+			
+			run_makefile_dict_current(batchfiles, BuildAction.Clean)
 		
 		Submenu.CleanCurrentLibrary:
 			if not utils.file_exists(currentgdnlib):
 				return
-	
+				
 			var path := ProjectSettings.globalize_path(currentgdnlib)
 			
 			run_makefile(get_config_filename(currentgdnlib_name + "-clean"), path.get_base_dir(), ["--clean"])
@@ -996,6 +1016,9 @@ func _on_GenerateVSButton_pressed():
 				f.close()
 	
 	print("  Generating solution...")
+	
+	print("  Generating bindings makefiles...")
+	create_bindings_makefiles()
 
 
 func _on_BuildLibraryButton_pressed():
