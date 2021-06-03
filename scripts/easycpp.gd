@@ -686,7 +686,7 @@ func create_all_makefiles(folder :String, lib :String, additionalargs :Array = [
 
 
 func create_bindings_makefiles() -> Dictionary:
-	return create_all_makefiles(gdcpppath, "bindings", ["generate_bindings=yes"])
+	return create_all_makefiles(gdcpppath, "godot-bindings", ["generate_bindings=yes"])
 
 
 func run_makefile_dict(dict :Dictionary, platform :int, config :int, action :int) -> int:
@@ -920,15 +920,21 @@ func _on_GenerateVSButton_pressed():
 	utils.make_dir(folder_solution)
 	
 	# start generating files
+	var projects := gdnlibs.duplicate()
+	projects["godot-bindings"] = gdcpppath + "/SConstruct"
+	
 	var uuids := {}
 	
-	for lib in gdnlibs:
+	for lib in projects:
 		print("  Generating projects for \"" + lib + "\"...")
 		
-		var libdir = gdnlibs[lib].get_base_dir()
+		var libdir = projects[lib].get_base_dir()
 		var outdir =  libdir if perproject else folder_solution
 		
-		var batchfiles := create_all_makefiles(outdir, lib)
+		if lib == "godot-bindings":
+			var batchfiles := create_bindings_makefiles()
+		else:
+			var batchfiles := create_all_makefiles(outdir, lib)
 		
 		var f := File.new()
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
@@ -948,9 +954,6 @@ func _on_GenerateVSButton_pressed():
 				f.close()
 	
 	print("  Generating solution...")
-	
-	print("  Generating bindings makefiles...")
-	create_bindings_makefiles()
 
 
 func _on_BuildLibraryButton_pressed():
