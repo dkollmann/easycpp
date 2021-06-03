@@ -541,6 +541,7 @@ func create_batch_dir(folder :String, name :String, batch :Array) -> String:
 	
 	return create_batch(fname, batch)
 
+
 func create_batch(fname :String, batch :Array) -> String:
 	var file := File.new()
 	file.open(fname, File.WRITE)
@@ -626,7 +627,7 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folde
 	
 	args.append_array(additionalargs)
 	
-	var fname := name + "_" + platname + "_" + trgt + post
+	var fname := "%s_%s_%s%s" % [name, platname, trgt, post]
 	var cpp := get_shortpath(gdcpppath)
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
@@ -643,8 +644,106 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folde
 	])
 
 
+static func get_buildoutput(name :String, pltfrm :int, bldcfg :int) -> String:
+	var plat := ""
+	var trgt := ""
+	var bits := "64"
+	
+	match pltfrm:
+		BuildPlatform.Win32:
+			plat = "windows"
+			bits = "32"
+		
+		BuildPlatform.Win64:
+			plat = "windows"
+	
+	match bldcfg:
+		BuildConfiguration.Shipping:
+			trgt = "release"
+		
+		BuildConfiguration.Release:
+			trgt = "release"
+		
+		BuildConfiguration.Profiling:
+			trgt = "profiling"
+		
+		BuildConfiguration.Debug:
+			trgt = "debug"
+	
+	return "%s.%s.%s.%s" % [name, plat, trgt, bits]
+
+
+static func get_buildpreprocessors(pltfrm :int, bldcfg :int) -> Array:
+	var list :Array
+	
+	match pltfrm:
+		BuildPlatform.Win32:
+			list = ["WIN32"]
+		
+		BuildPlatform.Win64:
+			list = []
+	
+	match bldcfg:
+		BuildConfiguration.Shipping:
+			list.append("SHIPPING")
+			list.append("NDEBUG")
+		
+		BuildConfiguration.Release:
+			list.append("NDEBUG")
+		
+		BuildConfiguration.Profiling:
+			list.append("PROFILING")
+			list.append("NDEBUG")
+		
+		BuildConfiguration.Debug:
+			list.append("_DEBUG")
+	
+	return list
+
+
+static func get_buildpreprocessors_str(pltfrm :int, bldcfg :int) -> String:
+	var list := get_buildpreprocessors(pltfrm, bldcfg)
+	
+	return PoolStringArray(list).join(";")
+
+
 static func get_buildconfig_index(platform :int, config :int, action :int) -> int:
 	return platform + config * 10 + action * 100
+
+
+func get_available_buildplatforms() -> Array:
+	var list := []
+	
+	var platforms := get_supported_buildplatforms()
+	
+	if utils.is_windows():
+		if utils.hasbit(platforms, BuildPlatform.Win32):
+			list.append(BuildPlatform.Win32)
+		
+		if utils.hasbit(platforms, BuildPlatform.Win64):
+			list.append(BuildPlatform.Win64)
+	
+	return list
+
+
+func get_available_buildconfigs() -> Array:
+	var list := []
+	
+	var configs := get_supported_buildconfigs()
+	
+	if utils.hasbit(configs, BuildConfiguration.Shipping):
+		list.append(BuildConfiguration.Shipping)
+	
+	if utils.hasbit(configs, BuildConfiguration.Release):
+		list.append(BuildConfiguration.Release)
+	
+	if utils.hasbit(configs, BuildConfiguration.Profiling):
+		list.append(BuildConfiguration.Profiling)
+	
+	if utils.hasbit(configs, BuildConfiguration.Debug):
+		list.append(BuildConfiguration.Debug)
+	
+	return list
 
 
 func create_all_makefiles_for_config(platform :int, config :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
@@ -656,31 +755,18 @@ func create_all_makefiles_for_config(platform :int, config :int, folder :String,
 
 
 func create_all_makefiles_for_platform(platform :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
-	var configs := get_supported_buildconfigs()
+	var configs := get_available_buildconfigs()
 	
-	if utils.hasbit(configs, BuildConfiguration.Shipping):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Shipping, folder, lib, additionalargs, batchfiles)
-	
-	if utils.hasbit(configs, BuildConfiguration.Release):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Release, folder, lib, additionalargs, batchfiles)
-	
-	if utils.hasbit(configs, BuildConfiguration.Profiling):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Profiling, folder, lib, additionalargs, batchfiles)
-	
-	if utils.hasbit(configs, BuildConfiguration.Debug):
-		create_all_makefiles_for_config(platform, BuildConfiguration.Debug, folder, lib, additionalargs, batchfiles)
+	for c in configs:
+		create_all_makefiles_for_config(platform, c, folder, lib, additionalargs, batchfiles)
 
 
 func create_all_makefiles(folder :String, lib :String, additionalargs :Array = []) -> Dictionary:
 	var batchfiles := {}
-	var platforms := get_supported_buildplatforms()
+	var platforms := get_available_buildplatforms()
 	
-	if utils.is_windows():
-		if utils.hasbit(platforms, BuildPlatform.Win32):
-			create_all_makefiles_for_platform(BuildPlatform.Win32, folder, lib, additionalargs, batchfiles)
-		
-		if utils.hasbit(platforms, BuildPlatform.Win64):
-			create_all_makefiles_for_platform(BuildPlatform.Win64, folder, lib, additionalargs, batchfiles)
+	for p in platforms:
+		create_all_makefiles_for_platform(p, folder, lib, additionalargs, batchfiles)
 	
 	return batchfiles
 
@@ -893,8 +979,8 @@ func _on_GenerateVSButton_pressed():
 	print("Generating Visual Studio projects and solution...")
 	
 	# determine some settings
-	var configs := get_supported_buildconfigs()
-	var platforms := get_supported_buildplatforms()
+	var configs := get_available_buildconfigs()
+	var platforms := get_available_buildplatforms()
 	var location := get_vsproj_location()
 	
 	var folder_solution := ""
@@ -919,6 +1005,32 @@ func _on_GenerateVSButton_pressed():
 	
 	utils.make_dir(folder_solution)
 	
+	# generate the project configurations
+	var projectconfigs := ""
+	var projectconfigtypes := ""
+	var projectuserprops := ""
+	
+	for p in platforms:
+		var pp = BuildPlatform.keys()[p]
+		
+		for c in configs:
+			var cc = BuildConfiguration.keys()[c]
+			
+			projectconfigs += "    <ProjectConfiguration Include=\"%s|%s\">\n" % [cc, pp]
+			projectconfigs += "      <Configuration>%s</Configuration>\n" % [cc]
+			projectconfigs += "      <Platform>%s</Platform>\n" % [pp]
+			projectconfigs += "    </ProjectConfiguration>\n"
+			
+			projectconfigtypes += "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='%s|%s'\" Label=\"Configuration\">\n" % [cc, pp]
+			projectconfigtypes += "    <ConfigurationType>Makefile</ConfigurationType>\n"
+			projectconfigtypes += "    <UseDebugLibraries>%s</UseDebugLibraries>\n" % ["true" if c == BuildConfiguration.Debug else "false"]
+			projectconfigtypes += "    <PlatformToolset>v142</PlatformToolset>\n"
+			projectconfigtypes += "  </PropertyGroup>\n"
+			
+			projectuserprops += "  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='%s|%s'\">\n" % [cc, pp]
+			projectuserprops += "    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />\n"
+			projectuserprops += "  </ImportGroup>\n"
+	
 	# start generating files
 	var projects := gdnlibs.duplicate()
 	projects["godot-bindings"] = gdcpppath + "/SConstruct"
@@ -931,10 +1043,33 @@ func _on_GenerateVSButton_pressed():
 		var libdir = projects[lib].get_base_dir()
 		var outdir =  libdir if perproject else folder_solution
 		
+		var batchfiles :Dictionary
+		
 		if lib == "godot-bindings":
-			var batchfiles := create_bindings_makefiles()
+			batchfiles = create_bindings_makefiles()
 		else:
-			var batchfiles := create_all_makefiles(outdir, lib)
+			batchfiles = create_all_makefiles(outdir, lib)
+		
+		var projectnmakes := ""
+		
+		for p in platforms:
+			var pp = BuildPlatform.keys()[p]
+			
+			for c in configs:
+				var cc = BuildConfiguration.keys()[c]
+				
+				var nmake_build = batchfiles[ get_buildconfig_index(p, c, BuildAction.Build) ]
+				var nmake_clean = batchfiles[ get_buildconfig_index(p, c, BuildAction.Clean) ]
+				var preprocs := get_buildpreprocessors_str(p, c)
+				
+				projectnmakes += "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='%s|%s'\">\n" % [cc, pp]
+				projectnmakes += "    <NMakeOutput>" + get_buildoutput(lib, p, c) + "</NMakeOutput>\n"
+				projectnmakes += "    <NMakeBuildCommandLine>" + nmake_build + "</NMakeBuildCommandLine>\n"
+				projectnmakes += "    <NMakeCleanCommandLine>" + nmake_clean + "</NMakeCleanCommandLine>\n"
+				projectnmakes += "    <NMakeReBuildCommandLine>" + nmake_clean + " && " + nmake_build + "</NMakeReBuildCommandLine>\n"
+				projectnmakes += "    <NMakePreprocessorDefinitions>" + preprocs + ";$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>\n"
+				projectnmakes += "    <NMakeIncludeSearchPath>" + gdheaderspath + ";$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>\n"
+				projectnmakes += "  </PropertyGroup>\n"
 		
 		var f := File.new()
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
@@ -946,6 +1081,10 @@ func _on_GenerateVSButton_pressed():
 			uuids[lib] = uuid
 			
 			content = content.replace("$$projectguid$$", uuid)
+			content = content.replace("$$projectconfigs$$", projectconfigs.strip_edges(false, true))
+			content = content.replace("$$projectconfigtypes$$", projectconfigtypes.strip_edges(false, true))
+			content = content.replace("$$projectuserprops$$", projectuserprops.strip_edges(false, true))
+			content = content.replace("$$projectnmakes$$", projectnmakes.strip_edges(false, true))
 			
 			var outfile = outdir + "/" + lib + ".vcxproj"
 			
