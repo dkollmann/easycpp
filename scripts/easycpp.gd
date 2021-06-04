@@ -50,6 +50,8 @@ enum VisualProjectLocation {
 }
 
 
+const supportCmake := false
+
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
@@ -161,7 +163,13 @@ func _ready():
 	runinterminalpath = toolspath + "/rit.exe"
 	shortpathpath = toolspath + "/shortpath.bat"
 	
-	init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
+	# handle cmake support
+	$BuildSystemLabel.visible = supportCmake
+	$BuildSystemButton.visible = supportCmake
+	$Spacer6.visible = supportCmake
+	
+	if supportCmake:
+		init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
 	$PlatformContainer/PlatformButton.clear()
 	$PlatformContainer/ConfigurationButton.clear()
