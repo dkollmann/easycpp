@@ -251,6 +251,15 @@ func get_supported_buildplatforms() -> int:
 func get_supported_buildconfigs() -> int:
 	return utils.get_project_setting_flags(setting_buildconfigurations, BuildConfiguration, (1 << BuildConfiguration.Debug) | (1 << BuildConfiguration.Release))
 
+
+func randomstring() -> String:
+	return str(random.randi())
+
+
+func randomuuid() -> String:
+	return utils.get_uuid( randomstring() )
+
+
 func check_sdk_state() -> void:
 	# handle temporary folder
 	temppath = ProjectSettings.globalize_path(tempres)
@@ -1038,10 +1047,28 @@ func _on_GenerateVSButton_pressed():
 	var uuids := {}
 	
 	for lib in projects:
-		print("  Generating projects for \"" + lib + "\"...")
-		
 		var libdir = projects[lib].get_base_dir()
 		var outdir =  libdir if perproject else folder_solution
+		
+		print("  Collecting source files for \"" + lib + "\"...")
+		
+		var sourcesdir := ProjectSettings.globalize_path(libdir + "/src")
+		
+		var headerfiles := []
+		var sourcefiles := []
+		utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles)
+		
+		var headerfiles_str := ""
+		var sourcefiles_str := ""
+		
+		for h in headerfiles:
+			headerfiles_str += "    <ClInclude Include=\"" + h + "\" />\n"
+		
+		for s in sourcefiles:
+			sourcefiles_str += "    <ClCompile Include=\"" + s + "\" />\n"
+		
+		
+		print("  Generating project for \"" + lib + "\"...")
 		
 		var batchfiles :Dictionary
 		
@@ -1066,7 +1093,7 @@ func _on_GenerateVSButton_pressed():
 				projectnmakes += "    <NMakeOutput>" + get_buildoutput(lib, p, c) + "</NMakeOutput>\n"
 				projectnmakes += "    <NMakeBuildCommandLine>" + nmake_build + "</NMakeBuildCommandLine>\n"
 				projectnmakes += "    <NMakeCleanCommandLine>" + nmake_clean + "</NMakeCleanCommandLine>\n"
-				projectnmakes += "    <NMakeReBuildCommandLine>" + nmake_clean + " && " + nmake_build + "</NMakeReBuildCommandLine>\n"
+				projectnmakes += "    <NMakeReBuildCommandLine>" + nmake_clean + " &amp;&amp; " + nmake_build + "</NMakeReBuildCommandLine>\n"
 				projectnmakes += "    <NMakePreprocessorDefinitions>" + preprocs + ";$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>\n"
 				projectnmakes += "    <NMakeIncludeSearchPath>" + gdheaderspath + ";$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>\n"
 				projectnmakes += "  </PropertyGroup>\n"
@@ -1085,8 +1112,26 @@ func _on_GenerateVSButton_pressed():
 			content = content.replace("$$projectconfigtypes$$", projectconfigtypes.strip_edges(false, true))
 			content = content.replace("$$projectuserprops$$", projectuserprops.strip_edges(false, true))
 			content = content.replace("$$projectnmakes$$", projectnmakes.strip_edges(false, true))
+			content = content.replace("$$headerfiles$$", headerfiles_str.strip_edges(false, true))
+			content = content.replace("$$sourcefiles$$", sourcefiles_str.strip_edges(false, true))
 			
 			var outfile = outdir + "/" + lib + ".vcxproj"
+			
+			if f.open(outfile, File.WRITE) == OK:
+				f.store_string(content)
+				f.close()
+		
+		
+		print("  Generating filters for \"" + lib + "\"...")
+		
+		if f.open(templatespath + "/vsproj/template.vcxproj.filters", File.READ) == OK:
+			var content := f.get_as_text()
+			f.close()
+			
+			content = content.replace("$$sourcefilesuuid$$", randomuuid())
+			content = content.replace("$$headerfilesuuid$$", randomuuid())
+			
+			var outfile = outdir + "/" + lib + ".vcxproj.filters"
 			
 			if f.open(outfile, File.WRITE) == OK:
 				f.store_string(content)

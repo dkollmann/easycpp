@@ -136,6 +136,36 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 	return files
 
 
+static func find_sourcefiles(path :String, recursive :bool, headerfiles :Array, sourcefiles :Array) -> void:
+	var folders := [path]
+	var files := []
+	var dir := Directory.new()
+	
+	for f in folders:
+		dir.open(f)
+		dir.list_dir_begin(true, true)
+		
+		var file := dir.get_next()
+		while file != '':
+			var p = f + "/" + file
+			
+			if dir.dir_exists(p):
+				folders.append(p)
+			
+			else:
+				var ext := file.get_extension()
+				
+				if ext == "c" or ext == "cc" or ext == "cpp":
+					sourcefiles.append(p)
+				
+				elif ext == "h" or ext == "hpp":
+					headerfiles.append(p)
+			
+			file = dir.get_next()
+		
+		dir.list_dir_end()
+
+
 static func get_uuid(input :String) -> String:
 	var md5 := input.md5_text().to_upper()
 	
