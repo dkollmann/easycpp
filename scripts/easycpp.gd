@@ -80,6 +80,11 @@ const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 
+const VisualStudioPlatforms := {
+	BuildPlatform.Win32: "x86",
+	BuildPlatform.Win64: "x64"
+}
+
 
 var editorbase :Control
 
@@ -1028,7 +1033,7 @@ func _on_GenerateVSButton_pressed():
 	var projectuserprops := ""
 	
 	for p in platforms:
-		var pp = BuildPlatform.keys()[p]
+		var pp = VisualStudioPlatforms[p]
 		
 		for c in configs:
 			var cc = BuildConfiguration.keys()[c]
@@ -1091,7 +1096,7 @@ func _on_GenerateVSButton_pressed():
 		var projectnmakes := ""
 		
 		for p in platforms:
-			var pp = BuildPlatform.keys()[p]
+			var pp = VisualStudioPlatforms[p]
 			
 			for c in configs:
 				var cc = BuildConfiguration.keys()[c]
@@ -1152,22 +1157,47 @@ func _on_GenerateVSButton_pressed():
 	print("  Generating solution...")
 	
 	var projectstr := ""
+	var configspresolution := ""
+	var configspostsolution := ""
+	
+	for p in platforms:
+			var pp = VisualStudioPlatforms[p]
+			
+			for c in configs:
+				var cc = BuildConfiguration.keys()[c]
+				
+				configspresolution += "\t\t%s|%s = %s|%s\n" % [cc, pp, cc, pp]
 	
 	for p in projects:
-		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], randomuuid()]
+		var suuid := utils.get_uuid(p)
+		
+		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], suuid]
+		
+		for pt in platforms:
+			var pp = VisualStudioPlatforms[pt]
+			
+			for c in configs:
+				var cc = BuildConfiguration.keys()[c]
+				
+				configspostsolution += "\t\t%s.%s|%s.ActiveCfg = %s|%s\n" % [suuid, cc, pp, cc, pp]
+	
+	var solutionname := utils.get_projectname()
+	var solutionfile = folder_solution + "/" + solutionname + ".sln"
 	
 	if f.open(templatespath + "/vsproj/template.sln", File.READ) == OK:
 			var content := f.get_as_text()
 			f.close()
 			
 			content = content.replace("$$projects$$", projectstr.strip_edges(false, true))
-			content = content.replace("$$solutionguid$$", randomuuid())
+			content = content.replace("$$configspresolution$$", configspresolution.strip_edges(false, true))
+			content = content.replace("$$configspostsolution$$", configspostsolution.strip_edges(false, true))
+			content = content.replace("$$solutionguid$$", utils.get_uuid(solutionname))
 			
-			var outfile = folder_solution + "/" + utils.get_projectname() + ".sln"
-			
-			if f.open(outfile, File.WRITE) == OK:
+			if f.open(solutionfile, File.WRITE) == OK:
 				f.store_string(content)
 				f.close()
+	
+	OS.shell_open(solutionfile)
 
 
 func _on_BuildLibraryButton_pressed():
