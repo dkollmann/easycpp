@@ -1041,10 +1041,13 @@ func _on_GenerateVSButton_pressed():
 			projectuserprops += "  </ImportGroup>\n"
 	
 	# start generating files
+	var f := File.new()
+	
 	var projects := gdnlibs.duplicate()
 	projects["godot-bindings"] = gdcpppath + "/SConstruct"
 	
 	var uuids := {}
+	var projectfiles := {}
 	
 	for lib in projects:
 		var libdir = projects[lib].get_base_dir()
@@ -1098,7 +1101,6 @@ func _on_GenerateVSButton_pressed():
 				projectnmakes += "    <NMakeIncludeSearchPath>" + gdheaderspath + ";$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>\n"
 				projectnmakes += "  </PropertyGroup>\n"
 		
-		var f := File.new()
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:
 			var content := f.get_as_text()
 			f.close()
@@ -1117,6 +1119,8 @@ func _on_GenerateVSButton_pressed():
 			
 			var outfile = outdir + "/" + lib + ".vcxproj"
 			
+			projectfiles[lib] = outfile
+			
 			if f.open(outfile, File.WRITE) == OK:
 				f.store_string(content)
 				f.close()
@@ -1128,8 +1132,8 @@ func _on_GenerateVSButton_pressed():
 			var content := f.get_as_text()
 			f.close()
 			
-			content = content.replace("$$sourcefilesuuid$$", randomuuid())
-			content = content.replace("$$headerfilesuuid$$", randomuuid())
+			content = content.replace("$$sourcefilesguid$$", randomuuid())
+			content = content.replace("$$headerfilesguid$$", randomuuid())
 			
 			var outfile = outdir + "/" + lib + ".vcxproj.filters"
 			
@@ -1138,6 +1142,24 @@ func _on_GenerateVSButton_pressed():
 				f.close()
 	
 	print("  Generating solution...")
+	
+	var projectstr := ""
+	
+	for p in projects:
+		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], randomuuid()]
+	
+	if f.open(templatespath + "/vsproj/template.sln", File.READ) == OK:
+			var content := f.get_as_text()
+			f.close()
+			
+			content = content.replace("$$projects$$", projectstr.strip_edges(false, true))
+			content = content.replace("$$solutionguid$$", randomuuid())
+			
+			var outfile = folder_solution + "/" + utils.get_projectname() + ".sln"
+			
+			if f.open(outfile, File.WRITE) == OK:
+				f.store_string(content)
+				f.close()
 
 
 func _on_BuildLibraryButton_pressed():

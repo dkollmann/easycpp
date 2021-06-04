@@ -174,3 +174,7 @@ static func get_uuid(input :String) -> String:
 
 static func hasbit(bits :int, value :int) -> bool:
 	return (bits & (1 << value)) != 0
+
+
+static func get_projectname() -> String:
+	return ProjectSettings.get_setting("application/config/name")
