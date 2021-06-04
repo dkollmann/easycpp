@@ -1063,12 +1063,12 @@ func _on_GenerateVSButton_pressed():
 	var projectfiles := {}
 	
 	for lib in projects:
-		var libdir = projects[lib].get_base_dir()
-		var outdir =  libdir if perproject else folder_solution
+		var libdir := ProjectSettings.globalize_path( projects[lib].get_base_dir() )
+		var outdir :=  libdir if perproject else folder_solution
 		
 		print("  Collecting source files for \"" + lib + "\"...")
 		
-		var sourcesdir := ProjectSettings.globalize_path(libdir + "/src")
+		var sourcesdir := libdir + "/src"
 		
 		var headerfiles := []
 		var sourcefiles := []
@@ -1091,7 +1091,7 @@ func _on_GenerateVSButton_pressed():
 		if lib == "godot-bindings":
 			batchfiles = create_bindings_makefiles()
 		else:
-			batchfiles = create_all_makefiles(outdir, lib)
+			batchfiles = create_all_makefiles(libdir, lib)
 		
 		var projectnmakes := ""
 		
@@ -1107,9 +1107,9 @@ func _on_GenerateVSButton_pressed():
 				
 				projectnmakes += "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='%s|%s'\">\n" % [cc, pp]
 				projectnmakes += "    <NMakeOutput>" + get_buildoutput(lib, p, c) + "</NMakeOutput>\n"
-				projectnmakes += "    <NMakeBuildCommandLine>" + nmake_build + "</NMakeBuildCommandLine>\n"
-				projectnmakes += "    <NMakeCleanCommandLine>" + nmake_clean + "</NMakeCleanCommandLine>\n"
-				projectnmakes += "    <NMakeReBuildCommandLine>" + nmake_clean + " &amp;&amp; " + nmake_build + "</NMakeReBuildCommandLine>\n"
+				projectnmakes += "    <NMakeBuildCommandLine>\"" + nmake_build + "\"</NMakeBuildCommandLine>\n"
+				projectnmakes += "    <NMakeCleanCommandLine>\"" + nmake_clean + "\"</NMakeCleanCommandLine>\n"
+				projectnmakes += "    <NMakeReBuildCommandLine>\"" + nmake_clean + "\" &amp;&amp; \"" + nmake_build + "\"</NMakeReBuildCommandLine>\n"
 				projectnmakes += "    <NMakePreprocessorDefinitions>" + preprocs + ";$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>\n"
 				projectnmakes += "    <NMakeIncludeSearchPath>" + gdheaderspath + ";$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>\n"
 				projectnmakes += "  </PropertyGroup>\n"
