@@ -35,7 +35,8 @@ enum Compiler {
 
 enum Submenu {
 	CleanBindings,
-	CleanCurrentLibrary
+	CleanCurrentLibrary,
+	UpdateGDNativeLibrary
 }
 
 enum BatchfilesLocation {
@@ -207,6 +208,7 @@ func _ready():
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Current Library", Submenu.CleanCurrentLibrary)
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Update GDNativeLibrary", Submenu.UpdateGDNativeLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
@@ -953,6 +955,62 @@ func _on_Submenu_id_pressed(id):
 			var batchfiles := create_all_makefiles(path, currentgdnlib_name)
 			
 			run_makefile_dict_current(batchfiles, BuildAction.Clean)
+		
+		Submenu.UpdateGDNativeLibrary:
+			var gdnlibrespath := currentgdnlib.get_base_dir() + "/bin/" + currentgdnlib_name + ".gdnlib"
+			var gdnlibres :GDNativeLibrary
+			
+			if File.new().file_exists(gdnlibrespath):
+				print("Loading \"" + gdnlibrespath + "\"...")
+				
+				gdnlibres = load(gdnlibrespath)
+				
+			else:
+				print("Creating \"" + gdnlibrespath + "\"...")
+				
+				gdnlibres = GDNativeLibrary.new()
+			
+			var platforms := get_available_buildplatforms()
+			
+			for p in platforms:
+				var key :String
+				
+				match p:
+					BuildPlatform.Win32:
+						key = "Windows.32"
+					BuildPlatform.Win64:
+						key = "Windows.64"
+					BuildPlatform.Linux:
+						#key = "X11.32"
+						key = "X11.64"
+					BuildPlatform.macOS:
+						#key = "OSX.32"
+						key = "OSX.64"
+					BuildPlatform.Android:
+						#key = "Android.armeabi-v7a"
+						#key = "Android.arm64-v8a"
+						#key = "Android.x86"
+						#key = "Android.x86_64"
+						pass
+					
+					BuildPlatform.iOS:
+						#key = "iOS.armv7"
+						#key = "iOS.arm64"
+						#key = "iOS.x86_64"
+						pass
+					
+						#key = "HTML5.wasm32"
+						#key = "Haiku.64"
+						#key = "Haiku.32"
+						#key = "UWP.arm"
+						#key = "UWP.32"
+						#key = "UWP.64"
+				
+				var value = gdnlibres.config_file.get_value("entry", key, "")
+				if not value.empty():
+					pass
+			
+			ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH)
 
 
 func _on_CurrentLibraryButton_item_selected(index):
