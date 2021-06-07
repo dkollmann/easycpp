@@ -27,7 +27,7 @@ const DefaultBuildPlatforms := [
 	# %use_clang% - Is true when Clang is the selected compiler
 	# %use_gcc%   - Is true when GCC is the selected compiler
 	
-	# name | enabled | available on | arguments | outputname | gdnlibkey
+	"# name | enabled | available on | arguments | outputname | gdnlibkey",
 	"Windows (32-bit) | false | windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.32",
 	"Windows (64-bit) | true  | windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.64",
 	"Universal Windows Platform (32-bit) | false | windows | platform=uwp arch=x86   bits=32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.32",
@@ -57,7 +57,7 @@ enum BuildConfiguration {
 }
 
 const DefaultBuildConfigurations := [
-	# name | enabled | arguments
+	"# name | enabled | arguments",
 	"Shipping  | false | target=shipping tools=no",
 	"Release   | true  | target=release",
 	"Profiling | false | target=release_debug",

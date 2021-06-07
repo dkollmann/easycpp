@@ -182,3 +182,52 @@ static func hasbit(bits :int, value :int) -> bool:
 
 static func get_projectname() -> String:
 	return ProjectSettings.get_setting("application/config/name")
+
+
+static func split_clean(text :String, delimiter :String, allow_empty :bool = true) -> PoolStringArray:
+	var values := text.split(delimiter, allow_empty)
+	
+	for i in range(len(values)):
+		values[i] = values[i].strip_edges()
+	
+	return values
+
+
+static func parse_csvdata(csv :String) -> Array:
+	var data := []
+	var lines := csv.split("\n", false)
+	
+	# check if we have data
+	if len(lines) < 2:
+		return data
+	
+	var keysstr := lines[0].strip_edges(true, false)
+	
+	# check if the first line are the keys
+	if not keysstr.begins_with("#"):
+		return data
+	
+	keysstr = keysstr.substr(1, len(keysstr)-1)
+	
+	var keys := split_clean(keysstr, "|", true)
+	
+	# check if all keys are valid
+	for k in keys:
+		if k.empty():
+			return data
+	
+	# check datasets
+	for i in range(1, len(lines)):
+		if len(lines[i]) != len(keys):
+			return data
+	
+	# parse data
+	for i in range(1, len(lines)):
+		var d := {}
+		
+		for j in range(len(keys)):
+			d[ keys[j] ] = lines[i][j]
+		
+		data.append(d)
+	
+	return data
