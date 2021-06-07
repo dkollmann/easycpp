@@ -27,25 +27,26 @@ const DefaultBuildConfigurations := [
 	# %use_clang% - Is true when Clang is the selected compiler
 	# %use_gcc%   - Is true when GCC is the selected compiler
 	
-	# name | enabled | available on | arguments | outputname
-	"Windows (32-bit) | false | windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll",
-	"Windows (64-bit) | true  | windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll",
-	"Universal Windows Platform (32-bit) | false | windows | platform=uwp arch=x86   bits=32 | lib%name%.%platform%.%target%.%bits%.dll",
-	"Universal Windows Platform (64-bit) | false | windows | platform=uwp arch=amd64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll",
-	"Universal Windows Platform (ARM)    | false | windows | platform=uwp arch=arm   bits=32 | lib%name%.%platform%.%target%.%bits%.dll",
-	"Universal Windows Platform (ARM64)  | false | windows | platform=uwp arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll",
-	"Linux (32-bit) | false | linux | platform=linux bits=32 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so",
-	"Linux (64-bit) | true  | linux | platform=linux bits=64 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so",
-	"macOS (32-bit) | false | macos | platform=osx bits=32 | lib%name%.%platform%.%target%.%bits%.so",
-	"macOS (64-bit) | true  | macos | platform=osx bits=64 | lib%name%.%platform%.%target%.%bits%.so",
-	"macOS (ARM)    | true  | macos | platform=osx arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.so",
-	"Android (armeabi-v7a) | true | windows,linux,macos | platform=android arch=armv7   bits=32 | lib%name%.%platform%.%target%.%arch%.so",
-	"Android (arm64-v8a)   | true | windows,linux,macos | platform=android arch=arm64v8 bits=64 | lib%name%.%platform%.%target%.%arch%.so",
-	"Android (x86)         | true | windows,linux,macos | platform=android arch=x86     bits=32 | lib%name%.%platform%.%target%.%arch%.so",
-	"Android (x86_64)      | true | windows,linux,macos | platform=android arch=x86_64  bits=64 | lib%name%.%platform%.%target%.%arch%.so",
-	"iOS (armv7)  | false | macos | platform=ios arch=armv7  bits=32 | lib%name%.%platform%.%target%.%arch%.so",
-	"iOS (arm64)  | true  | macos | platform=ios arch=arm64  bits=64 | lib%name%.%platform%.%target%.%arch%.so",
-	"iOS (x86_64) | true  | macos | platform=ios arch=x86_64 bits=64 | lib%name%.%platform%.%target%.%arch%.so"
+	# name | enabled | available on | arguments | outputname | gdnlibkey
+	"Windows (32-bit) | false | windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.32",
+	"Windows (64-bit) | true  | windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.64",
+	"Universal Windows Platform (32-bit) | false | windows | platform=uwp arch=x86   bits=32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.32",
+	"Universal Windows Platform (64-bit) | false | windows | platform=uwp arch=amd64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll | UWP.64",
+	"Universal Windows Platform (ARM)    | false | windows | platform=uwp arch=arm   bits=32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm",
+	"Universal Windows Platform (ARM64)  | false | windows | platform=uwp arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm64",
+	"Linux (32-bit) | false | linux | platform=linux bits=32 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so | X11.32",
+	"Linux (64-bit) | true  | linux | platform=linux bits=64 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so | X11.64",
+	"macOS (32-bit) | false | macos | platform=osx bits=32 | lib%name%.%platform%.%target%.%bits%.so | OSX.32",
+	"macOS (64-bit) | true  | macos | platform=osx bits=64 | lib%name%.%platform%.%target%.%bits%.so | OSX.64",
+	"macOS (ARM64)  | true  | macos | platform=osx arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.so | OSX.arm64",
+	"Android (armeabi-v7a) | true | windows,linux,macos | platform=android arch=armv7   bits=32 | lib%name%.%platform%.%target%.%arch%.so | Android.armeabi-v7a",
+	"Android (arm64-v8a)   | true | windows,linux,macos | platform=android arch=arm64v8 bits=64 | lib%name%.%platform%.%target%.%arch%.so | Android.arm64-v8a",
+	"Android (x86)         | true | windows,linux,macos | platform=android arch=x86     bits=32 | lib%name%.%platform%.%target%.%arch%.so | Android.x86",
+	"Android (x86_64)      | true | windows,linux,macos | platform=android arch=x86_64  bits=64 | lib%name%.%platform%.%target%.%arch%.so | Android.x86_64",
+	"iOS (armv7)  | false | macos | platform=ios arch=armv7  bits=32 | lib%name%.%platform%.%target%.%arch%.so | iOS.armv7",
+	"iOS (arm64)  | true  | macos | platform=ios arch=arm64  bits=64 | lib%name%.%platform%.%target%.%arch%.so | iOS.arm64",
+	"iOS (x86_64) | true  | macos | platform=ios arch=x86_64 bits=64 | lib%name%.%platform%.%target%.%arch%.so | iOS.x86_64",
+	"HTML5 | true | windows,linux,macos | platform=javascript | lib%name%.%platform%.%target%.%arch%.wasm32 | HTML5.wasm32"
 ]
 
 enum BuildConfiguration {
