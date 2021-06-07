@@ -56,6 +56,10 @@ static func get_project_setting_flags(name :String, enumtype, defvalue :int = 0)
 	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_FLAGS, get_enumoptions(enumtype))
 
 
+static func get_project_setting_flags_keys(name :String, keys :String, defvalue :int = 0) -> int:
+	return get_project_setting(name, TYPE_INT, defvalue, PROPERTY_HINT_FLAGS, keys)
+
+
 static func get_project_setting_bool(name :String, defvalue :bool) -> bool:
 	return get_project_setting(name, TYPE_BOOL, defvalue)
 
