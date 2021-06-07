@@ -15,7 +15,7 @@ enum BuildPlatform {
 	iOS
 }
 
-const DefaultBuildConfigurations := [
+const DefaultBuildPlatforms := [
 	# Variables:
 	# %name%      - The name of the GDNative library
 	# %platform%  - The platform argument
@@ -55,6 +55,14 @@ enum BuildConfiguration {
 	Profiling,
 	Debug
 }
+
+const DefaultBuildConfigurations := [
+	# name | enabled | arguments
+	"Shipping  | false | target=shipping tools=no",
+	"Release   | true  | target=release",
+	"Profiling | false | target=release_debug",
+	"Debug     | true  | target=debug"
+]
 
 enum BuildAction {
 	Build,
