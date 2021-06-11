@@ -289,3 +289,9 @@ static func dict_to_array(dict :Dictionary) -> Array:
 			lst.append(dict[key])
 	
 	return lst
+
+
+static func is_true(s :String) -> bool:
+	var ss := s.strip_edges().to_lower()
+	
+	return ss != "false"

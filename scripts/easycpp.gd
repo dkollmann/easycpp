@@ -30,10 +30,10 @@ const DefaultBuildPlatforms := [
 	"macOS (32-bit) | false | OSX | platform=osx bits=32 | | lib%name%.%platform%.%target%.%bits%.so | OSX.32 | ",
 	"macOS (64-bit) | true  | OSX | platform=osx bits=64 | | lib%name%.%platform%.%target%.%bits%.so | OSX.64 | ",
 	"macOS (ARM64)  | true  | OSX | platform=osx arch=arm64 bits=64 | | lib%name%.%platform%.%target%.%bits%.so | OSX.arm64 | ",
-	"Android (armeabi-v7a) | true | Windows X11 OSX | platform=android arch=armv7   bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.armeabi-v7a | ",
-	"Android (arm64-v8a)   | true | Windows X11 OSX | platform=android arch=arm64v8 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.arm64-v8a | ",
-	"Android (x86)         | true | Windows X11 OSX | platform=android arch=x86     bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86 | ",
-	"Android (x86_64)      | true | Windows X11 OSX | platform=android arch=x86_64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86_64 | ",
+	"Android (armeabi-v7a) | true  | Windows X11 OSX | platform=android arch=armv7   bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.armeabi-v7a | ",
+	"Android (arm64-v8a)   | true  | Windows X11 OSX | platform=android arch=arm64v8 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.arm64-v8a | ",
+	"Android (x86)         | false | Windows X11 OSX | platform=android arch=x86     bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86 | ",
+	"Android (x86_64)      | false | Windows X11 OSX | platform=android arch=x86_64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86_64 | ",
 	"iOS (armv7)  | false | OSX | platform=ios arch=armv7  bits=32 | | lib%name%.%platform%.%target%.%arch%.so | iOS.armv7 | ",
 	"iOS (arm64)  | true  | OSX | platform=ios arch=arm64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.arm64 | ",
 	"iOS (x86_64) | true  | OSX | platform=ios arch=x86_64 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.x86_64 | ",
@@ -86,18 +86,6 @@ class BuildBase:
 	var arguments :String
 	var arguments_dict :Dictionary = {}
 	var defines :Array
-	
-	static func parse_csv(ut :Utils, csv :String, fnc :FuncRef) -> Array:
-		var lst := []
-		var lines := csv.split("\n", false)
-		
-		for i in range(len(lines)):
-			var b = fnc.call_func(ut, i, lines[i])
-			
-			if b != null:
-				lst.append(b)
-		
-		return lst
 
 
 class BuildPlatform extends BuildBase:
@@ -105,13 +93,31 @@ class BuildPlatform extends BuildBase:
 	var gdnlibkey :String
 	var vsplatform :String
 	
+	static func parse_csv(ut :Utils, csv :String) -> Array:
+		var lst := []
+		var lines := csv.split("\n", false)
+		
+		for i in range(len(lines)):
+			var l := lines[i].strip_edges()
+			
+			if l.begins_with("#"):
+				continue
+			
+			var b := create(ut, i, l)
+			
+			if b != null:
+				lst.append(b)
+		
+		return lst
+
+
 	static func create(ut :Utils, idx :int, line :String) -> BuildPlatform:
 		var params := utils.split_clean(line, "|", true)
 		
 		assert(len(params) == 8)
 		
 		# check if available and enabled
-		var enabled := bool(params[1])
+		var enabled := ut.is_true(params[1])
 		var availableon := params[2]
 		
 		if enabled and OS.get_name() in availableon:
@@ -135,21 +141,39 @@ class BuildPlatform extends BuildBase:
 
 
 class BuildConfiguration extends BuildBase:
+	static func parse_csv(ut :Utils, csv :String) -> Array:
+		var lst := []
+		var lines := csv.split("\n", false)
+		
+		for i in range(len(lines)):
+			var l := lines[i].strip_edges()
+			
+			if l.begins_with("#"):
+				continue
+			
+			var b := create(ut, i, l)
+			
+			if b != null:
+				lst.append(b)
+		
+		return lst
+
+
 	static func create(ut :Utils, idx :int, line :String) -> BuildConfiguration:
 		var params := utils.split_clean(line, "|", true)
 		
 		assert(len(params) == 4)
 		
-		# check if available and enabled
-		var enabled := bool(params[1])
+		# check if enabled
+		var enabled := ut.is_true(params[1])
 		
 		if enabled:
 			var b := BuildConfiguration.new()
 			
 			b.index = idx
 			b.name = params[0].strip_edges()
-			b.arguments = params[3]
-			b.defines = ut.split_clean(params[4], " ", false)
+			b.arguments = params[2]
+			b.defines = ut.split_clean(params[3], " ", false)
 			
 			var ok := ut.parse_args_dict(b.arguments, b.arguments_dict, false)
 			
@@ -176,8 +200,8 @@ const setting_buildfolder := "Easy C++/Build Folder"
 const setting_batchfilelocation := "Easy C++/Batchfile Location"
 const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
 const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
-const setting_buildconfigurations := "Easy C++/Supported Configurations/Build Configurations"
-const setting_buildplatforms := "Easy C++/Supported Configurations/Build Platforms"
+const setting_buildconfigurations := "Easy C++/Configuration/Build Configurations"
+const setting_buildplatforms := "Easy C++/Configuration/Build Platforms"
 
 const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
@@ -371,7 +395,7 @@ func read_build_platforms_configurations():
 	
 	platforms = utils.get_project_setting_string(setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	BuildBase.new().parse_csv(utils.new(), platforms, funcref(BuildPlatform.new(), "create"))
+	buildplatforms = BuildPlatform.new().parse_csv(utils.new(), platforms)
 	
 	if len(buildplatforms) < 1:
 		print("Failed to load build platforms from settings!!")
@@ -386,7 +410,7 @@ func read_build_platforms_configurations():
 	
 	configurations = utils.get_project_setting_string(setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	BuildBase.new().parse_csv(utils.new(), configurations, funcref(BuildConfiguration.new(), "create"))
+	buildconfigurations = BuildConfiguration.new().parse_csv(utils.new(), configurations)
 	
 	if len(buildconfigurations) < 1:
 		print("Failed to load build configurations from settings!!")
