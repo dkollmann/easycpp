@@ -6,15 +6,6 @@ enum BuildSystem {
 	Cmake
 }
 
-enum BuildPlatform {
-	Win32,
-	Win64,
-	Linux,
-	macOS,
-	Android,
-	iOS
-}
-
 const DefaultBuildPlatforms := [
 	# Variables:
 	# %name%      - The name of the GDNative library
@@ -27,41 +18,34 @@ const DefaultBuildPlatforms := [
 	# %use_clang% - Is true when Clang is the selected compiler
 	# %use_gcc%   - Is true when GCC is the selected compiler
 	
-	"# name | enabled | available on | arguments | outputname | gdnlibkey",
-	"Windows (32-bit) | false | windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.32",
-	"Windows (64-bit) | true  | windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | lib%name%.%platform%.%target%.%bits%.dll | Windows.64",
-	"Universal Windows Platform (32-bit) | false | windows | platform=uwp arch=x86   bits=32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.32",
-	"Universal Windows Platform (64-bit) | false | windows | platform=uwp arch=amd64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll | UWP.64",
-	"Universal Windows Platform (ARM)    | false | windows | platform=uwp arch=arm   bits=32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm",
-	"Universal Windows Platform (ARM64)  | false | windows | platform=uwp arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm64",
-	"Linux (32-bit) | false | linux | platform=linux bits=32 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so | X11.32",
-	"Linux (64-bit) | true  | linux | platform=linux bits=64 use_llvm=%use_clang% | lib%name%.%platform%.%target%.%bits%.so | X11.64",
-	"macOS (32-bit) | false | macos | platform=osx bits=32 | lib%name%.%platform%.%target%.%bits%.so | OSX.32",
-	"macOS (64-bit) | true  | macos | platform=osx bits=64 | lib%name%.%platform%.%target%.%bits%.so | OSX.64",
-	"macOS (ARM64)  | true  | macos | platform=osx arch=arm64 bits=64 | lib%name%.%platform%.%target%.%bits%.so | OSX.arm64",
-	"Android (armeabi-v7a) | true | windows,linux,macos | platform=android arch=armv7   bits=32 | lib%name%.%platform%.%target%.%arch%.so | Android.armeabi-v7a",
-	"Android (arm64-v8a)   | true | windows,linux,macos | platform=android arch=arm64v8 bits=64 | lib%name%.%platform%.%target%.%arch%.so | Android.arm64-v8a",
-	"Android (x86)         | true | windows,linux,macos | platform=android arch=x86     bits=32 | lib%name%.%platform%.%target%.%arch%.so | Android.x86",
-	"Android (x86_64)      | true | windows,linux,macos | platform=android arch=x86_64  bits=64 | lib%name%.%platform%.%target%.%arch%.so | Android.x86_64",
-	"iOS (armv7)  | false | macos | platform=ios arch=armv7  bits=32 | lib%name%.%platform%.%target%.%arch%.so | iOS.armv7",
-	"iOS (arm64)  | true  | macos | platform=ios arch=arm64  bits=64 | lib%name%.%platform%.%target%.%arch%.so | iOS.arm64",
-	"iOS (x86_64) | true  | macos | platform=ios arch=x86_64 bits=64 | lib%name%.%platform%.%target%.%arch%.so | iOS.x86_64",
-	"HTML5 | true | windows,linux,macos | platform=javascript | lib%name%.%platform%.%target%.%arch%.wasm32 | HTML5.wasm32"
+	"# name | enabled | availableon | arguments | defines | outputname | gdnlibkey | vsplatform",
+	"Windows (32-bit) | false | Windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | WIN32 | lib%name%.%platform%.%target%.%bits%.dll | Windows.32 | x86",
+	"Windows (64-bit) | true  | Windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | | lib%name%.%platform%.%target%.%bits%.dll | Windows.64 | x64",
+	"Universal Windows Platform (32-bit) | false | Windows | platform=uwp arch=x86   bits=32 | WIN32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.32 | x86",
+	"Universal Windows Platform (64-bit) | false | Windows | platform=uwp arch=amd64 bits=64 | | lib%name%.%platform%.%target%.%bits%.dll | UWP.64 | x64",
+	"Universal Windows Platform (ARM)    | false | Windows | platform=uwp arch=arm   bits=32 | | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm | arm",
+	"Universal Windows Platform (ARM64)  | false | Windows | platform=uwp arch=arm64 bits=64 | | lib%name%.%platform%.%target%.%bits%.dll | UWP.arm64 | arm64",
+	"Linux (32-bit) | false | X11 | platform=linux bits=32 use_llvm=%use_clang% | | lib%name%.%platform%.%target%.%bits%.so | X11.32 | ",
+	"Linux (64-bit) | true  | X11 | platform=linux bits=64 use_llvm=%use_clang% | | lib%name%.%platform%.%target%.%bits%.so | X11.64 | ",
+	"macOS (32-bit) | false | OSX | platform=osx bits=32 | | lib%name%.%platform%.%target%.%bits%.so | OSX.32 | ",
+	"macOS (64-bit) | true  | OSX | platform=osx bits=64 | | lib%name%.%platform%.%target%.%bits%.so | OSX.64 | ",
+	"macOS (ARM64)  | true  | OSX | platform=osx arch=arm64 bits=64 | | lib%name%.%platform%.%target%.%bits%.so | OSX.arm64 | ",
+	"Android (armeabi-v7a) | true | Windows X11 OSX | platform=android arch=armv7   bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.armeabi-v7a | ",
+	"Android (arm64-v8a)   | true | Windows X11 OSX | platform=android arch=arm64v8 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.arm64-v8a | ",
+	"Android (x86)         | true | Windows X11 OSX | platform=android arch=x86     bits=32 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86 | ",
+	"Android (x86_64)      | true | Windows X11 OSX | platform=android arch=x86_64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | Android.x86_64 | ",
+	"iOS (armv7)  | false | OSX | platform=ios arch=armv7  bits=32 | | lib%name%.%platform%.%target%.%arch%.so | iOS.armv7 | ",
+	"iOS (arm64)  | true  | OSX | platform=ios arch=arm64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.arm64 | ",
+	"iOS (x86_64) | true  | OSX | platform=ios arch=x86_64 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.x86_64 | ",
+	"HTML5 | true | Windows X11 OSX | platform=javascript | | lib%name%.%platform%.%target%.%arch%.wasm32 | HTML5.wasm32 | "
 ]
 
-enum BuildConfiguration {
-	Shipping,
-	Release,
-	Profiling,
-	Debug
-}
-
 const DefaultBuildConfigurations := [
-	"# name | enabled | arguments",
-	"Shipping  | false | target=shipping tools=no",
-	"Release   | true  | target=release",
-	"Profiling | false | target=release_debug",
-	"Debug     | true  | target=debug"
+	"# name | enabled | arguments | defines",
+	"Shipping  | false | target=shipping tools=no | NDEBUG SHIPPING=1",
+	"Release   | true  | target=release | NDEBUG",
+	"Profiling | false | target=release_debug | NDEBUG PROFILING=1",
+	"Debug     | true  | target=debug | _DEBUG"
 ]
 
 enum BuildAction {
@@ -92,10 +76,90 @@ enum VisualProjectLocation {
 	BuildFolder
 }
 
-
 const supportCmake := false
-
 const utils := preload("res://addons/easycpp/scripts/utils.gd")
+
+
+class BuildBase:
+	var index :int
+	var name :String
+	var arguments :String
+	var arguments_dict :Dictionary = {}
+	var defines :Array
+	
+	static func parse_csv(ut :Utils, csv :String, fnc :FuncRef) -> Array:
+		var lst := []
+		var lines := csv.split("\n", false)
+		
+		for i in range(len(lines)):
+			var b = fnc.call_func(ut, i, lines[i])
+			
+			if b != null:
+				lst.append(b)
+		
+		return lst
+
+
+class BuildPlatform extends BuildBase:
+	var outputname :String
+	var gdnlibkey :String
+	var vsplatform :String
+	
+	static func create(ut :Utils, idx :int, line :String) -> BuildPlatform:
+		var params := utils.split_clean(line, "|", true)
+		
+		assert(len(params) == 8)
+		
+		# check if available and enabled
+		var enabled := bool(params[1])
+		var availableon := params[2]
+		
+		if enabled and OS.get_name() in availableon:
+			var p := BuildPlatform.new()
+			
+			p.index = idx
+			p.name = params[0].strip_edges()
+			p.arguments = params[3]
+			p.defines = ut.split_clean(params[4], " ", false)
+			p.outputname = params[5]
+			p.gdnlibkey = params[6].strip_edges()
+			p.vsplatform = params[7].strip_edges()
+			
+			var ok := ut.parse_args_dict(p.arguments, p.arguments_dict, false)
+			
+			assert(ok)
+			
+			return p
+		
+		return null
+
+
+class BuildConfiguration extends BuildBase:
+	static func create(ut :Utils, idx :int, line :String) -> BuildConfiguration:
+		var params := utils.split_clean(line, "|", true)
+		
+		assert(len(params) == 4)
+		
+		# check if available and enabled
+		var enabled := bool(params[1])
+		
+		if enabled:
+			var b := BuildConfiguration.new()
+			
+			b.index = idx
+			b.name = params[0].strip_edges()
+			b.arguments = params[3]
+			b.defines = ut.split_clean(params[4], " ", false)
+			
+			var ok := ut.parse_args_dict(b.arguments, b.arguments_dict, false)
+			
+			assert(ok)
+			
+			return b
+		
+		return null
+
+
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
 const templatesres := "res://addons/easycpp/templates"
@@ -122,11 +186,6 @@ const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
-
-const VisualStudioPlatforms := {
-	BuildPlatform.Win32: "x86",
-	BuildPlatform.Win64: "x64"
-}
 
 
 var editorbase :Control
@@ -169,9 +228,11 @@ var needs_git := true
 
 var allgood := false
 
+var buildplatforms :Array
+var buildconfigurations :Array
 var buildsystem :int = BuildSystem.SCons
-var platform :int = -1
-var buildcfg :int = -1
+var platform :BuildPlatform
+var buildcfg :BuildConfiguration
 var compiler :int = -1
 
 var gdnlibs := { }
@@ -190,8 +251,6 @@ func _ready():
 	
 	# make sure the settings exists
 	get_batchfilelocation()
-	get_supported_buildplatforms()
-	get_supported_buildconfigs()
 	
 	if utils.is_windows():
 		# make sure the settings exists
@@ -218,34 +277,6 @@ func _ready():
 	
 	if supportCmake:
 		init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
-	
-	$PlatformContainer/PlatformButton.clear()
-	$PlatformContainer/ConfigurationButton.clear()
-	
-	var platforms := get_supported_buildplatforms()
-	var buildconfigs := get_supported_buildconfigs()
-	
-	if utils.is_windows():
-		if utils.hasbit(buildconfigs, BuildPlatform.Win32):
-			$PlatformContainer/PlatformButton.add_item("Windows (32-bit)", BuildPlatform.Win32)
-		
-		if utils.hasbit(buildconfigs, BuildPlatform.Win64):
-			$PlatformContainer/PlatformButton.add_item("Windows (64-bit)", BuildPlatform.Win64)
-	
-	if utils.hasbit(buildconfigs, BuildConfiguration.Shipping):
-		$PlatformContainer/ConfigurationButton.add_item("Shipping", BuildConfiguration.Shipping)
-	
-	if utils.hasbit(buildconfigs, BuildConfiguration.Release):
-		$PlatformContainer/ConfigurationButton.add_item("Release", BuildConfiguration.Release)
-	
-	if utils.hasbit(buildconfigs, BuildConfiguration.Profiling):
-		$PlatformContainer/ConfigurationButton.add_item("Profiling", BuildConfiguration.Profiling)
-	
-	if utils.hasbit(buildconfigs, BuildConfiguration.Debug):
-		$PlatformContainer/ConfigurationButton.add_item("Debug", BuildConfiguration.Debug)
-	
-	platform = $PlatformContainer/PlatformButton.get_selected_id()
-	buildcfg = $PlatformContainer/ConfigurationButton.get_selected_id()
 	
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
@@ -301,12 +332,24 @@ func add_tooltip(ctrl :Control, tooltip :String) -> void:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
-func get_supported_buildplatforms() -> int:
-	return utils.get_project_setting_flags(setting_buildplatforms, BuildPlatform, (1 << BuildPlatform.Win64) | (1 << BuildPlatform.Linux))
+func get_supported_buildplatforms() -> Array:
+	var d := []
+	
+	for b in buildplatforms:
+		if b["enabled"] != "false":
+			d.append(b)
+	
+	return d
 
 
-func get_supported_buildconfigs() -> int:
-	return utils.get_project_setting_flags(setting_buildconfigurations, BuildConfiguration, (1 << BuildConfiguration.Debug) | (1 << BuildConfiguration.Release))
+func get_supported_buildconfigs() -> Array:
+	var d := []
+	
+	for b in buildconfigurations:
+		if b["enabled"] != "false":
+			d.append(b)
+	
+	return d
 
 
 func randomstring() -> String:
@@ -315,6 +358,38 @@ func randomstring() -> String:
 
 func randomuuid() -> String:
 	return utils.get_uuid( randomstring() )
+
+
+func read_build_platforms_configurations():
+	# load platforms
+	print("Reading Easy C++ Build Platforms...")
+	
+	var platforms := ""
+	
+	if not ProjectSettings.has_setting(setting_buildplatforms):
+		platforms = PoolStringArray(DefaultBuildPlatforms).join("\n")
+	
+	platforms = utils.get_project_setting_string(setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
+	
+	BuildBase.new().parse_csv(utils.new(), platforms, funcref(BuildPlatform.new(), "create"))
+	
+	if len(buildplatforms) < 1:
+		print("Failed to load build platforms from settings!!")
+	
+	# load configurations
+	print("Reading Easy C++ Build Configurations...")
+	
+	var configurations := ""
+	
+	if not ProjectSettings.has_setting(setting_buildconfigurations):
+		configurations = PoolStringArray(DefaultBuildConfigurations).join("\n")
+	
+	configurations = utils.get_project_setting_string(setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
+	
+	BuildBase.new().parse_csv(utils.new(), configurations, funcref(BuildConfiguration.new(), "create"))
+	
+	if len(buildconfigurations) < 1:
+		print("Failed to load build configurations from settings!!")
 
 
 func check_sdk_state() -> void:
@@ -327,6 +402,30 @@ func check_sdk_state() -> void:
 	buildfolderpath = utils.get_project_setting_string(setting_buildfolder, buildfolderpath, PROPERTY_HINT_GLOBAL_DIR)
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
+	
+	read_build_platforms_configurations()
+	
+	# update the buttons and try to keep the current platform and configuration selected
+	$PlatformContainer/PlatformButton.clear()
+	$PlatformContainer/ConfigurationButton.clear()
+	
+	var pname := platform.name if platform != null else ""
+	var cname := buildcfg.name if buildcfg != null else ""
+	
+	platform = null
+	buildcfg = null
+	
+	for b in buildplatforms:
+		$PlatformContainer/PlatformButton.add_item(b.name, b.index)
+		
+		if b.name == pname:
+			platform = b
+	
+	for b in buildconfigurations:
+		$PlatformContainer/ConfigurationButton.add_item(b.name, b.index)
+		
+		if b.name == cname:
+			buildcfg = b
 	
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
@@ -649,7 +748,7 @@ func get_vcvars(comp :int) -> String:
 	return ""
 
 
-func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
+func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
 	var plat := ""
 	var platname := ""
 	var arch := ""
@@ -710,109 +809,43 @@ func create_makefile(pltfrm :int, bldcfg :int, name :String, post :String, folde
 	])
 
 
-static func get_buildoutput(name :String, pltfrm :int, bldcfg :int) -> String:
-	var plat := ""
-	var trgt := ""
-	var bits := "64"
+static func apply_buildvariables_nocfg(text :String, name :String, pltfrm :BuildPlatform) -> String:
+	var output := text.replace("%name%", name)
 	
-	match pltfrm:
-		BuildPlatform.Win32:
-			plat = "windows"
-			bits = "32"
-		
-		BuildPlatform.Win64:
-			plat = "windows"
+	output = utils.apply_dict(output, pltfrm["args_dict"], "%")
 	
-	match bldcfg:
-		BuildConfiguration.Shipping:
-			trgt = "release"
-		
-		BuildConfiguration.Release:
-			trgt = "release"
-		
-		BuildConfiguration.Profiling:
-			trgt = "profiling"
-		
-		BuildConfiguration.Debug:
-			trgt = "debug"
-	
-	return "%s.%s.%s.%s" % [name, plat, trgt, bits]
+	return output
 
 
-static func get_buildpreprocessors(pltfrm :int, bldcfg :int) -> Array:
-	var list :Array
+static func apply_buildvariables(text :String, name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
+	var output := apply_buildvariables_nocfg(text, name, pltfrm)
 	
-	match pltfrm:
-		BuildPlatform.Win32:
-			list = ["WIN32"]
-		
-		BuildPlatform.Win64:
-			list = []
+	output = output.replace("%target%", bldcfg["name"].to_lower())
 	
-	match bldcfg:
-		BuildConfiguration.Shipping:
-			list.append("SHIPPING")
-			list.append("NDEBUG")
-		
-		BuildConfiguration.Release:
-			list.append("NDEBUG")
-		
-		BuildConfiguration.Profiling:
-			list.append("PROFILING")
-			list.append("NDEBUG")
-		
-		BuildConfiguration.Debug:
-			list.append("_DEBUG")
+	output = utils.apply_dict(output, bldcfg["args_dict"], "%")
 	
-	return list
+	return output
 
 
-static func get_buildpreprocessors_str(pltfrm :int, bldcfg :int) -> String:
+static func get_buildoutput(name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
+	return apply_buildvariables(pltfrm["outputname"], name, pltfrm, bldcfg)
+
+
+static func get_buildpreprocessors(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> Array:
+	return pltfrm.defines + bldcfg.defines
+
+
+static func get_buildpreprocessors_str(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
 	var list := get_buildpreprocessors(pltfrm, bldcfg)
 	
 	return PoolStringArray(list).join(";")
 
 
-static func get_buildconfig_index(platform :int, config :int, action :int) -> int:
-	return platform + config * 10 + action * 100
+static func get_buildconfig_index(platform :BuildPlatform, config :BuildConfiguration, action :int) -> int:
+	return platform.index + config.index * 10 + action * 100
 
 
-func get_available_buildplatforms() -> Array:
-	var list := []
-	
-	var platforms := get_supported_buildplatforms()
-	
-	if utils.is_windows():
-		if utils.hasbit(platforms, BuildPlatform.Win32):
-			list.append(BuildPlatform.Win32)
-		
-		if utils.hasbit(platforms, BuildPlatform.Win64):
-			list.append(BuildPlatform.Win64)
-	
-	return list
-
-
-func get_available_buildconfigs() -> Array:
-	var list := []
-	
-	var configs := get_supported_buildconfigs()
-	
-	if utils.hasbit(configs, BuildConfiguration.Shipping):
-		list.append(BuildConfiguration.Shipping)
-	
-	if utils.hasbit(configs, BuildConfiguration.Release):
-		list.append(BuildConfiguration.Release)
-	
-	if utils.hasbit(configs, BuildConfiguration.Profiling):
-		list.append(BuildConfiguration.Profiling)
-	
-	if utils.hasbit(configs, BuildConfiguration.Debug):
-		list.append(BuildConfiguration.Debug)
-	
-	return list
-
-
-func create_all_makefiles_for_config(platform :int, config :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
+func create_all_makefiles_for_config(platform :BuildPlatform, config :BuildConfiguration, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
 	var make_build := create_makefile(platform, config, lib, "-build", folder, additionalargs)
 	var make_clean := create_makefile(platform, config, lib, "-clean", folder, additionalargs + ["--clean"])
 	
@@ -820,18 +853,15 @@ func create_all_makefiles_for_config(platform :int, config :int, folder :String,
 	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Clean) ] = make_clean
 
 
-func create_all_makefiles_for_platform(platform :int, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
-	var configs := get_available_buildconfigs()
-	
-	for c in configs:
+func create_all_makefiles_for_platform(platform :BuildPlatform, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
+	for c in buildconfigurations:
 		create_all_makefiles_for_config(platform, c, folder, lib, additionalargs, batchfiles)
 
 
 func create_all_makefiles(folder :String, lib :String, additionalargs :Array = []) -> Dictionary:
 	var batchfiles := {}
-	var platforms := get_available_buildplatforms()
 	
-	for p in platforms:
+	for p in buildplatforms:
 		create_all_makefiles_for_platform(p, folder, lib, additionalargs, batchfiles)
 	
 	return batchfiles
@@ -841,7 +871,7 @@ func create_bindings_makefiles() -> Dictionary:
 	return create_all_makefiles(gdcpppath, "godot-bindings", ["generate_bindings=yes"])
 
 
-func run_makefile_dict(dict :Dictionary, platform :int, config :int, action :int) -> int:
+func run_makefile_dict(dict :Dictionary, platform :BuildPlatform, config :BuildConfiguration, action :int) -> int:
 	var idx := get_buildconfig_index(platform, config, action)
 	var fname = dict[idx]
 	
@@ -1012,44 +1042,10 @@ func _on_Submenu_id_pressed(id):
 				
 				gdnlibres = GDNativeLibrary.new()
 			
-			var platforms := get_available_buildplatforms()
-			
-			for p in platforms:
-				var key :String
-				
-				match p:
-					BuildPlatform.Win32:
-						key = "Windows.32"
-					BuildPlatform.Win64:
-						key = "Windows.64"
-					BuildPlatform.Linux:
-						#key = "X11.32"
-						key = "X11.64"
-					BuildPlatform.macOS:
-						#key = "OSX.32"
-						key = "OSX.64"
-					BuildPlatform.Android:
-						#key = "Android.armeabi-v7a"
-						#key = "Android.arm64-v8a"
-						#key = "Android.x86"
-						#key = "Android.x86_64"
-						pass
-					
-					BuildPlatform.iOS:
-						#key = "iOS.armv7"
-						#key = "iOS.arm64"
-						#key = "iOS.x86_64"
-						pass
-					
-						#key = "HTML5.wasm32"
-						#key = "Haiku.64"
-						#key = "Haiku.32"
-						#key = "UWP.arm"
-						#key = "UWP.32"
-						#key = "UWP.64"
-				
-				var value = gdnlibres.config_file.get_value("entry", key, "")
+			for p in buildplatforms:
+				var value = gdnlibres.config_file.get_value("entry", p.gdnlibkey, "")
 				if not value.empty():
+					# TODO
 					pass
 			
 			ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH)
@@ -1101,8 +1097,6 @@ func _on_GenerateVSButton_pressed():
 	print("Generating Visual Studio projects and solution...")
 	
 	# determine some settings
-	var configs := get_available_buildconfigs()
-	var platforms := get_available_buildplatforms()
 	var location := get_vsproj_location()
 	
 	var folder_solution := ""
@@ -1132,11 +1126,11 @@ func _on_GenerateVSButton_pressed():
 	var projectconfigtypes := ""
 	var projectuserprops := ""
 	
-	for p in platforms:
-		var pp = VisualStudioPlatforms[p]
+	for p in buildplatforms:
+		var pp = p.vsplatform
 		
-		for c in configs:
-			var cc = BuildConfiguration.keys()[c]
+		for c in buildconfigurations:
+			var cc = c.name
 			
 			projectconfigs += "    <ProjectConfiguration Include=\"%s|%s\">\n" % [cc, pp]
 			projectconfigs += "      <Configuration>%s</Configuration>\n" % [cc]
@@ -1195,11 +1189,11 @@ func _on_GenerateVSButton_pressed():
 		
 		var projectnmakes := ""
 		
-		for p in platforms:
-			var pp = VisualStudioPlatforms[p]
+		for p in buildplatforms:
+			var pp = p.vsplatform
 			
-			for c in configs:
-				var cc = BuildConfiguration.keys()[c]
+			for c in buildconfigurations:
+				var cc = c.name
 				
 				var nmake_build = batchfiles[ get_buildconfig_index(p, c, BuildAction.Build) ]
 				var nmake_clean = batchfiles[ get_buildconfig_index(p, c, BuildAction.Clean) ]
@@ -1260,11 +1254,11 @@ func _on_GenerateVSButton_pressed():
 	var configspresolution := ""
 	var configspostsolution := ""
 	
-	for p in platforms:
-			var pp = VisualStudioPlatforms[p]
+	for p in buildplatforms:
+			var pp = p.vsplatform
 			
-			for c in configs:
-				var cc = BuildConfiguration.keys()[c]
+			for c in buildconfigurations:
+				var cc = c.name
 				
 				configspresolution += "\t\t%s|%s = %s|%s\n" % [cc, pp, cc, pp]
 	
@@ -1273,11 +1267,11 @@ func _on_GenerateVSButton_pressed():
 		
 		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], suuid]
 		
-		for pt in platforms:
-			var pp = VisualStudioPlatforms[pt]
+		for pt in buildplatforms:
+			var pp = pt.vsplatform
 			
-			for c in configs:
-				var cc = BuildConfiguration.keys()[c]
+			for c in buildconfigurations:
+				var cc = c.name
 				
 				configspostsolution += "\t\t%s.%s|%s.ActiveCfg = %s|%s\n" % [suuid, cc, pp, cc, pp]
 	

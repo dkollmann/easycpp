@@ -1,4 +1,5 @@
 extends Object
+class_name Utils
 
 
 static func is_windows() -> bool:
@@ -231,3 +232,60 @@ static func parse_csvdata(csv :String) -> Array:
 		data.append(d)
 	
 	return data
+
+
+static func parse_args_dict(args :String, out :Dictionary, allow_nokey :bool) -> bool:
+	# does not handle quotes
+	var i := 0
+	var alist := args.split(" ", false)
+	
+	for a in alist:
+		var aa = a.split("=", true)
+		
+		if len(aa) < 1 or (len(aa) == 1 and not allow_nokey) or len(aa) > 2:
+			return false
+		
+		if len(aa) < 2:
+			out[i] = aa[0]
+			i += 1
+		else:
+			out[aa[0]] = aa[1]
+	
+	return true
+
+
+static func apply_dict(text :String, dict :Dictionary, marker :String = "%") -> String:
+	var lastpos := 0
+	var start := -1
+	
+	while true:
+		var pos := text.find(marker, lastpos)
+		
+		if pos < 0:
+			return text
+		
+		if start >= 0:
+			var key := text.substr(start, pos - start)
+			
+			print("KEY: '" + key + "'.")
+			
+			text = text.substr(0, start) + dict[key] + text.substr(pos + 1)
+			
+			lastpos = pos
+			start = -1
+		else:
+			start = pos
+	
+	return text
+
+
+static func dict_to_array(dict :Dictionary) -> Array:
+	var lst := []
+	
+	for key in dict:
+		if key.typeof(TYPE_STRING):
+			lst.append(key + "=" + dict[key])
+		else:
+			lst.append(dict[key])
+	
+	return lst
