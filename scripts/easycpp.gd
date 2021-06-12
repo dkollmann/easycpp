@@ -18,7 +18,7 @@ const DefaultBuildPlatforms := [
 	# %use_clang% - Is true when Clang is the selected compiler
 	# %use_gcc%   - Is true when GCC is the selected compiler
 	
-	"# name | enabled | availableon | arguments | defines | outputname | gdnlibkey | vsplatform",
+	"# name | enabled | available on | arguments | defines | outputname | gdnlibkey | vsplatform",
 	"Windows (32-bit) | false | Windows | platform=windows arch=x86   bits=32 use_mingw=%use_gcc% | WIN32 | lib%name%.%platform%.%target%.%bits%.dll | Windows.32 | x86",
 	"Windows (64-bit) | true  | Windows | platform=windows arch=amd64 bits=64 use_mingw=%use_gcc% | | lib%name%.%platform%.%target%.%bits%.dll | Windows.64 | x64",
 	"Universal Windows Platform (32-bit) | false | Windows | platform=uwp arch=x86   bits=32 | WIN32 | lib%name%.%platform%.%target%.%bits%.dll | UWP.32 | x86",
@@ -41,11 +41,11 @@ const DefaultBuildPlatforms := [
 ]
 
 const DefaultBuildConfigurations := [
-	"# name | enabled | arguments | defines",
-	"Shipping  | false | target=shipping tools=no | NDEBUG SHIPPING=1",
-	"Release   | true  | target=release | NDEBUG",
-	"Profiling | false | target=release_debug | NDEBUG PROFILING=1",
-	"Debug     | true  | target=debug | _DEBUG"
+	"# name | enabled | arguments | defines | use debug libs",
+	"Shipping  | false | target=shipping tools=no | NDEBUG SHIPPING=1 | false",
+	"Release   | true  | target=release | NDEBUG | false",
+	"Profiling | false | target=release_debug | NDEBUG PROFILING=1 | false",
+	"Debug     | true  | target=debug | _DEBUG | true"
 ]
 
 enum BuildAction {
@@ -83,9 +83,17 @@ const utils := preload("res://addons/easycpp/scripts/utils.gd")
 class BuildBase:
 	var index :int
 	var name :String
-	var arguments :String
+	var arguments :Array
 	var arguments_dict :Dictionary = {}
 	var defines :Array
+	
+	func parse_arguments() -> void:
+		for a in arguments:
+			var p = a.find("=")
+			var k = a.substr(0, p).strip_edges()
+			var v = a.substr(p + 1).strip_edges()
+			
+			arguments_dict[k] = v
 
 
 class BuildPlatform extends BuildBase:
@@ -125,22 +133,28 @@ class BuildPlatform extends BuildBase:
 			
 			p.index = idx
 			p.name = params[0].strip_edges()
-			p.arguments = params[3]
+			p.arguments = ut.split_clean(params[3], " ", false)
 			p.defines = ut.split_clean(params[4], " ", false)
 			p.outputname = params[5]
 			p.gdnlibkey = params[6].strip_edges()
 			p.vsplatform = params[7].strip_edges()
 			
-			var ok := ut.parse_args_dict(p.arguments, p.arguments_dict, false)
-			
-			assert(ok)
+			p.parse_arguments()
 			
 			return p
 		
 		return null
+	
+	
+	func get_outputname(ut :Utils, bldcfg :BuildConfiguration) -> String:
+		var s := ut.apply_dict(outputname, arguments_dict, "%")
+		s = ut.apply_dict(s, bldcfg.arguments_dict, "%")
+		return s
 
 
 class BuildConfiguration extends BuildBase:
+	var debuglibs :bool
+	
 	static func parse_csv(ut :Utils, csv :String) -> Array:
 		var lst := []
 		var lines := csv.split("\n", false)
@@ -162,7 +176,7 @@ class BuildConfiguration extends BuildBase:
 	static func create(ut :Utils, idx :int, line :String) -> BuildConfiguration:
 		var params := utils.split_clean(line, "|", true)
 		
-		assert(len(params) == 4)
+		assert(len(params) == 5)
 		
 		# check if enabled
 		var enabled := ut.is_true(params[1])
@@ -172,12 +186,11 @@ class BuildConfiguration extends BuildBase:
 			
 			b.index = idx
 			b.name = params[0].strip_edges()
-			b.arguments = params[2]
+			b.arguments = ut.split_clean(params[2], " ", false)
 			b.defines = ut.split_clean(params[3], " ", false)
+			b.debuglibs = ut.is_true(params[4])
 			
-			var ok := ut.parse_args_dict(b.arguments, b.arguments_dict, false)
-			
-			assert(ok)
+			b.parse_arguments()
 			
 			return b
 		
@@ -773,50 +786,20 @@ func get_vcvars(comp :int) -> String:
 
 
 func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
-	var plat := ""
-	var platname := ""
-	var arch := ""
-	var trgt := ""
-	var bits := "64"
-	
-	match pltfrm:
-		BuildPlatform.Win32:
-			plat = "windows"
-			platname = "win32"
-			arch = "x86"
-			bits = "32"
-		
-		BuildPlatform.Win64:
-			plat = "windows"
-			platname = "win64"
-			arch = "amd64"
-	
-	match bldcfg:
-		BuildConfiguration.Shipping:
-			trgt = "release"
-		
-		BuildConfiguration.Release:
-			trgt = "release"
-		
-		BuildConfiguration.Profiling:
-			trgt = "profiling"
-		
-		BuildConfiguration.Debug:
-			trgt = "debug"
-			
 	var args := [
 		"-j4",
-		"platform=" + plat,
-		"target=" + trgt,
-		"arch=" + bits,
-		"bits=" + bits,
 		"cpp_bindings=\"" + gdcpppath + "\"",
 		"godot_headers=\"" + gdheaderspath + "\""
 	]
 	
+	args.append_array(pltfrm.arguments)
+	args.append_array(bldcfg.arguments)
 	args.append_array(additionalargs)
 	
-	var fname := "%s_%s_%s%s" % [name, platname, trgt, post]
+	var fname := pltfrm.get_outputname(utils.new(), bldcfg).get_basename()
+	fname = fname.replace("%name%", name)
+	fname += post
+	
 	var cpp := get_shortpath(gdcpppath)
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
@@ -824,7 +807,7 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	return create_batch_build(fname, [
 		"@echo off\n",
 		"cd \"" + folder + "\"\n",
-		"call \"" + get_vcvars(compiler) + "\" " + arch + "\n",
+		"call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n",
 		
 		"set CPP_BINDINGS=\"" + cpp + "\"\n",
 		"set GODOT_HEADERS=\"" + hdr + "\"\n",
@@ -1132,16 +1115,19 @@ func _on_GenerateVSButton_pressed():
 			folder_solution = temppath + "/vsproj"
 			folder_projects = folder_solution
 			perproject = false
+			print("  Files are placed in temporary folder: \"" + folder_solution + "\".")
 		
 		VisualProjectLocation.ProjectFolder:  # the solution is placed in the root and the project files are put in their individual folders
 			folder_solution = ProjectSettings.globalize_path("res://")
 			folder_projects = get_vsproj_subfolder()
 			perproject = true
+			print("  Files are placed in the project folders: \"" + folder_projects + "\".")
 		
 		VisualProjectLocation.BuildFolder:  # all files are placed in a build folder inside the project
 			folder_solution = buildfolderpath
 			folder_projects = folder_solution
 			perproject = false
+			print("  Files are placed in build folder: \"" + folder_solution + "\".")
 	
 	utils.make_dir(folder_solution)
 	
@@ -1163,7 +1149,7 @@ func _on_GenerateVSButton_pressed():
 			
 			projectconfigtypes += "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='%s|%s'\" Label=\"Configuration\">\n" % [cc, pp]
 			projectconfigtypes += "    <ConfigurationType>Makefile</ConfigurationType>\n"
-			projectconfigtypes += "    <UseDebugLibraries>%s</UseDebugLibraries>\n" % ["true" if c == BuildConfiguration.Debug else "false"]
+			projectconfigtypes += "    <UseDebugLibraries>%s</UseDebugLibraries>\n" % ["true" if c.debuglibs else "false"]
 			projectconfigtypes += "    <PlatformToolset>v142</PlatformToolset>\n"
 			projectconfigtypes += "  </PropertyGroup>\n"
 			
