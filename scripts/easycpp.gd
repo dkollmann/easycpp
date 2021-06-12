@@ -1353,6 +1353,10 @@ func _on_GenerateQtButton_pressed():
 	
 	utils.make_dir(root)
 	
+	var includes := []
+	utils.find_includefolders(gdcpppath + "/include", true, includes)
+	utils.find_includefolders(gdheaderspath, true, includes)
+	
 	var creator_path := base + ".creator"
 	var creator_content := "[General]\n"
 	
@@ -1366,10 +1370,10 @@ func _on_GenerateQtButton_pressed():
 	var config_content := get_buildpreprocessors_defines(platform, buildcfg)
 	
 	var includes_path := base + ".includes"
-	var includes_content := PoolStringArray(headerfiles).join("\n")
+	var includes_content := PoolStringArray(includes).join("\n")
 	
 	var files_path := base + ".files"
-	var files_content := PoolStringArray(sourcefiles).join("\n")
+	var files_content := PoolStringArray(headerfiles + sourcefiles).join("\n")
 	
 	if f.open(creator_path, File.WRITE) == OK:
 		f.store_string(creator_content)

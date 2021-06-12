@@ -143,7 +143,6 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 
 static func find_sourcefiles(path :String, recursive :bool, headerfiles :Array, sourcefiles :Array) -> void:
 	var folders := [path]
-	var files := []
 	var dir := Directory.new()
 	
 	for f in folders:
@@ -165,6 +164,35 @@ static func find_sourcefiles(path :String, recursive :bool, headerfiles :Array, 
 				
 				elif ext == "h" or ext == "hpp":
 					headerfiles.append(p)
+			
+			file = dir.get_next()
+		
+		dir.list_dir_end()
+
+
+static func find_includefolders(path :String, recursive :bool, includes :Array) -> void:
+	var folders := [path]
+	var dir := Directory.new()
+	
+	for f in folders:
+		dir.open(f)
+		dir.list_dir_begin(true, true)
+		
+		var folderadded := false
+		
+		var file := dir.get_next()
+		while file != '':
+			var p = f + "/" + file
+			
+			if dir.dir_exists(p):
+				folders.append(p)
+			
+			elif not folderadded:
+				var ext := file.get_extension()
+				
+				if ext == "h" or ext == "hpp":
+					includes.append(f)
+					folderadded = true
 			
 			file = dir.get_next()
 		
