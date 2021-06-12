@@ -442,6 +442,12 @@ func check_sdk_state() -> void:
 		if b.name == cname:
 			buildcfg = b
 	
+	if platform == null:
+		platform = buildplatforms[0]
+	
+	if buildcfg == null:
+		buildcfg = buildconfigurations[0]
+	
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
 	
 	# prepare check
@@ -1342,24 +1348,27 @@ func _on_GenerateQtButton_pressed():
 	var sourcefiles := []
 	utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles)
 	
-	var root := ProjectSettings.globalize_path(temppath)  + "/qtcreator/" + currentgdnlib_name
+	var root := ProjectSettings.globalize_path(temppath)  + "/qtcreator"
+	var base := root + "/" + currentgdnlib_name
 	
-	var creator_path := root + ".creator"
+	utils.make_dir(root)
+	
+	var creator_path := base + ".creator"
 	var creator_content := "[General]\n"
 	
-	var cflags_path := root + ".cflags"
+	var cflags_path := base + ".cflags"
 	var cflags_content := "-std=c14"
 	
-	var cxxflags_path := root + ".cxxflags"
+	var cxxflags_path := base + ".cxxflags"
 	var cxxflags_content := "-std=c14"
 	
-	var config_path := root + ".config"
+	var config_path := base + ".config"
 	var config_content := get_buildpreprocessors_defines(platform, buildcfg)
 	
-	var includes_path := root + ".includes"
+	var includes_path := base + ".includes"
 	var includes_content := PoolStringArray(headerfiles).join("\n")
 	
-	var files_path := root + ".files"
+	var files_path := base + ".files"
 	var files_content := PoolStringArray(sourcefiles).join("\n")
 	
 	if f.open(creator_path, File.WRITE) == OK:
@@ -1385,5 +1394,7 @@ func _on_GenerateQtButton_pressed():
 	if f.open(files_path, File.WRITE) == OK:
 		f.store_string(files_content)
 		f.close()
+	
+	print("Created project \"" + creator_path + "\".")
 	
 	OS.shell_open(creator_path)
