@@ -87,6 +87,9 @@ class BuildBase:
 	var arguments_dict :Dictionary = {}
 	var defines :Array
 	
+	static func sort(a, b):
+		return a.name < b.name
+	
 	func parse_arguments() -> void:
 		for a in arguments:
 			var p = a.find("=")
@@ -1104,6 +1107,10 @@ func _on_GenerateVSButton_pressed():
 		if not p.vsplatform.empty():
 			vsbuildplatforms.append(p)
 	
+	# sort the build configurations
+	var vsbuildconfigurations := buildconfigurations.duplicate()
+	vsbuildconfigurations.sort_custom(BuildBase, "sort")
+	
 	# generate the project configurations
 	var projectconfigs := ""
 	var projectconfigtypes := ""
@@ -1114,7 +1121,7 @@ func _on_GenerateVSButton_pressed():
 		
 		var pp = p.vsplatform
 		
-		for c in buildconfigurations:
+		for c in vsbuildconfigurations:
 			var cc = c.name
 			
 			projectconfigs += "    <ProjectConfiguration Include=\"%s|%s\">\n" % [cc, pp]
@@ -1179,7 +1186,7 @@ func _on_GenerateVSButton_pressed():
 			
 			var pp = p.vsplatform
 			
-			for c in buildconfigurations:
+			for c in vsbuildconfigurations:
 				var cc = c.name
 				
 				var nmake_build = batchfiles[ get_buildconfig_index(p, c, BuildAction.Build) ]
@@ -1246,7 +1253,7 @@ func _on_GenerateVSButton_pressed():
 			
 			var pp = p.vsplatform
 			
-			for c in buildconfigurations:
+			for c in vsbuildconfigurations:
 				var cc = c.name
 				
 				configspresolution += "\t\t%s|%s = %s|%s\n" % [cc, pp, cc, pp]
@@ -1254,17 +1261,21 @@ func _on_GenerateVSButton_pressed():
 	for p in projects:
 		var suuid := utils.get_uuid(p)
 		
-		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], suuid]
+		# add the extra 4 digits
+		suuid = suuid.substr(0, 33) + "0000}"
+		
+		projectstr += "Project(\"%s\") = \"%s\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], p, projectfiles[p], suuid]
 		
 		for pt in vsbuildplatforms:
 			assert(not pt.vsplatform.empty())
 			
 			var pp = pt.vsplatform
 			
-			for c in buildconfigurations:
+			for c in vsbuildconfigurations:
 				var cc = c.name
 				
 				configspostsolution += "\t\t%s.%s|%s.ActiveCfg = %s|%s\n" % [suuid, cc, pp, cc, pp]
+				configspostsolution += "\t\t%s.%s|%s.Build.0 = %s|%s\n" % [suuid, cc, pp, cc, pp]
 	
 	var solutionname := utils.get_projectname()
 	var solutionfile = folder_solution + "/" + solutionname + ".sln"
