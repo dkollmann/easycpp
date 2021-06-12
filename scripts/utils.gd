@@ -265,16 +265,15 @@ static func apply_dict(text :String, dict :Dictionary, marker :String = "%") -> 
 			return text
 		
 		if start >= 0:
-			var key := text.substr(start, pos - start)
-			
-			print("KEY: '" + key + "'.")
+			var key := text.substr(start + 1, pos - start - 1)
 			
 			text = text.substr(0, start) + dict[key] + text.substr(pos + 1)
 			
-			lastpos = pos
+			lastpos = start
 			start = -1
 		else:
 			start = pos
+			lastpos = pos + 1
 	
 	return text
 
@@ -295,3 +294,16 @@ static func is_true(s :String) -> bool:
 	var ss := s.strip_edges().to_lower()
 	
 	return ss != "false"
+
+
+static func add_dict(d1 :Dictionary, d2 :Dictionary) -> void:
+	for k in d2:
+		d1[k] = d2[k]
+
+
+static func join_dict(d1 :Dictionary, d2 :Dictionary) -> Dictionary:
+	var d := d1.duplicate()
+	
+	add_dict(d, d2)
+	
+	return d

@@ -37,7 +37,7 @@ const DefaultBuildPlatforms := [
 	"iOS (armv7)  | false | OSX | platform=ios arch=armv7  bits=32 | | lib%name%.%platform%.%target%.%arch%.so | iOS.armv7 | ",
 	"iOS (arm64)  | true  | OSX | platform=ios arch=arm64  bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.arm64 | ",
 	"iOS (x86_64) | true  | OSX | platform=ios arch=x86_64 bits=64 | | lib%name%.%platform%.%target%.%arch%.so | iOS.x86_64 | ",
-	"HTML5 | true | Windows X11 OSX | platform=javascript | | lib%name%.%platform%.%target%.%arch%.wasm32 | HTML5.wasm32 | "
+	"HTML5 | true | Windows X11 OSX | platform=javascript | | lib%name%.%platform%.%target%.wasm32 | HTML5.wasm32 | "
 ]
 
 const DefaultBuildConfigurations := [
@@ -144,12 +144,6 @@ class BuildPlatform extends BuildBase:
 			return p
 		
 		return null
-	
-	
-	func get_outputname(ut :Utils, bldcfg :BuildConfiguration) -> String:
-		var s := ut.apply_dict(outputname, arguments_dict, "%")
-		s = ut.apply_dict(s, bldcfg.arguments_dict, "%")
-		return s
 
 
 class BuildConfiguration extends BuildBase:
@@ -796,10 +790,7 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	args.append_array(bldcfg.arguments)
 	args.append_array(additionalargs)
 	
-	var fname := pltfrm.get_outputname(utils.new(), bldcfg).get_basename()
-	fname = fname.replace("%name%", name)
-	fname += post
-	
+	var fname := get_buildoutput(name, pltfrm, bldcfg).get_basename() + post
 	var cpp := get_shortpath(gdcpppath)
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
@@ -816,26 +807,16 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	])
 
 
-static func apply_buildvariables_nocfg(text :String, name :String, pltfrm :BuildPlatform) -> String:
-	var output := text.replace("%name%", name)
+func apply_buildvariables(text :String, name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
+	var d := utils.join_dict(pltfrm.arguments_dict, bldcfg.arguments_dict)
 	
-	output = utils.apply_dict(output, pltfrm["args_dict"], "%")
+	d["name"] = name
 	
-	return output
+	return utils.apply_dict(text, d, "%")
 
 
-static func apply_buildvariables(text :String, name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
-	var output := apply_buildvariables_nocfg(text, name, pltfrm)
-	
-	output = output.replace("%target%", bldcfg["name"].to_lower())
-	
-	output = utils.apply_dict(output, bldcfg["args_dict"], "%")
-	
-	return output
-
-
-static func get_buildoutput(name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
-	return apply_buildvariables(pltfrm["outputname"], name, pltfrm, bldcfg)
+func get_buildoutput(name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
+	return apply_buildvariables(pltfrm.outputname, name, pltfrm, bldcfg)
 
 
 static func get_buildpreprocessors(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> Array:
