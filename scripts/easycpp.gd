@@ -363,26 +363,6 @@ func add_tooltip(ctrl :Control, tooltip :String) -> void:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
-func get_supported_buildplatforms() -> Array:
-	var d := []
-	
-	for b in buildplatforms:
-		if b["enabled"] != "false":
-			d.append(b)
-	
-	return d
-
-
-func get_supported_buildconfigs() -> Array:
-	var d := []
-	
-	for b in buildconfigurations:
-		if b["enabled"] != "false":
-			d.append(b)
-	
-	return d
-
-
 func randomstring() -> String:
 	return str(random.randi())
 
