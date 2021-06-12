@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://addons/easycpp/resources/textures/python.png" type="Texture" id=1]
 [ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Bold.ttf" type="DynamicFontData" id=2]
@@ -19,6 +19,7 @@
 [ext_resource path="res://addons/easycpp/resources/textures/visualstudio.png" type="Texture" id=17]
 [ext_resource path="res://addons/easycpp/resources/textures/newfile.png" type="Texture" id=18]
 [ext_resource path="res://addons/easycpp/resources/textures/cmake.png" type="Texture" id=19]
+[ext_resource path="res://addons/easycpp/resources/textures/qtcreator.png" type="Texture" id=20]
 
 [sub_resource type="DynamicFont" id=1]
 size = 30
@@ -50,6 +51,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="BuildSystemLabel" type="Label" parent="."]
+visible = false
 margin_top = 54.0
 margin_right = 300.0
 margin_bottom = 77.0
@@ -57,6 +59,7 @@ custom_fonts/font = ExtResource( 9 )
 text = "Build System:"
 
 [node name="BuildSystemButton" type="OptionButton" parent="."]
+visible = false
 margin_top = 81.0
 margin_right = 300.0
 margin_bottom = 115.0
@@ -65,6 +68,7 @@ items = [ "SCons", null, false, 0, null, "Cmake", null, false, 1, null ]
 selected = 0
 
 [node name="Spacer6" type="Control" parent="."]
+visible = false
 margin_top = 119.0
 margin_bottom = 121.0
 rect_min_size = Vector2( 0, 2 )
@@ -72,47 +76,47 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="CompilerLabel" type="Label" parent="."]
-margin_top = 125.0
+margin_top = 54.0
 margin_right = 300.0
-margin_bottom = 148.0
+margin_bottom = 77.0
 custom_fonts/font = ExtResource( 9 )
 text = "Compiler:"
 
 [node name="CompilerButton" type="OptionButton" parent="."]
-margin_top = 152.0
+margin_top = 81.0
 margin_right = 300.0
-margin_bottom = 186.0
+margin_bottom = 115.0
 size_flags_horizontal = 3
 text = "Visual Studio 2019"
 items = [ "Visual Studio 2019", null, false, 2, null ]
 selected = 0
 
 [node name="Spacer1" type="Control" parent="."]
-margin_top = 190.0
-margin_bottom = 198.0
+margin_top = 119.0
+margin_bottom = 127.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="PlatformLabel" type="Label" parent="."]
-margin_top = 202.0
+margin_top = 131.0
 margin_right = 300.0
-margin_bottom = 225.0
+margin_bottom = 154.0
 custom_fonts/font = ExtResource( 9 )
 text = "Selected Platform:"
 
 [node name="PlatformContainer" type="HBoxContainer" parent="."]
-margin_top = 229.0
+margin_top = 158.0
 margin_right = 300.0
-margin_bottom = 263.0
+margin_bottom = 192.0
 custom_constants/separation = 8
 
 [node name="PlatformButton" type="OptionButton" parent="PlatformContainer"]
 margin_right = 187.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
-text = "Windows (32-bit)"
-items = [ "Windows (32-bit)", null, false, 0, null, "Windows (64-bit)", null, false, 1, null ]
+text = "Windows (64-bit)"
+items = [ "Windows (64-bit)", null, false, 2, null, "Android (armeabi-v7a)", null, false, 12, null, "Android (arm64-v8a)", null, false, 13, null, "HTML5", null, false, 19, null ]
 selected = 0
 
 [node name="ConfigurationButton" type="OptionButton" parent="PlatformContainer"]
@@ -120,21 +124,21 @@ margin_left = 195.0
 margin_right = 300.0
 margin_bottom = 34.0
 size_flags_horizontal = 3
-text = "Debug"
-items = [ "Shipping", null, false, 0, null, "Release", null, false, 1, null, "Profiling", null, false, 2, null, "Debug", null, false, 3, null ]
-selected = 3
+text = "Release"
+items = [ "Release", null, false, 2, null, "Debug", null, false, 4, null ]
+selected = 0
 
 [node name="Spacer3" type="Control" parent="."]
-margin_top = 267.0
-margin_bottom = 275.0
+margin_top = 196.0
+margin_bottom = 204.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
-margin_top = 279.0
+margin_top = 208.0
 margin_right = 300.0
-margin_bottom = 313.0
+margin_bottom = 242.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
 margin_right = 36.0
@@ -172,16 +176,24 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 17 )
 
-[node name="BuildLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+[node name="GenerateQtButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
 margin_left = 80.0
 margin_right = 116.0
+margin_bottom = 34.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+icon = ExtResource( 20 )
+
+[node name="BuildLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
+margin_left = 120.0
+margin_right = 156.0
 margin_bottom = 34.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 icon = ExtResource( 13 )
 
 [node name="Spacer2" type="Control" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 120.0
+margin_left = 160.0
 margin_right = 168.0
 rect_min_size = Vector2( 8, 0 )
 size_flags_horizontal = 3
@@ -201,19 +213,19 @@ margin_right = 248.0
 margin_bottom = 34.0
 icon = ExtResource( 16 )
 flat = false
-items = [ "Clean Godot Bindings", null, 0, false, false, 0, 0, null, "", false, "Clean Current Library", null, 0, false, false, 1, 0, null, "", false ]
+items = [ "Clean Godot Bindings", null, 0, false, false, 0, 0, null, "", false, "Clean Current Library", null, 0, false, false, 1, 0, null, "", false, "Update GDNativeLibrary", null, 0, false, false, 2, 0, null, "", false ]
 
 [node name="Spacer5" type="Control" parent="."]
-margin_top = 317.0
-margin_bottom = 325.0
+margin_top = 246.0
+margin_bottom = 254.0
 rect_min_size = Vector2( 0, 8 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="StatusContainer" type="VBoxContainer" parent="."]
-margin_top = 329.0
+margin_top = 258.0
 margin_right = 300.0
-margin_bottom = 629.0
+margin_bottom = 558.0
 
 [node name="PythonStatus" parent="StatusContainer" instance=ExtResource( 11 )]
 anchor_right = 0.0
@@ -287,9 +299,9 @@ icon = ExtResource( 8 )
 text = "Godot Headers"
 
 [node name="LibraryContainer" type="VBoxContainer" parent="."]
-margin_top = 633.0
+margin_top = 562.0
 margin_right = 300.0
-margin_bottom = 721.0
+margin_bottom = 650.0
 rect_pivot_offset = Vector2( -694.288, -242 )
 
 [node name="CurrentLibraryLabel" type="Label" parent="LibraryContainer"]
@@ -315,16 +327,16 @@ text = "res:///src/test"
 autowrap = true
 
 [node name="Spacer4" type="Control" parent="."]
-margin_top = 725.0
-margin_bottom = 741.0
+margin_top = 654.0
+margin_bottom = 670.0
 rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 745.0
+margin_top = 674.0
 margin_right = 300.0
-margin_bottom = 782.0
+margin_bottom = 711.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
@@ -358,6 +370,7 @@ current_path = "res://src/src"
 [connection signal="pressed" from="MenuContainer/RefreshButton" to="." method="_on_RefreshButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/BuildBindingsButton" to="." method="_on_BuildBindingsButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/GenerateVSButton" to="." method="_on_GenerateVSButton_pressed"]
+[connection signal="pressed" from="MenuContainer/BuildMenuContainer/GenerateQtButton" to="." method="_on_GenerateQtButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/BuildLibraryButton" to="." method="_on_BuildLibraryButton_pressed"]
 [connection signal="pressed" from="MenuContainer/BuildMenuContainer/NewLibraryButton" to="." method="_on_NewLibraryButton_pressed"]
 [connection signal="fix_pressed" from="StatusContainer/PythonStatus" to="." method="_on_PythonStatus_fix_pressed"]

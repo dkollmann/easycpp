@@ -324,7 +324,8 @@ func _ready():
 	add_tooltip($CompilerButton, "The compiler used when building.")
 	add_tooltip($MenuContainer/RefreshButton, "Check again if all required components are installed.")
 	add_tooltip($MenuContainer/BuildMenuContainer/BuildBindingsButton, "Build the Godot bindings for the current configuration.")
-	add_tooltip($MenuContainer/BuildMenuContainer/GenerateVSButton, "Generate and open the Visual Studio project.")
+	add_tooltip($MenuContainer/BuildMenuContainer/GenerateVSButton, "Generate and open Visual Studio solution.")
+	add_tooltip($MenuContainer/BuildMenuContainer/GenerateQtButton, "Generate and open Qt Creator project.")
 	add_tooltip($MenuContainer/BuildMenuContainer/BuildLibraryButton, "Build the currently selected library.")
 	add_tooltip($MenuContainer/BuildMenuContainer/NewLibraryButton, "Create a new GDNative library.")
 	add_tooltip($MenuContainer/BuildMenuContainer/SubmenuButton, "Additional functions...")
@@ -818,6 +819,16 @@ static func get_buildpreprocessors_str(pltfrm :BuildPlatform, bldcfg :BuildConfi
 	return PoolStringArray(list).join(";")
 
 
+static func get_buildpreprocessors_defines(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
+	var list := get_buildpreprocessors(pltfrm, bldcfg)
+	
+	var s := ""
+	for pp in list:
+		s += "#define " + pp.replace("=", " ") + "\n"
+	
+	return s
+
+
 static func get_buildconfig_index(platform :BuildPlatform, config :BuildConfiguration, action :int) -> int:
 	return platform.index + config.index * 10 + action * 100
 
@@ -933,6 +944,15 @@ func _on_SConsStatus_www_pressed():
 	OS.shell_open("https://scons.org/pages/download.html")
 
 
+func _on_CmakeStatus_fix_pressed():
+	# TODO: Support linux
+	pass
+
+
+func _on_CmakeStatus_www_pressed():
+	OS.shell_open("https://cmake.org/download/")
+
+
 func _on_GitStatus_fix_pressed():
 	# TODO: Support linux
 	pass
@@ -977,7 +997,7 @@ func _on_BuildBindingsButton_pressed():
 
 
 func _on_PlatformButton_item_selected(index):
-	platform = $PlatformContainer/PlatformButton.get_selected_id()
+	platform = buildplatforms[index]
 
 
 func _on_CompilerButton_item_selected(index):
@@ -985,7 +1005,7 @@ func _on_CompilerButton_item_selected(index):
 
 
 func _on_ConfigurationButton_item_selected(index):
-	buildcfg = $PlatformContainer/ConfigurationButton.get_selected_id()
+	buildcfg = buildconfigurations[index]
 
 
 func _on_Submenu_id_pressed(id):
@@ -1307,10 +1327,63 @@ func _on_BuildLibraryButton_pressed():
 	run_makefile_dict_current(batchfiles, BuildAction.Build)
 
 
-func _on_CmakeStatus_fix_pressed():
-	# TODO: Support linux
-	pass
-
-
-func _on_CmakeStatus_www_pressed():
-	OS.shell_open("https://cmake.org/download/")
+func _on_GenerateQtButton_pressed():
+	if not utils.file_exists(currentgdnlib):
+		return
+	
+	print("Generating Qt Creator project for the selected platform and configuration...")
+	
+	var f := File.new()
+	
+	var libdir := ProjectSettings.globalize_path( currentgdnlib.get_base_dir() )	
+	var sourcesdir := libdir + "/src"
+	
+	var headerfiles := []
+	var sourcefiles := []
+	utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles)
+	
+	var root := ProjectSettings.globalize_path(temppath)  + "/qtcreator/" + currentgdnlib_name
+	
+	var creator_path := root + ".creator"
+	var creator_content := "[General]\n"
+	
+	var cflags_path := root + ".cflags"
+	var cflags_content := "-std=c14"
+	
+	var cxxflags_path := root + ".cxxflags"
+	var cxxflags_content := "-std=c14"
+	
+	var config_path := root + ".config"
+	var config_content := get_buildpreprocessors_defines(platform, buildcfg)
+	
+	var includes_path := root + ".includes"
+	var includes_content := PoolStringArray(headerfiles).join("\n")
+	
+	var files_path := root + ".files"
+	var files_content := PoolStringArray(sourcefiles).join("\n")
+	
+	if f.open(creator_path, File.WRITE) == OK:
+		f.store_string(creator_content)
+		f.close()
+	
+	if f.open(cflags_path, File.WRITE) == OK:
+		f.store_string(cflags_content)
+		f.close()
+	
+	if f.open(cxxflags_path, File.WRITE) == OK:
+		f.store_string(cxxflags_content)
+		f.close()
+	
+	if f.open(config_path, File.WRITE) == OK:
+		f.store_string(config_content)
+		f.close()
+	
+	if f.open(includes_path, File.WRITE) == OK:
+		f.store_string(includes_content)
+		f.close()
+	
+	if f.open(files_path, File.WRITE) == OK:
+		f.store_string(files_content)
+		f.close()
+	
+	OS.shell_open(creator_path)
