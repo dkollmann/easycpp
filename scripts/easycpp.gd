@@ -795,16 +795,22 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
-	return create_batch_build(fname, [
+	var batch := [
 		"@echo off\n",
-		"cd \"" + folder + "\"\n",
-		"call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n",
-		
+		"cd \"" + folder + "\"\n"
+	]
+	
+	if not pltfrm.vsplatform.empty():
+		batch.append("call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n")
+	
+	batch.append_array([
 		"set CPP_BINDINGS=\"" + cpp + "\"\n",
 		"set GODOT_HEADERS=\"" + hdr + "\"\n",
 		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
 		"pause\n"
 	])
+	
+	return create_batch_build(fname, batch)
 
 
 func apply_buildvariables(text :String, name :String, pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
@@ -1112,12 +1118,20 @@ func _on_GenerateVSButton_pressed():
 	
 	utils.make_dir(folder_solution)
 	
+	# collect supported platforms
+	var vsbuildplatforms := []
+	for p in buildplatforms:
+		if not p.vsplatform.empty():
+			vsbuildplatforms.append(p)
+	
 	# generate the project configurations
 	var projectconfigs := ""
 	var projectconfigtypes := ""
 	var projectuserprops := ""
 	
-	for p in buildplatforms:
+	for p in vsbuildplatforms:
+		assert(not p.vsplatform.empty())
+		
 		var pp = p.vsplatform
 		
 		for c in buildconfigurations:
@@ -1180,7 +1194,9 @@ func _on_GenerateVSButton_pressed():
 		
 		var projectnmakes := ""
 		
-		for p in buildplatforms:
+		for p in vsbuildplatforms:
+			assert(not p.vsplatform.empty())
+			
 			var pp = p.vsplatform
 			
 			for c in buildconfigurations:
@@ -1245,7 +1261,9 @@ func _on_GenerateVSButton_pressed():
 	var configspresolution := ""
 	var configspostsolution := ""
 	
-	for p in buildplatforms:
+	for p in vsbuildplatforms:
+			assert(not p.vsplatform.empty())
+			
 			var pp = p.vsplatform
 			
 			for c in buildconfigurations:
@@ -1258,7 +1276,9 @@ func _on_GenerateVSButton_pressed():
 		
 		projectstr += "Project(\"%s\") = \"Makefile\", \"%s\", \"%s\"\nEndProject\n" % [uuids[p], projectfiles[p], suuid]
 		
-		for pt in buildplatforms:
+		for pt in vsbuildplatforms:
+			assert(not pt.vsplatform.empty())
+			
 			var pp = pt.vsplatform
 			
 			for c in buildconfigurations:
