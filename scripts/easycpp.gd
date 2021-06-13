@@ -217,6 +217,9 @@ const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
 const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
 
+const setting_gccpath := "Easy C++/GCC Path"
+const setting_clangpath := "Easy C++/Clang Path"
+
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
@@ -227,6 +230,9 @@ var editorbase :Control
 var vs2015path :String
 var vs2017path :String
 var vs2019path :String
+
+var gccpath :String
+var clangpath :String
 
 var toolspath :String
 var runinterminalpath :String
@@ -244,6 +250,9 @@ var gdheaderspath :String
 var has_vs2015 := false
 var has_vs2017 := false
 var has_vs2019 := false
+
+var has_gcc := false
+var has_clang := false
 
 var has_python := false
 var has_pip := false
@@ -290,14 +299,6 @@ func _ready():
 		# make sure the settings exists
 		get_vsproj_location()
 		get_vsproj_subfolder()
-		
-		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
-		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
-		vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
-		
-		has_vs2015 = not find_vcvars(vs2015path).empty()
-		has_vs2017 = not find_vcvars(vs2017path).empty()
-		has_vs2019 = not find_vcvars(vs2019path).empty()
 	
 	toolspath = ProjectSettings.globalize_path(toolsres)
 	templatespath = ProjectSettings.globalize_path(templatesres)
@@ -494,6 +495,14 @@ func check_sdk_state() -> void:
 	$CompilerButton.clear()
 	
 	if utils.is_windows():
+		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
+		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
+		vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+		
+		has_vs2015 = not find_vcvars(vs2015path).empty()
+		has_vs2017 = not find_vcvars(vs2017path).empty()
+		has_vs2019 = not find_vcvars(vs2019path).empty()
+		
 		if has_vs2015:
 			$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
 		
@@ -502,6 +511,12 @@ func check_sdk_state() -> void:
 		
 		if has_vs2019:
 			$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
+	
+	gccpath = check_installation("GCC", funcref(self, "find_gcc"), setting_gccpath, false, exefilter)
+	clangpath = check_installation("Clang", funcref(self, "find_clang"), setting_clangpath, false, exefilter)
+	
+	has_gcc = utils.file_exists(gccpath)
+	has_clang = utils.file_exists(clangpath)
 	
 	if len($CompilerButton.items) > 0:
 		compiler = $CompilerButton.get_selected_id()
@@ -641,6 +656,13 @@ func find_cmake() -> String:
 func find_git() -> String:
 	return find_executable("git")
 
+
+func find_gcc() -> String:
+	return find_executable("gcc")
+
+
+func find_clang() -> String:
+	return find_executable("clang")
 
 func find_godotcpp() -> String:
 	return temppath + "/godot-cpp"
