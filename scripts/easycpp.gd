@@ -77,7 +77,7 @@ enum VisualProjectLocation {
 }
 
 const supportCmake := false
-const utils := preload("res://addons/easycpp/scripts/utils.gd")
+var utils := preload("res://addons/easycpp/scripts/utils.gd").new()
 
 
 class BuildBase:
@@ -104,7 +104,7 @@ class BuildPlatform extends BuildBase:
 	var gdnlibkey :String
 	var vsplatform :String
 	
-	static func parse_csv(ut :Utils, csv :String) -> Array:
+	static func parse_csv(csv :String) -> Array:
 		var lst := []
 		var lines := csv.split("\n", false)
 		
@@ -114,7 +114,7 @@ class BuildPlatform extends BuildBase:
 			if l.begins_with("#"):
 				continue
 			
-			var b := create(ut, i, l)
+			var b := create(i, l)
 			
 			if b != null:
 				lst.append(b)
@@ -122,13 +122,13 @@ class BuildPlatform extends BuildBase:
 		return lst
 
 
-	static func create(ut :Utils, idx :int, line :String) -> BuildPlatform:
-		var params := utils.split_clean(line, "|", true)
+	static func create(idx :int, line :String) -> BuildPlatform:
+		var params := Utils.split_clean(line, "|", true)
 		
 		assert(len(params) == 8)
 		
 		# check if available and enabled
-		var enabled := ut.is_true(params[1])
+		var enabled := Utils.is_true(params[1])
 		var availableon := params[2]
 		
 		if enabled and OS.get_name() in availableon:
@@ -136,8 +136,8 @@ class BuildPlatform extends BuildBase:
 			
 			p.index = idx
 			p.name = params[0].strip_edges()
-			p.arguments = ut.split_clean(params[3], " ", false)
-			p.defines = ut.split_clean(params[4], " ", false)
+			p.arguments = Utils.split_clean(params[3], " ", false)
+			p.defines = Utils.split_clean(params[4], " ", false)
 			p.outputname = params[5]
 			p.gdnlibkey = params[6].strip_edges()
 			p.vsplatform = params[7].strip_edges()
@@ -152,7 +152,7 @@ class BuildPlatform extends BuildBase:
 class BuildConfiguration extends BuildBase:
 	var debuglibs :bool
 	
-	static func parse_csv(ut :Utils, csv :String) -> Array:
+	static func parse_csv(csv :String) -> Array:
 		var lst := []
 		var lines := csv.split("\n", false)
 		
@@ -162,7 +162,7 @@ class BuildConfiguration extends BuildBase:
 			if l.begins_with("#"):
 				continue
 			
-			var b := create(ut, i, l)
+			var b := create(i, l)
 			
 			if b != null:
 				lst.append(b)
@@ -170,22 +170,22 @@ class BuildConfiguration extends BuildBase:
 		return lst
 
 
-	static func create(ut :Utils, idx :int, line :String) -> BuildConfiguration:
-		var params := utils.split_clean(line, "|", true)
+	static func create(idx :int, line :String) -> BuildConfiguration:
+		var params := Utils.split_clean(line, "|", true)
 		
 		assert(len(params) == 5)
 		
 		# check if enabled
-		var enabled := ut.is_true(params[1])
+		var enabled := Utils.is_true(params[1])
 		
 		if enabled:
 			var b := BuildConfiguration.new()
 			
 			b.index = idx
 			b.name = params[0].strip_edges()
-			b.arguments = ut.split_clean(params[2], " ", false)
-			b.defines = ut.split_clean(params[3], " ", false)
-			b.debuglibs = ut.is_true(params[4])
+			b.arguments = Utils.split_clean(params[2], " ", false)
+			b.defines = Utils.split_clean(params[3], " ", false)
+			b.debuglibs = Utils.is_true(params[4])
 			
 			b.parse_arguments()
 			
@@ -199,6 +199,7 @@ const tempres := "res://addons/easycpp/temp"
 const templatesres := "res://addons/easycpp/templates"
 
 const setting_buildsystem := "Easy C++/Build System"
+const setting_terminalpath := "Easy C++/Terminal Path"
 const setting_pythonpath := "Easy C++/Python Path"
 const setting_cmakepath := "Easy C++/Cmake Path"
 const setting_pippath := "Easy C++/pip Path"
@@ -295,7 +296,7 @@ func _ready():
 	# make sure the settings exists
 	get_batchfilelocation()
 	
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		# make sure the settings exists
 		get_vsproj_location()
 		get_vsproj_subfolder()
@@ -387,7 +388,7 @@ func read_build_platforms_configurations():
 	
 	platforms = utils.get_project_setting_string(setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	buildplatforms = BuildPlatform.new().parse_csv(utils.new(), platforms)
+	buildplatforms = BuildPlatform.new().parse_csv(platforms)
 	
 	if len(buildplatforms) < 1:
 		print("Failed to load build platforms from settings!!")
@@ -402,7 +403,7 @@ func read_build_platforms_configurations():
 	
 	configurations = utils.get_project_setting_string(setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	buildconfigurations = BuildConfiguration.new().parse_csv(utils.new(), configurations)
+	buildconfigurations = BuildConfiguration.new().parse_csv(configurations)
 	
 	if len(buildconfigurations) < 1:
 		print("Failed to load build configurations from settings!!")
@@ -449,7 +450,7 @@ func check_sdk_state() -> void:
 	if buildcfg == null:
 		buildcfg = buildconfigurations[0]
 	
-	var exefilter := "*.exe,*.bat,*.cmd" if utils.is_windows() else "*"
+	var exefilter := "*.exe,*.bat,*.cmd" if utils.system == Utils.System.Windows else "*"
 	
 	# prepare check
 	needs_python = buildsystem == BuildSystem.SCons
@@ -494,7 +495,7 @@ func check_sdk_state() -> void:
 	compiler = -1
 	$CompilerButton.clear()
 	
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
 		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
 		vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
@@ -558,9 +559,9 @@ func check_sdk_state() -> void:
 	else:
 		$LibraryContainer.visible = false
 		
-		var is_windows := utils.is_windows()
+		var is_windows :bool = utils.system == Utils.System.Windows
 		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
-		var canfix_pip := not is_windows
+		var canfix_pip := not is_windows and has_python and pythonpath.ends_with("python3")
 		var canfix_scons := has_pip
 		var canfix_cmake := not is_windows
 		var canfix_git := not is_windows
@@ -586,13 +587,13 @@ func check_sdk_state() -> void:
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
 	var searched := false
 	
-	var path := utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
+	var path := Utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
 	if path.empty():
 		searched = true
 		path = findfunc.call_func()
 	
-	if (utils.folder_exists(path) if isfolder else utils.file_exists(path)):
+	if (Utils.folder_exists(path) if isfolder else Utils.file_exists(path)):
 		print("Found " + name + " path: \"" + path + "\".")
 		
 		if searched:
@@ -604,9 +605,9 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 	return path
 
 
-static func find_executable(exename :String) -> String:
+func find_executable(exename :String) -> String:
 	var output := []
-	OS.execute("where" if utils.is_windows() else "which", [exename], true, output)
+	OS.execute("where" if utils.system == Utils.System.Windows else "which", [exename], true, output)
 	
 	var lines := utils.get_outputlines(output)
 	
@@ -629,23 +630,28 @@ func find_pythonmodule(module :String) -> bool:
 
 
 func find_python() -> String:
-	var exe := find_executable("python")
+	var py := find_executable("python")
 	
-	if not exe.empty():
-		if utils.file_exists(exe):
-			return exe
-			
-		if utils.is_windows():
+	if utils.system == Utils.System.Windows:
+		if not py.empty():
+			if utils.file_exists(py):
+				return py
+				
 			# Under Windows 10, this opens the store
-			pythonpath_windowsstore = exe
+			pythonpath_windowsstore = py
+		
+		return ""
+	else:
+		if not utils.file_exists(py):
+			py = find_executable("python3")
 	
-	return ""
+	return py
 
 
 func find_cmake() -> String:
 	var exe := find_executable("cmake")
 	
-	if exe.empty() and utils.is_windows():
+	if exe.empty() and utils.system == Utils.System.Windows:
 		var p := "C:\\Program Files\\CMake\\bin\\cmake.exe"
 		if utils.file_exists(p):
 			return p
@@ -707,16 +713,24 @@ func run_shell(exe :String, args :Array = []) -> int:
 	var output := []
 	var res :int
 	
-	if utils.is_windows():
-		var args2 = ["--run", exe]
-		
-		if len(args) > 0:
-			args2.append_array(args)
-		
-		res = OS.execute(runinterminalpath, args2, true)
+	match utils.system:
+		Utils.System.Windows:
+			var args2 = ["--run", exe] + args
+			
+			res = OS.execute(runinterminalpath, args2, true)
 	
-	else:
-		res = OS.execute(exe, args, true, output)
+		Utils.System.Linux:
+			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/bash", PROPERTY_HINT_GLOBAL_FILE)
+			
+			var args2 := [exe] + args
+			
+			print("Running " + terminal + " " + str(args2))
+			
+			res = OS.execute(terminal, args2, true, output)
+		
+		Utils.System.macOS:
+			# support macOS
+			pass
 	
 	var outlines := utils.get_outputlines(output)
 	
@@ -724,6 +738,10 @@ func run_shell(exe :String, args :Array = []) -> int:
 		print(l)
 	
 	return res
+
+
+func install_package(package :String) -> int:
+	return run_shell("/usr/bin/sudo", ["apt", "install", package])
 
 
 func get_batchfilelocation() -> int:
@@ -744,7 +762,7 @@ func create_batch_temp(name :String, batch :Array) -> String:
 func create_batch_dir(folder :String, name :String, batch :Array) -> String:
 	utils.make_dir_ignored(folder)
 	
-	var ext := ".bat" if utils.is_windows() else ".sh"
+	var ext := ".bat" if utils.system == Utils.System.Windows else ".sh"
 	var fname := "%s/%s%s" % [folder, name, ext]
 	
 	return create_batch(fname, batch)
@@ -905,7 +923,7 @@ func center_in_editor(ctrl :Control) -> void:
 
 
 func copy_files(from :String, to :String) -> bool:
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0
 	else:
 		# TODO: Support linux
@@ -913,7 +931,7 @@ func copy_files(from :String, to :String) -> bool:
 
 
 func get_shortpath(path :String) -> String:
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		var output := []
 		OS.execute(shortpathpath, [path], true, output)
 		return output[0].strip_edges(false, true)
@@ -942,11 +960,12 @@ func _on_BuildSystemButton_item_selected(index):
 
 
 func _on_PythonStatus_fix_pressed():
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		OS.execute(pythonpath_windowsstore, [])
 	else:
-		# TODO: Support linux
-		pass
+		install_package("python3")
+		
+		check_sdk_state()
 
 
 func _on_PythonStatus_www_pressed():
@@ -954,8 +973,9 @@ func _on_PythonStatus_www_pressed():
 
 
 func _on_PipStatus_fix_pressed():
-	# TODO: Support linux
-	pass
+	install_package("python3-pip")
+	
+	check_sdk_state()
 
 
 func _on_PipStatus_www_pressed():
@@ -991,12 +1011,12 @@ func _on_GitStatus_www_pressed():
 
 
 func _on_CompilerStatus_fix_pressed():
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
 
 
 func _on_CompilerStatus_www_pressed():
-	if utils.is_windows():
+	if utils.system == Utils.System.Windows:
 		OS.shell_open("https://visualstudio.microsoft.com/vs/older-downloads/")
 	else:
 		# TODO: Support linux

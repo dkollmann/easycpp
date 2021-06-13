@@ -2,8 +2,23 @@ extends Object
 class_name Utils
 
 
-static func is_windows() -> bool:
-	return OS.get_name() == "Windows"
+enum System {
+	Windows,
+	Linux,
+	macOS
+}
+
+var system :int
+
+func _init():
+	var s := OS.get_name()
+	
+	if s == "Windows":
+		system = System.Windows
+	elif s == "X11":
+		system = System.Linux
+	elif s == "OSX":
+		system = System.macOS
 
 
 static func file_exists(file :String) -> bool:
