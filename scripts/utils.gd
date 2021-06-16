@@ -277,10 +277,53 @@ static func parse_csvdata(csv :String) -> Array:
 	return data
 
 
+static func parse_args(args :String) -> Array:
+	var lst := []
+	
+	var lastpos := 0
+	var start := 0
+	var quotes := false
+	
+	while true:
+		var pos := args.find(" ", lastpos)
+		var pos2 := args.find("\"", lastpos)
+		
+		if quotes:
+			if pos2 < 0:
+				break
+			
+			lst.append(args.substr(start, pos2 - start + 1))
+			quotes = false
+			start = -1
+			lastpos = pos2 + 1
+		
+		else:
+			if pos2 >= 0 and pos2 < pos:
+				quotes = true
+				start = pos2
+				lastpos = pos2 + 1
+			else:
+				if pos < 0:
+					break
+				
+				if start >= 0:
+					var ln := pos - start
+					if ln > 0:
+						lst.append(args.substr(start, ln))
+				
+				start = pos + 1
+				lastpos = pos + 1
+	
+	if start >= 0:
+		lst.append(args.substr(start))
+	
+	return lst
+
+
 static func parse_args_dict(args :String, out :Dictionary, allow_nokey :bool) -> bool:
 	# does not handle quotes
 	var i := 0
-	var alist := args.split(" ", false)
+	var alist := parse_args(args)
 	
 	for a in alist:
 		var aa = a.split("=", true)
@@ -350,3 +393,17 @@ static func join_dict(d1 :Dictionary, d2 :Dictionary) -> Dictionary:
 	add_dict(d, d2)
 	
 	return d
+
+
+static func make_executable(exe :String) -> int:
+	return OS.execute("/usr/bin/chmod", ["+x", exe], true)
+
+static func run_tests():
+	var l1 := parse_args(" a b  c \"hello world\" hello=\"world\" ")
+	print(str(l1))
+	assert(len(l1) == 5)
+	assert(l1[0] == "a")
+	assert(l1[1] == "b")
+	assert(l1[2] == "c")
+	assert(l1[3] == "hello world")
+	assert(l1[4] == "hello=\"world\"")
