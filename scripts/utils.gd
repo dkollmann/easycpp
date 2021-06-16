@@ -300,7 +300,8 @@ static func parse_args(args :String) -> Array:
 		else:
 			if pos2 >= 0 and pos2 < pos:
 				quotes = true
-				start = pos2
+				if start < 0:
+					start = pos2
 				lastpos = pos2 + 1
 			else:
 				if pos < 0:
@@ -314,7 +315,7 @@ static func parse_args(args :String) -> Array:
 				start = pos + 1
 				lastpos = pos + 1
 	
-	if start >= 0:
+	if start >= 0 and start < len(args):
 		lst.append(args.substr(start))
 	
 	return lst
