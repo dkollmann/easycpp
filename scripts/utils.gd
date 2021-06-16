@@ -277,7 +277,7 @@ static func parse_csvdata(csv :String) -> Array:
 	return data
 
 
-static func parse_args(args :String) -> Array:
+static func parse_args(args :String, stripquotes :bool) -> Array:
 	var lst := []
 	
 	var lastpos := 0
@@ -292,7 +292,11 @@ static func parse_args(args :String) -> Array:
 			if pos2 < 0:
 				break
 			
-			lst.append(args.substr(start, pos2 - start + 1))
+			if stripquotes and args[start] == '"':
+				lst.append(args.substr(start + 1, pos2 - start - 1))
+			else:
+				lst.append(args.substr(start, pos2 - start + 1))
+			
 			quotes = false
 			start = -1
 			lastpos = pos2 + 1
@@ -324,7 +328,7 @@ static func parse_args(args :String) -> Array:
 static func parse_args_dict(args :String, out :Dictionary, allow_nokey :bool) -> bool:
 	# does not handle quotes
 	var i := 0
-	var alist := parse_args(args)
+	var alist := parse_args(args, true)
 	
 	for a in alist:
 		var aa = a.split("=", true)
@@ -400,11 +404,18 @@ static func make_executable(exe :String) -> int:
 	return OS.execute("/usr/bin/chmod", ["+x", exe], true)
 
 static func run_tests():
-	var l1 := parse_args(" a b  c \"hello world\" hello=\"world\" ")
-	print(str(l1))
+	var l1 := parse_args(" a b  c \"hello world\" hello=\"world\" ", false)
 	assert(len(l1) == 5)
 	assert(l1[0] == "a")
 	assert(l1[1] == "b")
 	assert(l1[2] == "c")
-	assert(l1[3] == "hello world")
+	assert(l1[3] == "\"hello world\"")
 	assert(l1[4] == "hello=\"world\"")
+	
+	var l2 := parse_args(" a b  c \"hello world\" hello=\"world\" ", true)
+	assert(len(l2) == 5)
+	assert(l2[0] == "a")
+	assert(l2[1] == "b")
+	assert(l2[2] == "c")
+	assert(l2[3] == "hello world")
+	assert(l2[4] == "hello=\"world\"")
