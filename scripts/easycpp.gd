@@ -288,6 +288,8 @@ var random := RandomNumberGenerator.new()
 
 
 func _ready():
+	utils.run_tests()
+	
 	var ver := Engine.get_version_info()
 	godotversion = str(ver.major) + "." + str(ver.minor)
 	
@@ -720,13 +722,15 @@ func run_shell(exe :String, args :Array = []) -> int:
 			res = OS.execute(runinterminalpath, args2, true)
 	
 		Utils.System.Linux:
-			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/bash", PROPERTY_HINT_GLOBAL_FILE)
+			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal --execute %command%")
 			
-			var args2 := [exe] + args
+			var batch := create_batch_temp("run_shell_" + randomstring(), [exe + " " + PoolStringArray(args).join(" ")])
 			
-			print("Running " + terminal + " " + str(args2))
+			var cmd := terminal.replace("%command%", "\"" + batch + "\"")
+			var terminal_args := utils.parse_args(cmd, true)
+			var terminal_exe = terminal_args.pop_front()
 			
-			res = OS.execute(terminal, args2, true, output)
+			res = OS.execute(terminal_exe, terminal_args, true, output)
 		
 		Utils.System.macOS:
 			# support macOS
@@ -769,6 +773,8 @@ func create_batch_dir(folder :String, name :String, batch :Array) -> String:
 
 
 func create_batch(fname :String, batch :Array) -> String:
+	print("Creating \"" + fname + "\"...")
+	
 	var file := File.new()
 	file.open(fname, File.WRITE)
 	
@@ -777,7 +783,7 @@ func create_batch(fname :String, batch :Array) -> String:
 	
 	file.close()
 	
-	print("Creating \"" + fname + "\"...")
+	utils.make_executable(fname)
 	
 	return fname
 
@@ -983,7 +989,7 @@ func _on_PipStatus_www_pressed():
 
 
 func _on_SConsStatus_fix_pressed():
-	OS.execute(pythonpath, ["-m", "pip", "install", "SCons"], true)
+	run_shell(pythonpath, ["-m", "pip", "install", "SCons"])
 	
 	check_sdk_state()
 
@@ -1002,8 +1008,10 @@ func _on_CmakeStatus_www_pressed():
 
 
 func _on_GitStatus_fix_pressed():
-	# TODO: Support linux
-	pass
+	if utils.system == Utils.System.Linux:
+		install_package("git")
+		
+		check_sdk_state()
 
 
 func _on_GitStatus_www_pressed():
