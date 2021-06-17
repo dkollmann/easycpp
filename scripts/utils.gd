@@ -403,6 +403,19 @@ static func join_dict(d1 :Dictionary, d2 :Dictionary) -> Dictionary:
 static func make_executable(exe :String) -> int:
 	return OS.execute("/usr/bin/chmod", ["+x", exe], true)
 
+
+static func optionbutton_select_id(button :OptionButton, id :int):
+	if button.get_selected_id() == id:
+		return button.selected
+	
+	for i in range(button.get_item_count()):
+		if button.get_item_id(i) == id:
+			button.select(i)
+			return i
+	
+	return -1
+
+
 static func run_tests():
 	var l1 := parse_args(" a b  c \"hello world\" hello=\"world\" ", false)
 	assert(len(l1) == 5)

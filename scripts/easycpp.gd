@@ -281,6 +281,7 @@ var buildsystem :int = BuildSystem.SCons
 var platform :BuildPlatform
 var buildcfg :BuildConfiguration
 var compiler :int = -1
+var selecting_compiler := false
 
 var gdnlibs := { }
 var currentgdnlib :String
@@ -497,7 +498,7 @@ func check_sdk_state() -> void:
 	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
 	
 	# handle compiler
-	compiler = -1
+	var selected_compiler := compiler
 	$CompilerButton.clear()
 	
 	match utils.system:
@@ -534,10 +535,22 @@ func check_sdk_state() -> void:
 	has_gcc = utils.file_exists(gccpath)
 	has_clang = utils.file_exists(clangpath)
 	
-	if len($CompilerButton.items) > 0:
-		compiler = $CompilerButton.get_selected_id()
+	selecting_compiler = true
 	
-	has_compiler = compiler >= 0
+	if selected_compiler >= 0 and utils.optionbutton_select_id($CompilerButton, selected_compiler) >= 0:
+		compiler = selected_compiler
+	else:
+		if len($CompilerButton.items) > 0:
+			compiler = $CompilerButton.get_selected_id()
+		else:
+			compiler = -1
+	
+	selecting_compiler = false
+	
+	if utils.system == Utils.System.Windows:
+		has_compiler = compiler >= 0
+	else:
+		has_compiler = (compiler == Compiler.GCC and has_gcc) or (compiler == Compiler.Clang) and has_clang
 	
 	needs_git = not has_gdcpp  # or not has_gdheaders
 	needs_pip = not has_scons
@@ -1088,7 +1101,12 @@ func _on_PlatformButton_item_selected(index):
 
 
 func _on_CompilerButton_item_selected(index):
+	if selecting_compiler:
+		return
+	
 	compiler = $CompilerButton.get_selected_id()
+	
+	check_sdk_state()
 
 
 func _on_ConfigurationButton_item_selected(index):
