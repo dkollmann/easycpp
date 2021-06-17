@@ -61,6 +61,14 @@ enum Compiler {
 	Clang
 }
 
+const CompilerNames := [
+	"vs2015",
+	"vs2017",
+	"vs2019",
+	"gcc",
+	"clang"
+]
+
 enum Submenu {
 	CleanBindings,
 	CleanCurrentLibrary,
@@ -862,6 +870,8 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	var hdr := get_shortpath(gdheaderspath)
 	var argstr := PoolStringArray(args).join(" ")
 	
+	argstr = apply_buildvariables(argstr, name, pltfrm, bldcfg)
+	
 	var batch := [
 		"cd \"" + folder + "\"\n"
 	]
@@ -882,6 +892,10 @@ func apply_buildvariables(text :String, name :String, pltfrm :BuildPlatform, bld
 	var d := utils.join_dict(pltfrm.arguments_dict, bldcfg.arguments_dict)
 	
 	d["name"] = name
+	d["compiler"] = CompilerNames[compiler]
+	d["use_msvc"] = "True" if (compiler <= Compiler.VisualStudio2019) else "False"
+	d["use_clang"] = "True" if compiler == Compiler.Clang else "False"
+	d["use_gcc"] = "True" if compiler == Compiler.GCC else "False"
 	
 	return utils.apply_dict(text, d, "%")
 
