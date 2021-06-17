@@ -225,6 +225,7 @@ const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 
+const linuxpause = "read -p \"Press any key to resume ...\"\n"
 
 var editorbase :Control
 
@@ -708,10 +709,10 @@ func git_clone(args :Array, tryfix :bool = true) -> bool:
 	
 	git_fixdefaultbranch()
 	
-	return run_shell(gitpath, args) == 0
+	return run_shell("git_clone", gitpath, args) == 0
 
 
-func run_shell(exe :String, args :Array = []) -> int:
+func run_shell(name :String, exe :String, args :Array = []) -> int:
 	var output := []
 	var res :int
 	
@@ -722,11 +723,11 @@ func run_shell(exe :String, args :Array = []) -> int:
 			res = OS.execute(runinterminalpath, args2, true)
 	
 		Utils.System.Linux:
-			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal --execute %command%")
+			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
 			
-			var batch := create_batch_temp("run_shell_" + randomstring(), [exe + " " + PoolStringArray(args).join(" ")])
+			var batch := create_batch_temp(name, [exe + " " + PoolStringArray(args).join(" ") + "\n", linuxpause])
 			
-			var cmd := terminal.replace("%command%", "\"" + batch + "\"")
+			var cmd := terminal.replace("%command%", "bash \"" + batch + "\"")
 			var terminal_args := utils.parse_args(cmd, true)
 			var terminal_exe = terminal_args.pop_front()
 			
@@ -745,7 +746,7 @@ func run_shell(exe :String, args :Array = []) -> int:
 
 
 func install_package(package :String) -> int:
-	return run_shell("/usr/bin/sudo", ["apt", "install", package])
+	return run_shell("install_package", "/usr/bin/sudo", ["apt", "install", package])
 
 
 func get_batchfilelocation() -> int:
@@ -917,7 +918,7 @@ func run_makefile_dict(dict :Dictionary, platform :BuildPlatform, config :BuildC
 	
 	print("Running \"" + fname + "\"...")
 	
-	return run_shell(fname)
+	return run_shell("run_makefile", fname)
 
 
 func run_makefile_dict_current(dict :Dictionary, action :int) -> int:
@@ -989,7 +990,7 @@ func _on_PipStatus_www_pressed():
 
 
 func _on_SConsStatus_fix_pressed():
-	run_shell(pythonpath, ["-m", "pip", "install", "SCons"])
+	run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
 	
 	check_sdk_state()
 
