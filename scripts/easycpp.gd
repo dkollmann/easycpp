@@ -328,12 +328,17 @@ func _ready():
 	if supportCmake:
 		init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
+	# handle Visual Studio
+	$MenuContainer/BuildMenuContainer/GenerateVSButton.visible = utils.system == Utils.System.Windows
+	
+	# create sub-menu
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Current Library", Submenu.CleanCurrentLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Update GDNativeLibrary", Submenu.UpdateGDNativeLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
+	# add tooltips
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
 	add_tooltip($PlatformContainer/PlatformButton, "The platform to build for.")
 	add_tooltip($PlatformContainer/ConfigurationButton, "The configuration to build for.")
