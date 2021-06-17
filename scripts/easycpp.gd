@@ -56,7 +56,9 @@ enum BuildAction {
 enum Compiler {
 	VisualStudio2015,
 	VisualStudio2017,
-	VisualStudio2019
+	VisualStudio2019,
+	GCC,
+	Clang
 }
 
 enum Submenu {
@@ -498,23 +500,33 @@ func check_sdk_state() -> void:
 	compiler = -1
 	$CompilerButton.clear()
 	
-	if utils.system == Utils.System.Windows:
-		vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
-		vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
-		vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+	match utils.system:
+		Utils.System.Windows:
+			vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
+			vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
+			vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+			
+			has_vs2015 = not find_vcvars(vs2015path).empty()
+			has_vs2017 = not find_vcvars(vs2017path).empty()
+			has_vs2019 = not find_vcvars(vs2019path).empty()
+			
+			if has_vs2015:
+				$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
+			
+			if has_vs2017:
+				$CompilerButton.add_item("Visual Studio 2017", Compiler.VisualStudio2017)
+			
+			if has_vs2019:
+				$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
 		
-		has_vs2015 = not find_vcvars(vs2015path).empty()
-		has_vs2017 = not find_vcvars(vs2017path).empty()
-		has_vs2019 = not find_vcvars(vs2019path).empty()
+		Utils.System.Linux:
+			# always suport gcc and clang
+			$CompilerButton.add_item("GCC", Compiler.GCC)
+			$CompilerButton.add_item("Clang", Compiler.Clang)
 		
-		if has_vs2015:
-			$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
-		
-		if has_vs2017:
-			$CompilerButton.add_item("Visual Studio 2017", Compiler.VisualStudio2017)
-		
-		if has_vs2019:
-			$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
+		Utils.System.macOS:
+			# TODO support Xcode
+			pass
 	
 	gccpath = check_installation("GCC", funcref(self, "find_gcc"), setting_gccpath, false, exefilter)
 	clangpath = check_installation("Clang", funcref(self, "find_clang"), setting_clangpath, false, exefilter)
@@ -563,7 +575,7 @@ func check_sdk_state() -> void:
 		$LibraryContainer.visible = false
 		
 		var is_windows :bool = utils.system == Utils.System.Windows
-		var canfix_python := not is_windows  # or not pythonpath_windowsstore.empty()
+		var canfix_python := not is_windows or not pythonpath_windowsstore.empty()
 		var canfix_pip := not is_windows and has_python and pythonpath.ends_with("python3")
 		var canfix_scons := has_pip
 		var canfix_cmake := not is_windows
@@ -1020,16 +1032,34 @@ func _on_GitStatus_www_pressed():
 
 
 func _on_CompilerStatus_fix_pressed():
-	if utils.system == Utils.System.Windows:
-		OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
+	match utils.system:
+		Utils.System.Windows:
+			OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
+		
+		Utils.System.Linux:
+			match compiler:
+				Compiler.GCC:
+					install_package("gcc")
+				
+				Compiler.Clang:
+					install_package("clang")
+		
+		Utils.System.macOS:
+			# TODO Support Xcode
+			pass
 
 
 func _on_CompilerStatus_www_pressed():
-	if utils.system == Utils.System.Windows:
-		OS.shell_open("https://visualstudio.microsoft.com/vs/older-downloads/")
-	else:
-		# TODO: Support linux
-		pass
+	match utils.system:
+		Utils.System.Windows:
+			OS.shell_open("https://visualstudio.microsoft.com/vs/older-downloads/")
+		
+		Utils.System.Linux:
+			pass
+		
+		Utils.System.macOS:
+			# TODO Support scode
+			pass
 
 
 func _on_CppStatus_fix_pressed():
