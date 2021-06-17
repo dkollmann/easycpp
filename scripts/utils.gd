@@ -44,6 +44,13 @@ static func make_dir_ignored(path :String) -> void:
 		f.close()
 
 
+func copy_files(from :String, to :String) -> bool:
+	if system == System.Windows:
+		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0
+	else:
+		return OS.execute("cp", ["-R", from + "/.", to], true) == 0
+
+
 static func get_project_setting(name :String, type :int, defvalue, hint :int = PROPERTY_HINT_NONE, hintstr :String = ""):
 	if ProjectSettings.has_setting(name):
 		return ProjectSettings.get(name)

@@ -971,14 +971,6 @@ func center_in_editor(ctrl :Control) -> void:
 	ctrl.set_position( (editorbase.get_rect().size - ctrl.get_rect().size) / 2 )
 
 
-func copy_files(from :String, to :String) -> bool:
-	if utils.system == Utils.System.Windows:
-		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0
-	else:
-		# TODO: Support linux
-		return false
-
-
 func get_shortpath(path :String) -> String:
 	if utils.system == Utils.System.Windows:
 		var output := []
@@ -1188,7 +1180,7 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 	
 	var dirlocal := ProjectSettings.globalize_path(dir)
 	
-	copy_files(templatespath + "/gdnative", dirlocal)
+	utils.copy_files(templatespath + "/gdnative", dirlocal)
 	
 	var f := File.new()
 	if f.open(dirlocal + "/SConstruct", File.READ) == OK:
