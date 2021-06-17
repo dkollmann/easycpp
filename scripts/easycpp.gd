@@ -1034,7 +1034,7 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, gdcpppath])
+		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, '"' + gdcpppath + '"'])
 		
 	check_sdk_state()
 
