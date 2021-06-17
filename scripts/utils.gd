@@ -325,6 +325,19 @@ static func parse_args(args :String, stripquotes :bool) -> Array:
 	return lst
 
 
+func arglist_to_string(args :Array) -> String:
+	var args2 := args.duplicate()
+	var sep := "\\" if system == System.Windows else "/"
+	
+	for i in range(len(args2)):
+		var a :String = args2[i]
+		
+		if " " in a and sep in a:
+			args2[i] = '"' + a + '"'
+	
+	return PoolStringArray(args2).join(" ")
+
+
 static func parse_args_dict(args :String, out :Dictionary, allow_nokey :bool) -> bool:
 	# does not handle quotes
 	var i := 0

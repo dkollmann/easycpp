@@ -750,7 +750,12 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 		Utils.System.Linux:
 			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
 			
-			var batch := create_batch_temp(name, [exe + " " + PoolStringArray(args).join(" ") + "\n", linuxpause])
+			var args2 := args.duplicate()
+			args2.insert(0, exe)
+			
+			var args_str := utils.arglist_to_string(args2)
+			
+			var batch := create_batch_temp(name, [args_str + "\n", linuxpause])
 			
 			var cmd := terminal.replace("%command%", "bash \"" + batch + "\"")
 			var terminal_args := utils.parse_args(cmd, true)
@@ -858,18 +863,16 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	var argstr := PoolStringArray(args).join(" ")
 	
 	var batch := [
-		"@echo off\n",
 		"cd \"" + folder + "\"\n"
 	]
 	
-	if not pltfrm.vsplatform.empty():
+	if utils.system == Utils.System.Windows and not pltfrm.vsplatform.empty():
 		batch.append("call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n")
 	
 	batch.append_array([
 		"set CPP_BINDINGS=\"" + cpp + "\"\n",
 		"set GODOT_HEADERS=\"" + hdr + "\"\n",
-		"\"" + pythonpath + "\" -m SCons " + argstr + "\n",
-		"pause\n"
+		"\"" + pythonpath + "\" -m SCons " + argstr + "\n"
 	])
 	
 	return create_batch_build(fname, batch)
@@ -1077,7 +1080,7 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, '"' + gdcpppath + '"'])
+		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, gdcpppath])
 		
 	check_sdk_state()
 
