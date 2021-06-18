@@ -1102,7 +1102,7 @@ func _on_SConsStatus_fix_pressed():
 							print("Moved SCons to correct folder \"" + scons_good + "\"...")
 			
 			if install:
-				run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "--user"])
+				run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "pathlib", "--user"])
 	
 	check_sdk_state()
 
