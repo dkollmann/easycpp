@@ -80,6 +80,8 @@ const CompilerNames := [
 enum Submenu {
 	CleanBindings,
 	CleanCurrentLibrary,
+	CleanAll,
+	GenerateAllBatchfiles,
 	UpdateGDNativeLibrary
 }
 
@@ -344,6 +346,8 @@ func _ready():
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Current Library", Submenu.CleanCurrentLibrary)
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean all Libraries", Submenu.CleanAll)
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Generate all Batchfiles", Submenu.GenerateAllBatchfiles)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Update GDNativeLibrary", Submenu.UpdateGDNativeLibrary)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
 	
@@ -357,6 +361,7 @@ func _ready():
 	add_tooltip($MenuContainer/BuildMenuContainer/GenerateVSButton, "Generate and open Visual Studio solution.")
 	add_tooltip($MenuContainer/BuildMenuContainer/GenerateQtButton, "Generate and open Qt Creator project.")
 	add_tooltip($MenuContainer/BuildMenuContainer/BuildLibraryButton, "Build the currently selected library.")
+	add_tooltip($MenuContainer/BuildMenuContainer/BuildAllButton, "Build all libraries.")
 	add_tooltip($MenuContainer/BuildMenuContainer/NewLibraryButton, "Create a new GDNative library.")
 	add_tooltip($MenuContainer/BuildMenuContainer/SubmenuButton, "Additional functions...")
 	add_tooltip($LibraryContainer/CurrentLibraryButton, "The current GDNative library which will be built.")
@@ -859,6 +864,13 @@ func get_batchfilelocation() -> int:
 	return utils.get_project_setting_enum_keys(setting_batchfilelocation, "Temporary Folder,Build Folder")
 
 
+func get_batchfilefolder() -> String:
+	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
+		return temppath
+	
+	return buildfolderpath
+
+
 func create_batch_build(name :String, batch :Array) -> String:
 	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
 		return create_batch_temp(name, batch)
@@ -1045,6 +1057,46 @@ func create_all_makefiles(folder :String, lib :String, additionalargs :Array = [
 
 func create_bindings_makefiles() -> Dictionary:
 	return create_all_makefiles(gdcpppath, "godot-bindings", ["generate_bindings=yes"])
+
+
+func create_buildall_batchfiles() -> Dictionary:
+	# generate all batch files
+	var batchfiles := [ create_bindings_makefiles() ]
+	
+	for l in gdnlibs:
+		var path := ProjectSettings.globalize_path(gdnlibs[l]).get_base_dir()
+		
+		batchfiles.append( create_all_makefiles(path, l) )
+	
+	# create "all" batch files
+	var batchfolder := get_batchfilefolder()
+	var buildallfiles := {}
+	
+	for p in buildplatforms:
+		for c in buildconfigurations:
+			var fbase := get_buildoutput("all", p, c).get_basename()
+			if fbase.begins_with("lib"):
+				fbase = fbase.substr(3)
+			
+			for a in range(BuildAction.COUNT):
+				var idx := get_buildconfig_index(p, c, a)
+				
+				var batch := []
+				
+				if utils.system == Utils.System.Windows:
+					batch.append("@echo off\n")
+				
+				batch.append("cd \"" + batchfolder + "\"\n")
+				
+				for b in batchfiles:
+					if utils.system == Utils.System.Windows:
+						batch.append("call \"" + b[idx].get_file() + "\"\n")
+					else:
+						batch.append("\"" + b[idx].get_file() + "\"\n")
+				
+				buildallfiles[idx] = create_batch_build(fbase + BuildActionStrings[a], batch)
+	
+	return buildallfiles
 
 
 func run_makefile_dict(dict :Dictionary, platform :BuildPlatform, config :BuildConfiguration, action :int) -> int:
@@ -1261,6 +1313,14 @@ func _on_Submenu_id_pressed(id):
 			var batchfiles := create_all_makefiles(path, currentgdnlib_name)
 			
 			run_makefile_dict_current(batchfiles, BuildAction.Clean)
+		
+		Submenu.CleanAll:
+			var batchfiles := create_buildall_batchfiles()
+			
+			run_makefile_dict_current(batchfiles, BuildAction.Clean)
+		
+		Submenu.GenerateAllBatchfiles:
+			create_buildall_batchfiles()
 		
 		Submenu.UpdateGDNativeLibrary:
 			var gdnlibrespath := currentgdnlib.get_base_dir() + "/bin/" + currentgdnlib_name + ".gdnlib"
@@ -1567,36 +1627,9 @@ func _on_BuildLibraryButton_pressed():
 
 
 func _on_BuildAllButton_pressed():
-	# generate all batch files
-	var batchfiles := [ create_bindings_makefiles() ]
+	var batchfiles := create_buildall_batchfiles()
 	
-	for l in gdnlibs:
-		var path := ProjectSettings.globalize_path(gdnlibs[l]).get_base_dir()
-		
-		batchfiles.append( create_all_makefiles(path, l) )
-	
-	# create "all" batch files
-	for p in buildplatforms:
-		for c in buildconfigurations:
-			var fbase := get_buildoutput("all", p, c).get_basename()
-			if fbase.begins_with("lib"):
-				fbase = fbase.substr(3)
-			
-			for a in range(BuildAction.COUNT):
-				var batch := []
-				
-				if utils.system == Utils.System.Windows:
-					batch.append("@echo off\n")
-				
-				for b in batchfiles:
-					var idx := get_buildconfig_index(p, c, a)
-					
-					if utils.system == Utils.System.Windows:
-						batch.append("call \"" + b[idx] + "\"\n")
-					else:
-						batch.append("\"" + b[idx] + "\"\n")
-				
-				create_batch_build(fbase + BuildActionStrings[a], batch)
+	run_makefile_dict_current(batchfiles, BuildAction.Build)
 
 
 func _on_GenerateQtButton_pressed():
