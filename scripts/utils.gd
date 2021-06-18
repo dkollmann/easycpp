@@ -420,8 +420,18 @@ static func join_dict(d1 :Dictionary, d2 :Dictionary) -> Dictionary:
 	return d
 
 
-static func make_executable(exe :String) -> int:
-	return OS.execute("/usr/bin/chmod", ["+x", exe], true)
+func make_executable(exe :String) -> int:
+	match system:
+		System.Windows:
+			return 0
+		
+		System.Linux:
+			return OS.execute("/usr/bin/chmod", ["+x", exe], true)
+		
+		System.macOS:
+			return OS.execute("/bin/chmod", ["+x", exe], true)
+	
+	return -100
 
 
 static func optionbutton_select_id(button :OptionButton, id :int):

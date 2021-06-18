@@ -602,10 +602,17 @@ func check_sdk_state() -> void:
 		
 		var is_windows :bool = utils.system == Utils.System.Windows
 		var canfix_python := not is_windows or not pythonpath_windowsstore.empty()
-		var canfix_pip := not is_windows and has_python and pythonpath.ends_with("python3")
+		var canfix_pip := false
 		var canfix_scons := has_pip
 		var canfix_cmake := not is_windows
 		var canfix_git := not is_windows
+		
+		match utils.system:
+			Utils.System.Linux:
+				canfix_pip = has_python and pythonpath.ends_with("python3")
+			
+			Utils.System.macOS:
+				canfix_pip = has_python and pythonpath == "/usr/bin/python"
 		
 		$StatusContainer/PythonStatus.visible = needs_python
 		$StatusContainer/PipStatus.visible = needs_pip
@@ -751,34 +758,42 @@ func git_clone(args :Array, tryfix :bool = true) -> bool:
 
 
 func run_shell(name :String, exe :String, args :Array = []) -> int:
-	var output := []
-	var res :int
+	var pause := "pause" if utils.system == Utils.System.Windows else linuxpause
+	
+	var args2 := args.duplicate()
+	args2.insert(0, exe)
+	
+	var args_str := utils.arglist_to_string(args2)
+	var batchfile := create_batch_temp(name, [args_str + "\n", pause])
+	
+	var terminal_exe := ""
+	var terminal_args := []
 	
 	match utils.system:
 		Utils.System.Windows:
-			var args2 = ["--run", exe] + args
-			
-			res = OS.execute(runinterminalpath, args2, true)
-	
+			terminal_exe = runinterminalpath
+			terminal_args = ["--run", batchfile]
+		
 		Utils.System.Linux:
 			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
+			var cmd := terminal.replace("%command%", "bash \"" + batchfile + "\"")
 			
-			var args2 := args.duplicate()
-			args2.insert(0, exe)
-			
-			var args_str := utils.arglist_to_string(args2)
-			
-			var batch := create_batch_temp(name, [args_str + "\n", linuxpause])
-			
-			var cmd := terminal.replace("%command%", "bash \"" + batch + "\"")
-			var terminal_args := utils.parse_args(cmd, true)
-			var terminal_exe = terminal_args.pop_front()
-			
-			res = OS.execute(terminal_exe, terminal_args, true, output)
+			terminal_args = utils.parse_args(cmd, true)
+			terminal_exe = terminal_args.pop_front()
 		
 		Utils.System.macOS:
-			# support macOS
-			pass
+			terminal_exe = "/usr/bin/open"
+			terminal_args = ["-b", "com.apple.terminal", batchfile]
+			
+			#var script := 'tell application "Terminal" to do script "\\"' + batchfile + '\\""'
+			
+			#terminal_exe = "/usr/bin/osascript"
+			#terminal_args = ["-e", script]
+	
+	print(terminal_exe + " " + str(terminal_args))
+	
+	var output := []
+	var res := OS.execute(terminal_exe, terminal_args, true, output)
 	
 	var outlines := utils.get_outputlines(output)
 	
@@ -1019,7 +1034,13 @@ func _on_PythonStatus_www_pressed():
 
 
 func _on_PipStatus_fix_pressed():
-	install_package("python3-pip")
+	match utils.system:
+		Utils.System.Linux:
+			install_package("python3-pip")
+		
+		Utils.System.macOS:
+			if pythonpath == "/usr/bin/python":
+				run_shell("install_pip", pythonpath, ["-m", "ensurepip", "--user"])
 	
 	check_sdk_state()
 
@@ -1029,7 +1050,12 @@ func _on_PipStatus_www_pressed():
 
 
 func _on_SConsStatus_fix_pressed():
-	run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
+	match utils.system:
+		Utils.System.Linux:
+			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
+		
+		Utils.System.macOS:
+			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "--user"])
 	
 	check_sdk_state()
 
