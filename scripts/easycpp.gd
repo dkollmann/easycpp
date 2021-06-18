@@ -749,11 +749,16 @@ func git_fixdefaultbranch() -> void:
 		utils.print_outputlines(output)
 
 
-func git_clone(args :Array, tryfix :bool = true) -> bool:
+func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bool = true) -> bool:
 	if not has_git:
 		return false
 	
-	git_fixdefaultbranch()
+	if tryfix:
+		git_fixdefaultbranch()
+	
+	utils.make_dir(targetpath)
+	
+	var args := ["clone", "--recurse-submodules", "--branch", branch, sourceurl, targetpath]
 	
 	return run_shell("git_clone", gitpath, args) == 0
 
@@ -1141,7 +1146,7 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(["clone", "--recurse-submodules", "--branch", godotversion, gdcppgiturl, gdcpppath])
+		git_clone(gdcppgiturl, gdcpppath, godotversion)
 		
 	check_sdk_state()
 
