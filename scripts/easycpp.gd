@@ -50,8 +50,14 @@ const DefaultBuildConfigurations := [
 
 enum BuildAction {
 	Build,
-	Clean
+	Clean,
+	COUNT
 }
+
+const BuildActionStrings = [
+	"-build",
+	"-clean"
+]
 
 enum Compiler {
 	VisualStudio2015,
@@ -933,6 +939,8 @@ func get_vcvars(comp :int) -> String:
 
 
 func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
+	assert(not name.empty())
+	
 	var args := [
 		"-j4",
 		"cpp_bindings=\"" + gdcpppath + "\"",
@@ -1010,11 +1018,15 @@ static func get_buildconfig_index(platform :BuildPlatform, config :BuildConfigur
 
 
 func create_all_makefiles_for_config(platform :BuildPlatform, config :BuildConfiguration, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
-	var make_build := create_makefile(platform, config, lib, "-build", folder, additionalargs)
-	var make_clean := create_makefile(platform, config, lib, "-clean", folder, additionalargs + ["--clean"])
+	var addargs := [
+		[],
+		["--clean"]
+	]
 	
-	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Build) ] = make_build
-	batchfiles[ get_buildconfig_index(platform, config, BuildAction.Clean) ] = make_clean
+	for i in range(BuildAction.COUNT):
+		var make := create_makefile(platform, config, lib, BuildActionStrings[i], folder, additionalargs + addargs[i])
+		
+		batchfiles[ get_buildconfig_index(platform, config, i) ] = make
 
 
 func create_all_makefiles_for_platform(platform :BuildPlatform, folder :String, lib :String, additionalargs :Array, batchfiles :Dictionary):
@@ -1554,6 +1566,39 @@ func _on_BuildLibraryButton_pressed():
 	run_makefile_dict_current(batchfiles, BuildAction.Build)
 
 
+func _on_BuildAllButton_pressed():
+	# generate all batch files
+	var batchfiles := [ create_bindings_makefiles() ]
+	
+	for l in gdnlibs:
+		var path := ProjectSettings.globalize_path(gdnlibs[l]).get_base_dir()
+		
+		batchfiles.append( create_all_makefiles(path, l) )
+	
+	# create "all" batch files
+	for p in buildplatforms:
+		for c in buildconfigurations:
+			var fbase := get_buildoutput("all", p, c).get_basename()
+			if fbase.begins_with("lib"):
+				fbase = fbase.substr(3)
+			
+			for a in range(BuildAction.COUNT):
+				var batch := []
+				
+				if utils.system == Utils.System.Windows:
+					batch.append("@echo off\n")
+				
+				for b in batchfiles:
+					var idx := get_buildconfig_index(p, c, a)
+					
+					if utils.system == Utils.System.Windows:
+						batch.append("call \"" + b[idx] + "\"\n")
+					else:
+						batch.append("\"" + b[idx] + "\"\n")
+				
+				create_batch_build(fbase + BuildActionStrings[a], batch)
+
+
 func _on_GenerateQtButton_pressed():
 	if not utils.file_exists(currentgdnlib):
 		return
@@ -1570,7 +1615,7 @@ func _on_GenerateQtButton_pressed():
 	utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles)
 	
 	var root := ProjectSettings.globalize_path(temppath)  + "/qtcreator"
-	var base := root + "/" + currentgdnlib_name
+	var base := root + "/" + get_buildoutput(currentgdnlib_name, platform, buildcfg).get_basename()
 	
 	utils.make_dir(root)
 	
