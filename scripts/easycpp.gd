@@ -334,9 +334,6 @@ func _ready():
 	if supportCmake:
 		init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
 	
-	# handle Visual Studio
-	$MenuContainer/BuildMenuContainer/GenerateVSButton.visible = utils.system == Utils.System.Windows
-	
 	# create sub-menu
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean Godot Bindings", Submenu.CleanBindings)
@@ -555,6 +552,9 @@ func check_sdk_state() -> void:
 					
 					$CompilerButton.add_item(xcode, Compiler.Xcode)
 					has_xcode = true
+	
+	# show or hide Visual Studio project button
+	$MenuContainer/BuildMenuContainer/GenerateVSButton.visible = has_vs2015 or has_vs2017 or has_vs2019
 	
 	gccpath = check_installation("GCC", funcref(self, "find_gcc"), setting_gccpath, false, exefilter)
 	clangpath = check_installation("Clang", funcref(self, "find_clang"), setting_clangpath, false, exefilter)
