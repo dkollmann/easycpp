@@ -226,13 +226,14 @@ const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
 const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
 const setting_buildconfigurations := "Easy C++/Configuration/Build Configurations"
 const setting_buildplatforms := "Easy C++/Configuration/Build Platforms"
+const setting_gccpath := "Easy C++/GCC Path"
+const setting_clangpath := "Easy C++/Clang Path"
 
 const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
 const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
 
-const setting_gccpath := "Easy C++/GCC Path"
-const setting_clangpath := "Easy C++/Clang Path"
+const setting_overwritemakefiles := "Easy C++/Overwrite existing make files"
 
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
@@ -313,6 +314,7 @@ func _ready():
 	
 	# make sure the settings exists
 	get_batchfilelocation()
+	get_overwrite_makefiles()
 	
 	if utils.system == Utils.System.Windows:
 		# make sure the settings exists
@@ -855,6 +857,12 @@ func create_batch_build(name :String, batch :Array) -> String:
 	if get_batchfilelocation() == BatchfilesLocation.TemporaryFolder:
 		return create_batch_temp(name, batch)
 	
+	if not get_overwrite_makefiles():
+		var fname := get_batch_filename(buildfolderpath, name)
+		
+		if File.new().file_exists(fname):
+			return fname
+	
 	return create_batch_dir(buildfolderpath, name, batch)
 
 
@@ -862,20 +870,30 @@ func create_batch_temp(name :String, batch :Array) -> String:
 	return create_batch_dir(temppath, name, batch)
 
 
+func get_batch_filename(folder :String, name :String) -> String:
+	return "%s/%s%s" % [folder, name, ".bat" if utils.system == Utils.System.Windows else ".sh"]
+
+
+func get_overwrite_makefiles() -> bool:
+	return utils.get_project_setting_bool(setting_overwritemakefiles, true)
+
 func create_batch_dir(folder :String, name :String, batch :Array) -> String:
 	utils.make_dir_ignored(folder)
 	
-	var ext := ".bat" if utils.system == Utils.System.Windows else ".sh"
-	var fname := "%s/%s%s" % [folder, name, ext]
+	var fname := get_batch_filename(folder, name)
 	
-	return create_batch(fname, batch)
+	if create_batch(fname, batch):
+		return fname
+	
+	return ""
 
 
-func create_batch(fname :String, batch :Array) -> String:
+func create_batch(fname :String, batch :Array) -> bool:
 	print("Creating \"" + fname + "\"...")
 	
 	var file := File.new()
-	file.open(fname, File.WRITE)
+	if file.open(fname, File.WRITE) != OK:
+		return false
 	
 	for l in batch:
 		file.store_string(l)
@@ -884,7 +902,7 @@ func create_batch(fname :String, batch :Array) -> String:
 	
 	utils.make_executable(fname)
 	
-	return fname
+	return true
 
 
 func find_vcvars(vsfolder :String) -> String:
