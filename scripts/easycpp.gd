@@ -1145,8 +1145,7 @@ func _on_CompilerStatus_fix_pressed():
 					install_package("clang")
 		
 		Utils.System.macOS:
-			# TODO Support Xcode
-			pass
+			OS.shell_open("https://apps.apple.com/us/app/xcode/id497799835")
 
 
 func _on_CompilerStatus_www_pressed():
@@ -1158,8 +1157,7 @@ func _on_CompilerStatus_www_pressed():
 			pass
 		
 		Utils.System.macOS:
-			# TODO Support scode
-			pass
+			OS.shell_open("https://developer.apple.com/xcode/resources/")
 
 
 func _on_CppStatus_fix_pressed():
