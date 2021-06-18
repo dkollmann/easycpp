@@ -1266,10 +1266,12 @@ func _on_Submenu_id_pressed(id):
 			
 			for p in buildplatforms:
 				var value = gdnlibres.config_file.get_value("entry", p.gdnlibkey, "")
-				if not value.empty():
-					# TODO
-					pass
+				if value.empty():
+					var outname := get_buildoutput(currentgdnlib_name, p, buildcfg)
+					print("Setting " + p.gdnlibkey + " to " + outname)
+					gdnlibres.config_file.set_value("entry", p.gdnlibkey, outname)
 			
+			print("Saving \"" + gdnlibrespath + "\"...")
 			ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH)
 
 
