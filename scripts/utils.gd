@@ -44,6 +44,10 @@ static func make_dir_ignored(path :String) -> void:
 		f.close()
 
 
+static func get_userfolder() -> String:
+	return OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP).get_base_dir()
+
+
 func copy_files(from :String, to :String) -> bool:
 	if system == System.Windows:
 		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0

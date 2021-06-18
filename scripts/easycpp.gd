@@ -87,6 +87,7 @@ enum VisualProjectLocation {
 }
 
 const supportCmake := false
+const allowMacOSSConsFix := true
 var utils := preload("res://addons/easycpp/scripts/utils.gd").new()
 
 
@@ -1057,7 +1058,28 @@ func _on_SConsStatus_fix_pressed():
 			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
 		
 		Utils.System.macOS:
-			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "--user"])
+			var install := true
+			
+			if allowMacOSSConsFix:
+				var site := utils.get_userfolder() + "/Library/Python/2.7/lib/python/site-packages"
+				var scons_bad := site + "/scons/SCons"
+				var scons_good := site + "/SCons"
+				
+				var dir := Directory.new()
+				if dir.dir_exists(scons_bad):
+					install = false
+					
+					print("Found incorrectly installed SCons at \"" + scons_bad + "\"...")
+					print("Moving to \"" + scons_good + "\"...")
+					
+					if OS.execute("/bin/mv", [site + "/scons", site + "/scons__"], true) == 0:
+						print("Renamed incorrect SCons folder...")
+						
+						if OS.execute("/bin/mv", [site + "/scons__/SCons", scons_good], true) == 0:
+							print("Moved SCons to correct folder \"" + scons_good + "\"...")
+			
+			if install:
+				run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "--user"])
 	
 	check_sdk_state()
 
