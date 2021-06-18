@@ -58,7 +58,8 @@ enum Compiler {
 	VisualStudio2017,
 	VisualStudio2019,
 	GCC,
-	Clang
+	Clang,
+	Xcode
 }
 
 const CompilerNames := [
@@ -66,7 +67,8 @@ const CompilerNames := [
 	"vs2017",
 	"vs2019",
 	"gcc",
-	"clang"
+	"clang",
+	"xcode"
 ]
 
 enum Submenu {
@@ -266,6 +268,7 @@ var has_vs2019 := false
 
 var has_gcc := false
 var has_clang := false
+var has_xcode := false
 
 var has_python := false
 var has_pip := false
@@ -540,8 +543,16 @@ func check_sdk_state() -> void:
 			$CompilerButton.add_item("Clang", Compiler.Clang)
 		
 		Utils.System.macOS:
-			# TODO support Xcode
-			pass
+			has_xcode = false
+			var output := []
+			if OS.execute("/usr/bin/xcodebuild", ["-version"], true, output) == 0:
+				var lines := utils.get_outputlines(output)
+				if len(lines) > 0 and lines[0].begins_with("Xcode"):
+					var xcode = lines[0].strip_edges(false, true)
+					print("Found \"" + xcode + "\".")
+					
+					$CompilerButton.add_item(xcode, Compiler.Xcode)
+					has_xcode = true
 	
 	gccpath = check_installation("GCC", funcref(self, "find_gcc"), setting_gccpath, false, exefilter)
 	clangpath = check_installation("Clang", funcref(self, "find_clang"), setting_clangpath, false, exefilter)
@@ -564,7 +575,14 @@ func check_sdk_state() -> void:
 	if utils.system == Utils.System.Windows:
 		has_compiler = compiler >= 0
 	else:
-		has_compiler = (compiler == Compiler.GCC and has_gcc) or (compiler == Compiler.Clang) and has_clang
+		has_compiler = false
+		match compiler:
+			Compiler.GCC:
+				has_compiler = has_gcc
+			Compiler.Clang:
+				has_compiler = has_clang
+			Compiler.Xcode:
+				has_compiler = has_xcode
 	
 	needs_git = not has_gdcpp  # or not has_gdheaders
 	needs_pip = not has_scons
