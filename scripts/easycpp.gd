@@ -1086,13 +1086,15 @@ func create_buildall_batchfiles() -> Dictionary:
 				if utils.system == Utils.System.Windows:
 					batch.append("@echo off\n")
 				
-				batch.append("cd \"" + batchfolder + "\"\n")
+				#batch.append("cd \"" + batchfolder + "\"\n")
 				
 				for b in batchfiles:
+					var bfile = b[idx]  #.get_file()
+					
 					if utils.system == Utils.System.Windows:
-						batch.append("call \"" + b[idx].get_file() + "\"\n")
+						batch.append("call \"" + bfile + "\"\n")
 					else:
-						batch.append("\"" + b[idx].get_file() + "\"\n")
+						batch.append("\"" + bfile + "\"\n")
 				
 				buildallfiles[idx] = create_batch_build(fbase + BuildActionStrings[a], batch)
 	
