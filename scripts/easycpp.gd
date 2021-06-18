@@ -1127,6 +1127,32 @@ func get_shortpath(path :String) -> String:
 	return path
 
 
+func update_gdnlib(gdnlibpath :String) -> bool:
+	var gdnlibname := gdnlibpath.get_base_dir().get_file()
+	var gdnlibrespath :String = gdnlibpath.get_base_dir() + "/bin/" + gdnlibname + ".gdnlib"
+	var gdnlibres :GDNativeLibrary
+	
+	if File.new().file_exists(gdnlibrespath):
+		print("Loading \"" + gdnlibrespath + "\"...")
+		
+		gdnlibres = load(gdnlibrespath)
+		
+	else:
+		print("Creating \"" + gdnlibrespath + "\"...")
+		
+		gdnlibres = GDNativeLibrary.new()
+	
+	for p in buildplatforms:
+		var value = gdnlibres.config_file.get_value("entry", p.gdnlibkey, "")
+		if value.empty():
+			var outname := get_buildoutput(gdnlibname, p, buildcfg)
+			print("Setting " + p.gdnlibkey + " to " + outname)
+			gdnlibres.config_file.set_value("entry", p.gdnlibkey, outname)
+	
+	print("Saving \"" + gdnlibrespath + "\"...")
+	return ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH) == OK
+
+
 func _on_tooltip_show(text :String) -> void:
 	$TooltipPanel/TooltipLabel.text = text
 
@@ -1325,28 +1351,7 @@ func _on_Submenu_id_pressed(id):
 			create_buildall_batchfiles()
 		
 		Submenu.UpdateGDNativeLibrary:
-			var gdnlibrespath := currentgdnlib.get_base_dir() + "/bin/" + currentgdnlib_name + ".gdnlib"
-			var gdnlibres :GDNativeLibrary
-			
-			if File.new().file_exists(gdnlibrespath):
-				print("Loading \"" + gdnlibrespath + "\"...")
-				
-				gdnlibres = load(gdnlibrespath)
-				
-			else:
-				print("Creating \"" + gdnlibrespath + "\"...")
-				
-				gdnlibres = GDNativeLibrary.new()
-			
-			for p in buildplatforms:
-				var value = gdnlibres.config_file.get_value("entry", p.gdnlibkey, "")
-				if value.empty():
-					var outname := get_buildoutput(currentgdnlib_name, p, buildcfg)
-					print("Setting " + p.gdnlibkey + " to " + outname)
-					gdnlibres.config_file.set_value("entry", p.gdnlibkey, outname)
-			
-			print("Saving \"" + gdnlibrespath + "\"...")
-			ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH)
+			update_gdnlib(currentgdnlib)
 
 
 func _on_CurrentLibraryButton_item_selected(index):
@@ -1366,6 +1371,7 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 	print("Creating new library in path \"" + dir + "\".")
 	
 	var dirlocal := ProjectSettings.globalize_path(dir)
+	var path := dirlocal + "/SConstruct"
 	
 	utils.copy_files(templatespath + "/gdnative", dirlocal)
 	
@@ -1376,9 +1382,11 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 		
 		content = content.replace("$$libname$$", dir.get_file())
 		
-		if f.open(dirlocal + "/SConstruct", File.WRITE) == OK:
+		if f.open(path, File.WRITE) == OK:
 			f.store_string(content)
 			f.close()
+	
+	update_gdnlib(path)
 	
 	check_sdk_state()
 
