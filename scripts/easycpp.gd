@@ -793,11 +793,25 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 		Utils.System.macOS:
 			pass
 	
+	if utils.system == Utils.System.Windows:
+		exe = exe.replace("/", "\\")
+		
+		if exe.ends_with(".bat") or exe.ends_with(".cmd"):
+			args.insert(0, exe)
+			exe = "call"
+	
 	var args2 := args.duplicate()
 	args2.insert(0, exe)
 	
 	var args_str := utils.arglist_to_string(args2)
-	var batchfile := create_batch_temp(name, [args_str + "\n", pause])
+	
+	var batch :Array
+	if utils.system == Utils.System.Windows:
+		batch = ["@echo off\n", args_str + "\n", pause]
+	else:
+		batch = [args_str + "\n", pause]
+	
+	var batchfile := create_batch_temp(name, batch)
 	
 	var terminal_exe := ""
 	var terminal_args := []
@@ -918,9 +932,12 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	
 	argstr = apply_buildvariables(argstr, name, pltfrm, bldcfg)
 	
-	var batch := [
-		"cd \"" + folder + "\"\n"
-	]
+	var batch := []
+	
+	if utils.system == Utils.System.Windows:
+		batch.append("@echo off\n")
+	
+	batch.append("cd \"" + folder + "\"\n")
 	
 	if utils.system == Utils.System.Windows and not pltfrm.vsplatform.empty():
 		batch.append("call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n")
