@@ -758,7 +758,16 @@ func git_clone(args :Array, tryfix :bool = true) -> bool:
 
 
 func run_shell(name :String, exe :String, args :Array = []) -> int:
-	var pause := "pause" if utils.system == Utils.System.Windows else linuxpause
+	var pause := ""
+	match utils.system:
+		Utils.System.Windows:
+			pause = "pause"
+		
+		Utils.System.Linux:
+			pause = linuxpause
+		
+		Utils.System.macOS:
+			pass
 	
 	var args2 := args.duplicate()
 	args2.insert(0, exe)
@@ -784,13 +793,6 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 		Utils.System.macOS:
 			terminal_exe = "/usr/bin/open"
 			terminal_args = ["-b", "com.apple.terminal", batchfile]
-			
-			#var script := 'tell application "Terminal" to do script "\\"' + batchfile + '\\""'
-			
-			#terminal_exe = "/usr/bin/osascript"
-			#terminal_args = ["-e", script]
-	
-	print(terminal_exe + " " + str(terminal_args))
 	
 	var output := []
 	var res := OS.execute(terminal_exe, terminal_args, true, output)
