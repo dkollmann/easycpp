@@ -222,7 +222,7 @@ margin_right = 288.0
 margin_bottom = 34.0
 icon = ExtResource( 16 )
 flat = false
-items = [ "Clean Godot Bindings", null, 0, false, false, 0, 0, null, "", false, "Clean Current Library", null, 0, false, false, 1, 0, null, "", false, "Update GDNativeLibrary", null, 0, false, false, 2, 0, null, "", false ]
+items = [ "Clean Godot Bindings", null, 0, false, false, 0, 0, null, "", false, "Clean Current Library", null, 0, false, false, 1, 0, null, "", false, "Clean all Libraries", null, 0, false, false, 2, 0, null, "", false, "Generate all Batchfiles", null, 0, false, false, 3, 0, null, "", false, "Update GDNativeLibrary", null, 0, false, false, 4, 0, null, "", false ]
 
 [node name="Spacer5" type="Control" parent="."]
 margin_top = 246.0
@@ -324,8 +324,8 @@ text = "Current GDNative Library:"
 margin_top = 27.0
 margin_right = 340.0
 margin_bottom = 61.0
-text = "test"
-items = [ "test", null, false, 0, null ]
+text = "godot-sqlite"
+items = [ "godot-sqlite", null, false, 0, null, "test", null, false, 1, null ]
 selected = 0
 
 [node name="CurrentLibraryPathLabel" type="Label" parent="LibraryContainer"]
@@ -333,7 +333,7 @@ margin_top = 65.0
 margin_right = 340.0
 margin_bottom = 88.0
 custom_fonts/font = ExtResource( 9 )
-text = "res:///src/test"
+text = "res:///src/godot-sqlite"
 autowrap = true
 
 [node name="Spacer4" type="Control" parent="."]

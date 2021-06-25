@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/easycpp/scripts/fileedit.gd" type="Script" id=1]
+
+[node name="FileEdit" type="HBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -824.0
+margin_bottom = -576.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_right = 172.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="ToolButton" type="ToolButton" parent="."]
+margin_left = 176.0
+margin_right = 200.0
+margin_bottom = 24.0
+text = "..."
+
+[node name="FileDialog" type="FileDialog" parent="."]
+margin_right = 316.0
+margin_bottom = 149.0
+rect_min_size = Vector2( 300, 105 )
+
+[connection signal="pressed" from="ToolButton" to="." method="_on_ToolButton_pressed"]
+[connection signal="dir_selected" from="FileDialog" to="." method="_on_FileDialog_dir_selected"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]
