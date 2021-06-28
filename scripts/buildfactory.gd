@@ -43,8 +43,8 @@ func create_pltfm(idx :int, params :Array, all :bool) -> BuildPlatform:
 		p.index = idx
 		p.name = params[0].strip_edges()
 		p.enabled = enabled
-		p.arguments = Utils.split_clean(params[3], " ", false)
-		p.defines = Utils.split_clean(params[4], " ", false)
+		p.arguments = Utils.parse_args(params[3], false)
+		p.defines = Utils.parse_args(params[4], false)
 		p.availableon = availableon
 		p.outputname = params[5]
 		p.gdnlibkey = params[6].strip_edges()
@@ -55,6 +55,24 @@ func create_pltfm(idx :int, params :Array, all :bool) -> BuildPlatform:
 		return p
 	
 	return null
+
+
+static func makestr_pltfrm(bld :BuildPlatform) -> String:
+	var cfg := [
+		"",
+		bld.name,
+		str(bld.enabled),
+		bld.availableon,
+		PoolStringArray(bld.arguments).join(" "),
+		PoolStringArray(bld.defines).join(" "),
+		bld.availableon,
+		bld.outputname,
+		bld.gdnlibkey,
+		bld.vsplatform,
+		""
+	]
+	
+	return PoolStringArray(cfg).join("|")
 
 
 func create_cfg(idx :int, params :Array, all :bool) -> BuildConfiguration:
@@ -69,8 +87,8 @@ func create_cfg(idx :int, params :Array, all :bool) -> BuildConfiguration:
 		b.index = idx
 		b.name = params[0].strip_edges()
 		b.enabled = enabled
-		b.arguments = Utils.split_clean(params[2], " ", false)
-		b.defines = Utils.split_clean(params[3], " ", false)
+		b.arguments = Utils.parse_args(params[2], false)
+		b.defines = Utils.parse_args(params[3], false)
 		b.debuglibs = Utils.is_true(params[4])
 		
 		b.parse_arguments()
@@ -78,3 +96,17 @@ func create_cfg(idx :int, params :Array, all :bool) -> BuildConfiguration:
 		return b
 	
 	return null
+
+
+static func makestr_cfg(bld :BuildConfiguration) -> String:
+	var cfg := [
+		"",
+		bld.name,
+		str(bld.enabled),
+		PoolStringArray(bld.arguments).join(" "),
+		PoolStringArray(bld.defines).join(" "),
+		str(bld.debuglibs),
+		""
+	]
+	
+	return PoolStringArray(cfg).join("|")
