@@ -98,122 +98,12 @@ enum VisualProjectLocation {
 
 const supportCmake := false
 const allowMacOSSConsFix := true
-var utils := preload("res://addons/easycpp/scripts/utils.gd").new()
 
-
-class BuildBase:
-	var index :int
-	var name :String
-	var arguments :Array
-	var arguments_dict :Dictionary = {}
-	var defines :Array
-	
-	static func sort(a, b):
-		return a.name < b.name
-	
-	func parse_arguments() -> void:
-		for a in arguments:
-			var p = a.find("=")
-			var k = a.substr(0, p).strip_edges()
-			var v = a.substr(p + 1).strip_edges()
-			
-			arguments_dict[k] = v
-
-
-class BuildPlatform extends BuildBase:
-	var outputname :String
-	var gdnlibkey :String
-	var vsplatform :String
-	
-	static func parse_csv(csv :String) -> Array:
-		var lst := []
-		var lines := csv.split("\n", false)
-		
-		for i in range(len(lines)):
-			var l := lines[i].strip_edges()
-			
-			if l.begins_with("#"):
-				continue
-			
-			var b := create(i, l)
-			
-			if b != null:
-				lst.append(b)
-		
-		return lst
-
-
-	static func create(idx :int, line :String) -> BuildPlatform:
-		var params := Utils.split_clean(line, "|", true)
-		
-		assert(len(params) == 8)
-		
-		# check if available and enabled
-		var enabled := Utils.is_true(params[1])
-		var availableon := params[2]
-		
-		if enabled and OS.get_name() in availableon:
-			var p := BuildPlatform.new()
-			
-			p.index = idx
-			p.name = params[0].strip_edges()
-			p.arguments = Utils.split_clean(params[3], " ", false)
-			p.defines = Utils.split_clean(params[4], " ", false)
-			p.outputname = params[5]
-			p.gdnlibkey = params[6].strip_edges()
-			p.vsplatform = params[7].strip_edges()
-			
-			p.parse_arguments()
-			
-			return p
-		
-		return null
-
-
-class BuildConfiguration extends BuildBase:
-	var debuglibs :bool
-	
-	static func parse_csv(csv :String) -> Array:
-		var lst := []
-		var lines := csv.split("\n", false)
-		
-		for i in range(len(lines)):
-			var l := lines[i].strip_edges()
-			
-			if l.begins_with("#"):
-				continue
-			
-			var b := create(i, l)
-			
-			if b != null:
-				lst.append(b)
-		
-		return lst
-
-
-	static func create(idx :int, line :String) -> BuildConfiguration:
-		var params := Utils.split_clean(line, "|", true)
-		
-		assert(len(params) == 5)
-		
-		# check if enabled
-		var enabled := Utils.is_true(params[1])
-		
-		if enabled:
-			var b := BuildConfiguration.new()
-			
-			b.index = idx
-			b.name = params[0].strip_edges()
-			b.arguments = Utils.split_clean(params[2], " ", false)
-			b.defines = Utils.split_clean(params[3], " ", false)
-			b.debuglibs = Utils.is_true(params[4])
-			
-			b.parse_arguments()
-			
-			return b
-		
-		return null
-
+const __preload_utils := preload("res://addons/easycpp/scripts/utils.gd")
+const __preload_buildbase := preload("res://addons/easycpp/scripts/buildbase.gd")
+const __preload_buildconfig := preload("res://addons/easycpp/scripts/buildconfiguration.gd")
+const __preload_buildplatform := preload("res://addons/easycpp/scripts/buildplatform.gd")
+var utils := __preload_utils.new()
 
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
