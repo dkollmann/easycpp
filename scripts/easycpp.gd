@@ -99,11 +99,7 @@ enum VisualProjectLocation {
 const supportCmake := false
 const allowMacOSSConsFix := true
 
-const __preload_utils := preload("res://addons/easycpp/scripts/utils.gd")
-const __preload_buildbase := preload("res://addons/easycpp/scripts/buildbase.gd")
-const __preload_buildconfig := preload("res://addons/easycpp/scripts/buildconfiguration.gd")
-const __preload_buildplatform := preload("res://addons/easycpp/scripts/buildplatform.gd")
-var utils := __preload_utils.new()
+var utils := preload("res://addons/easycpp/scripts/utils.gd").new()
 
 const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
@@ -311,7 +307,7 @@ func read_build_platforms_configurations():
 	
 	platforms = utils.get_project_setting_string(setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	buildplatforms = BuildPlatform.new().parse_csv(platforms)
+	buildplatforms = BuildFactory.new().parse_csv_pltfrm(platforms)
 	
 	if len(buildplatforms) < 1:
 		print("Failed to load build platforms from settings!!")
@@ -326,7 +322,7 @@ func read_build_platforms_configurations():
 	
 	configurations = utils.get_project_setting_string(setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
 	
-	buildconfigurations = BuildConfiguration.new().parse_csv(configurations)
+	buildconfigurations = BuildFactory.new().parse_csv_cfg(configurations)
 	
 	if len(buildconfigurations) < 1:
 		print("Failed to load build configurations from settings!!")
