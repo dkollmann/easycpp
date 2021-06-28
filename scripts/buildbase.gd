@@ -5,6 +5,7 @@ class_name BuildBase
 
 var index :int
 var name :String
+var enabled :bool
 var arguments :Array
 var arguments_dict :Dictionary = {}
 var defines :Array
