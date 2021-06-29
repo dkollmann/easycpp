@@ -99,6 +99,7 @@ enum VisualProjectLocation {
 const supportCmake := false
 const allowMacOSSConsFix := true
 
+const settingsscene := preload("res://addons/easycpp/scenes/settings.tscn")
 var utils := preload("res://addons/easycpp/scripts/utils.gd").new()
 
 const toolsres := "res://addons/easycpp/tools"
@@ -196,6 +197,7 @@ var currentgdnlib_name :String
 
 var godotversion :String
 var random := RandomNumberGenerator.new()
+var settingswindow :SettingsWindow
 
 
 func _ready():
@@ -363,10 +365,10 @@ func check_sdk_state() -> void:
 		if b.name == cname:
 			buildcfg = b
 	
-	if platform == null:
+	if platform == null and len(buildplatforms) > 0:
 		platform = buildplatforms[0]
 	
-	if buildcfg == null:
+	if buildcfg == null and len(buildconfigurations) > 0:
 		buildcfg = buildconfigurations[0]
 	
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.system == Utils.System.Windows else "*"
@@ -1597,3 +1599,25 @@ func _on_GenerateQtButton_pressed():
 	print("Created project \"" + creator_path + "\".")
 	
 	OS.shell_open(creator_path)
+
+
+func _on_SettingsButton_pressed():
+	assert(settingswindow == null)
+	
+	settingswindow = settingsscene.instance()
+	
+	settingswindow.connect("popup_hide", self, "_on_Settings_close")
+	
+	add_child(settingswindow)
+	center_in_editor(settingswindow)
+	
+	settingswindow.popup()
+
+func _on_Settings_close():
+	assert(settingswindow != null)
+	
+	print("Settings closed")
+	
+	remove_child(settingswindow)
+	
+	settingswindow = null

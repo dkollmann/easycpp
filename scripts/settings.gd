@@ -1,5 +1,6 @@
 tool
-extends PopupDialog
+extends WindowDialog
+class_name SettingsWindow
 
 
 # Declare member variables here. Examples:
