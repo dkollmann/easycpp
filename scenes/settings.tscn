@@ -13,6 +13,9 @@ margin_right = 800.0
 margin_bottom = 600.0
 theme = ExtResource( 3 )
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="SettingsContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -226,3 +229,5 @@ margin_bottom = 506.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 tabtype = ExtResource( 6 )
+
+[connection signal="pressed" from="SettingsContainer/HBoxContainer/AllSettingsButton" to="." method="_on_AllSettingsButton_pressed"]

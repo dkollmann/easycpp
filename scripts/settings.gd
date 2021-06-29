@@ -3,16 +3,26 @@ extends WindowDialog
 class_name SettingsWindow
 
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+func load_settings():
+	var locbutton := $SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/LocationButton
+	locbutton.items = Constants.setting_batchfilelocation_items
+	locbutton.selected = ProjectSettings.get(Constants.setting_batchfilelocation)
+	
+	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/BuildFolderEdit.filepath = ProjectSettings.get(Constants.setting_buildfolder)
+	
+	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/OverwriteCheckBox.pressed = ProjectSettings.get(Constants.setting_overwritemakefiles)
+	
+	var vslocbutton := $SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/LocationButton
+	vslocbutton.items = Constants.setting_vsproj_location_items
+	vslocbutton.selected = ProjectSettings.get(Constants.setting_vsproj_location)
+	
+	$SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer/SubfolderLineEdit.text = ProjectSettings.get(Constants.setting_vsproj_subfolder)
+	
+	var platforms := BuildFactory.new().parse_csv_pltfrm( ProjectSettings.get(Constants.setting_buildplatforms), true )
+	var configurations := BuildFactory.new().parse_csv_cfg( ProjectSettings.get(Constants.setting_buildconfigurations), true )
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _on_AllSettingsButton_pressed():
+	hide()
+	
+	# show project settings

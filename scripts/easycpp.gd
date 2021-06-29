@@ -106,30 +106,6 @@ const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
 const templatesres := "res://addons/easycpp/templates"
 
-const setting_buildsystem := "Easy C++/Build System"
-const setting_terminalpath := "Easy C++/Terminal Path"
-const setting_pythonpath := "Easy C++/Python Path"
-const setting_cmakepath := "Easy C++/Cmake Path"
-const setting_pippath := "Easy C++/pip Path"
-const setting_sconspath := "Easy C++/SCons Path"
-const setting_gitpath := "Easy C++/Git Path"
-const setting_gdcpppath := "Easy C++/Godot-CPP Path"
-const setting_temppath := "Easy C++/Temporary Folder"
-const setting_buildfolder := "Easy C++/Build Folder"
-const setting_batchfilelocation := "Easy C++/Batchfile Location"
-const setting_vsproj_location := "Easy C++/Visual Studio/Projects Location"
-const setting_vsproj_subfolder := "Easy C++/Visual Studio/Project Subfolder"
-const setting_buildconfigurations := "Easy C++/Configuration/Build Configurations"
-const setting_buildplatforms := "Easy C++/Configuration/Build Platforms"
-const setting_gccpath := "Easy C++/GCC Path"
-const setting_clangpath := "Easy C++/Clang Path"
-
-const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
-const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
-const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
-
-const setting_overwritemakefiles := "Easy C++/Overwrite existing make files"
-
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
@@ -228,7 +204,7 @@ func _ready():
 	$Spacer6.visible = supportCmake
 	
 	if supportCmake:
-		init_optionbutton_setting($BuildSystemButton, setting_buildsystem, BuildSystem)
+		init_optionbutton_setting($BuildSystemButton, Constants.setting_buildsystem, BuildSystem)
 	
 	# create sub-menu
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().clear()
@@ -304,10 +280,10 @@ func read_build_platforms_configurations():
 	
 	var platforms := ""
 	
-	if not ProjectSettings.has_setting(setting_buildplatforms):
+	if not ProjectSettings.has_setting(Constants.setting_buildplatforms):
 		platforms = PoolStringArray(DefaultBuildPlatforms).join("\n")
 	
-	platforms = utils.get_project_setting_string(setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
+	platforms = utils.get_project_setting_string(Constants.setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
 	
 	buildplatforms = BuildFactory.new().parse_csv_pltfrm(platforms)
 	
@@ -319,10 +295,10 @@ func read_build_platforms_configurations():
 	
 	var configurations := ""
 	
-	if not ProjectSettings.has_setting(setting_buildconfigurations):
+	if not ProjectSettings.has_setting(Constants.setting_buildconfigurations):
 		configurations = PoolStringArray(DefaultBuildConfigurations).join("\n")
 	
-	configurations = utils.get_project_setting_string(setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
+	configurations = utils.get_project_setting_string(Constants.setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
 	
 	buildconfigurations = BuildFactory.new().parse_csv_cfg(configurations)
 	
@@ -333,11 +309,11 @@ func read_build_platforms_configurations():
 func check_sdk_state() -> void:
 	# handle temporary folder
 	temppath = ProjectSettings.globalize_path(tempres)
-	temppath = utils.get_project_setting_string(setting_temppath, temppath, PROPERTY_HINT_GLOBAL_DIR)
+	temppath = utils.get_project_setting_string(Constants.setting_temppath, temppath, PROPERTY_HINT_GLOBAL_DIR)
 	
 	# handle build folder
 	buildfolderpath = ProjectSettings.globalize_path("res://build")
-	buildfolderpath = utils.get_project_setting_string(setting_buildfolder, buildfolderpath, PROPERTY_HINT_GLOBAL_DIR)
+	buildfolderpath = utils.get_project_setting_string(Constants.setting_buildfolder, buildfolderpath, PROPERTY_HINT_GLOBAL_DIR)
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
 	
@@ -381,7 +357,7 @@ func check_sdk_state() -> void:
 	
 	# handle python
 	if needs_python:
-		pythonpath = check_installation("Python", funcref(self, "find_python"), setting_pythonpath, false, exefilter)
+		pythonpath = check_installation("Python", funcref(self, "find_python"), Constants.setting_pythonpath, false, exefilter)
 		has_python = utils.file_exists(pythonpath)
 	
 	# handle pip
@@ -394,18 +370,18 @@ func check_sdk_state() -> void:
 	
 	# handle Cmake
 	if needs_cmake:
-		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), setting_cmakepath, false, exefilter)
+		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), Constants.setting_cmakepath, false, exefilter)
 		has_cmake = utils.file_exists(cmakepath)
 	
 	# handle godot-cpp
-	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), setting_gdcpppath, true)
+	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
 	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
 	
 	needs_git = not has_gdcpp  # or not has_gdheaders
 	
 	# handle git
 	if needs_git:
-		gitpath = check_installation("Git", funcref(self, "find_git"), setting_gitpath, false, exefilter)
+		gitpath = check_installation("Git", funcref(self, "find_git"), Constants.setting_gitpath, false, exefilter)
 		has_git = utils.file_exists(gitpath)
 	
 	# handle godot headers
@@ -418,9 +394,9 @@ func check_sdk_state() -> void:
 	
 	match utils.system:
 		Utils.System.Windows:
-			vs2015path = utils.get_project_setting_string(setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
-			vs2017path = utils.get_project_setting_string(setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
-			vs2019path = utils.get_project_setting_string(setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+			vs2015path = utils.get_project_setting_string(Constants.setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
+			vs2017path = utils.get_project_setting_string(Constants.setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
+			vs2019path = utils.get_project_setting_string(Constants.setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
 			
 			has_vs2015 = not find_vcvars(vs2015path).empty()
 			has_vs2017 = not find_vcvars(vs2017path).empty()
@@ -455,8 +431,8 @@ func check_sdk_state() -> void:
 	# show or hide Visual Studio project button
 	$MenuContainer/BuildMenuContainer/GenerateVSButton.visible = has_vs2015 or has_vs2017 or has_vs2019
 	
-	gccpath = check_installation("GCC", funcref(self, "find_gcc"), setting_gccpath, false, exefilter)
-	clangpath = check_installation("Clang", funcref(self, "find_clang"), setting_clangpath, false, exefilter)
+	gccpath = check_installation("GCC", funcref(self, "find_gcc"), Constants.setting_gccpath, false, exefilter)
+	clangpath = check_installation("Clang", funcref(self, "find_clang"), Constants.setting_clangpath, false, exefilter)
 	
 	has_gcc = utils.file_exists(gccpath)
 	has_clang = utils.file_exists(clangpath)
@@ -723,7 +699,7 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 			terminal_args = ["--run", batchfile]
 		
 		Utils.System.Linux:
-			var terminal := Utils.get_project_setting_string(setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
+			var terminal := Utils.get_project_setting_string(Constants.setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
 			var cmd := terminal.replace("%command%", "bash \"" + batchfile + "\"")
 			
 			terminal_args = utils.parse_args(cmd, true)
@@ -749,7 +725,7 @@ func install_package(package :String) -> int:
 
 
 func get_batchfilelocation() -> int:
-	return utils.get_project_setting_enum_keys(setting_batchfilelocation, "Temporary Folder,Build Folder")
+	return utils.get_project_setting_enum_keys(Constants.setting_batchfilelocation, PoolStringArray(Constants.setting_batchfilelocation_items).join(","))
 
 
 func get_batchfilefolder() -> String:
@@ -781,7 +757,7 @@ func get_batch_filename(folder :String, name :String) -> String:
 
 
 func get_overwrite_makefiles() -> bool:
-	return utils.get_project_setting_bool(setting_overwritemakefiles, true)
+	return utils.get_project_setting_bool(Constants.setting_overwritemakefiles, true)
 
 func create_batch_dir(folder :String, name :String, batch :Array) -> String:
 	utils.make_dir_ignored(folder)
@@ -1280,11 +1256,11 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 
 
 func get_vsproj_location() -> int:
-	return utils.get_project_setting_enum_keys(setting_vsproj_location, "Temporary Folder,Project Folder,Build Folder")
+	return utils.get_project_setting_enum_keys(Constants.setting_vsproj_location, PoolStringArray(Constants.setting_vsproj_location_items).join(","))
 
 
 func get_vsproj_subfolder() -> String:
-	return utils.get_project_setting_string(setting_vsproj_subfolder)
+	return utils.get_project_setting_string(Constants.setting_vsproj_subfolder)
 
 
 func _on_GenerateVSButton_pressed():
@@ -1605,6 +1581,7 @@ func _on_SettingsButton_pressed():
 	assert(settingswindow == null)
 	
 	settingswindow = settingsscene.instance()
+	settingswindow.load_settings()
 	
 	settingswindow.connect("popup_hide", self, "_on_Settings_close")
 	
