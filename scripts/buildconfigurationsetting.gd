@@ -5,21 +5,21 @@ extends Tabs
 func setobj(bld :BuildConfiguration) -> void:
 	name = bld.name
 	
-	$VBoxContainer/NameContainer/NameLineEdit.text = bld.name
-	$VBoxContainer/NameContainer/EnabledCheckBox.pressed = bld.enabled
-	$VBoxContainer/PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
-	$VBoxContainer/PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
-	$VBoxContainer/PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
+	$PropertiesContainer/NameLineEdit.text = bld.name
+	$PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
+	$PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
+	$PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
+	$PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
 
 
 func createobj() -> BuildConfiguration:
 	var bld := BuildConfiguration.new()
 	
-	bld.name = $VBoxContainer/NameContainer/NameLineEdit.text.strip_edges()
-	bld.enabled = $VBoxContainer/NameContainer/EnabledCheckBox.pressed
-	bld.arguments = Utils.split_clean($VBoxContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
-	bld.defines = Utils.split_clean($VBoxContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
-	bld.debuglibs = $VBoxContainer/PropertiesContainer/DebugLibCheckbox.pressed
+	bld.name = $PropertiesContainer/NameLineEdit.text.strip_edges()
+	bld.enabled = $PropertiesContainer/EnabledCheckBox.pressed
+	bld.arguments = Utils.split_clean($PropertiesContainer/ArgumentsEdit.text, "\n", false)
+	bld.defines = Utils.split_clean($PropertiesContainer/DefinesEdit.text, "\n", false)
+	bld.debuglibs = $PropertiesContainer/DebugLibCheckbox.pressed
 	
 	return bld
 

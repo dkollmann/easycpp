@@ -10,141 +10,135 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-custom_constants/separation = 10
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="NameContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="PropertiesContainer" type="GridContainer" parent="."]
 margin_right = 1024.0
-margin_bottom = 24.0
-custom_constants/separation = 4
-
-[node name="NameLabel" type="Label" parent="VBoxContainer/NameContainer"]
-margin_top = 5.0
-margin_right = 42.0
-margin_bottom = 19.0
-text = "Name:"
-
-[node name="NameLineEdit" type="LineEdit" parent="VBoxContainer/NameContainer"]
-margin_left = 46.0
-margin_right = 942.0
-margin_bottom = 24.0
-size_flags_horizontal = 3
-
-[node name="EnabledCheckBox" type="CheckBox" parent="VBoxContainer/NameContainer"]
-margin_left = 946.0
-margin_right = 1024.0
-margin_bottom = 24.0
-text = "Enabled"
-
-[node name="PropertiesContainer" type="GridContainer" parent="VBoxContainer"]
-margin_top = 34.0
-margin_right = 1024.0
-margin_bottom = 470.0
+margin_bottom = 492.0
 custom_constants/vseparation = 4
 custom_constants/hseparation = 4
 columns = 2
 
-[node name="AvailableOnLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
+[node name="NameLabel" type="Label" parent="PropertiesContainer"]
 margin_top = 5.0
 margin_right = 165.0
 margin_bottom = 19.0
-text = "Available on:"
+text = "Name:"
 
-[node name="AvailableOnContainer" type="HBoxContainer" parent="VBoxContainer/PropertiesContainer"]
+[node name="NameLineEdit" type="LineEdit" parent="PropertiesContainer"]
 margin_left = 169.0
 margin_right = 1024.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="WindowsCheckBox" type="CheckBox" parent="VBoxContainer/PropertiesContainer/AvailableOnContainer"]
+[node name="EnabledLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 33.0
+margin_right = 165.0
+margin_bottom = 47.0
+text = "Enabled:"
+
+[node name="EnabledCheckBox" type="CheckBox" parent="PropertiesContainer"]
+margin_left = 169.0
+margin_top = 28.0
+margin_right = 193.0
+margin_bottom = 52.0
+size_flags_horizontal = 0
+
+[node name="AvailableOnLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 61.0
+margin_right = 165.0
+margin_bottom = 75.0
+text = "Available on:"
+
+[node name="AvailableOnContainer" type="HBoxContainer" parent="PropertiesContainer"]
+margin_left = 169.0
+margin_top = 56.0
+margin_right = 1024.0
+margin_bottom = 80.0
+size_flags_horizontal = 3
+
+[node name="WindowsCheckBox" type="CheckBox" parent="PropertiesContainer/AvailableOnContainer"]
 margin_right = 86.0
 margin_bottom = 24.0
 text = "Windows"
 
-[node name="LinuxCheckBox" type="CheckBox" parent="VBoxContainer/PropertiesContainer/AvailableOnContainer"]
+[node name="LinuxCheckBox" type="CheckBox" parent="PropertiesContainer/AvailableOnContainer"]
 margin_left = 90.0
 margin_right = 189.0
 margin_bottom = 24.0
 text = "Linux / X11"
 
-[node name="MacOSCheckBox" type="CheckBox" parent="VBoxContainer/PropertiesContainer/AvailableOnContainer"]
+[node name="MacOSCheckBox" type="CheckBox" parent="PropertiesContainer/AvailableOnContainer"]
 margin_left = 193.0
 margin_right = 266.0
 margin_bottom = 24.0
 text = "macOS"
 
-[node name="ArgumentsLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
-margin_top = 92.0
+[node name="ArgumentsLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 148.0
 margin_right = 165.0
-margin_bottom = 123.0
+margin_bottom = 179.0
 text = "Arguments:
   (One argument per line.)"
 
-[node name="ArgumentsEdit" type="TextEdit" parent="VBoxContainer/PropertiesContainer"]
+[node name="ArgumentsEdit" type="TextEdit" parent="PropertiesContainer"]
 margin_left = 169.0
-margin_top = 28.0
+margin_top = 84.0
 margin_right = 1024.0
-margin_bottom = 188.0
+margin_bottom = 244.0
 rect_min_size = Vector2( 0, 160 )
 size_flags_horizontal = 3
 
-[node name="DefinesLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
-margin_top = 256.0
+[node name="DefinesLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 312.0
 margin_right = 165.0
-margin_bottom = 287.0
+margin_bottom = 343.0
 text = "Defines:
   (One define per line.)"
 
-[node name="DefinesEdit" type="TextEdit" parent="VBoxContainer/PropertiesContainer"]
+[node name="DefinesEdit" type="TextEdit" parent="PropertiesContainer"]
 margin_left = 169.0
-margin_top = 192.0
+margin_top = 248.0
 margin_right = 1024.0
-margin_bottom = 352.0
+margin_bottom = 408.0
 rect_min_size = Vector2( 0, 160 )
 size_flags_horizontal = 3
 
-[node name="OutputLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
-margin_top = 361.0
-margin_right = 165.0
-margin_bottom = 375.0
-text = "Output:"
-
-[node name="OutputLineEdit" type="LineEdit" parent="VBoxContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 356.0
-margin_right = 1024.0
-margin_bottom = 380.0
-size_flags_horizontal = 3
-
-[node name="GDNLIBLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
-margin_top = 389.0
-margin_right = 165.0
-margin_bottom = 403.0
-text = "GDNLIB Key:"
-
-[node name="GDNLIBLineEdit" type="LineEdit" parent="VBoxContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 384.0
-margin_right = 1024.0
-margin_bottom = 408.0
-size_flags_horizontal = 3
-
-[node name="VSToolchainLabel" type="Label" parent="VBoxContainer/PropertiesContainer"]
+[node name="OutputLabel" type="Label" parent="PropertiesContainer"]
 margin_top = 417.0
 margin_right = 165.0
 margin_bottom = 431.0
-text = "Visual Studio Toolchain:"
+text = "Output:"
 
-[node name="VSToolchainLineEdit" type="LineEdit" parent="VBoxContainer/PropertiesContainer"]
+[node name="OutputLineEdit" type="LineEdit" parent="PropertiesContainer"]
 margin_left = 169.0
 margin_top = 412.0
 margin_right = 1024.0
 margin_bottom = 436.0
 size_flags_horizontal = 3
 
-[connection signal="text_changed" from="VBoxContainer/NameContainer/NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]
+[node name="GDNLIBLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 445.0
+margin_right = 165.0
+margin_bottom = 459.0
+text = "GDNLIB Key:"
+
+[node name="GDNLIBLineEdit" type="LineEdit" parent="PropertiesContainer"]
+margin_left = 169.0
+margin_top = 440.0
+margin_right = 1024.0
+margin_bottom = 464.0
+size_flags_horizontal = 3
+
+[node name="VSToolchainLabel" type="Label" parent="PropertiesContainer"]
+margin_top = 473.0
+margin_right = 165.0
+margin_bottom = 487.0
+text = "Visual Studio Toolchain:"
+
+[node name="VSToolchainLineEdit" type="LineEdit" parent="PropertiesContainer"]
+margin_left = 169.0
+margin_top = 468.0
+margin_right = 1024.0
+margin_bottom = 492.0
+size_flags_horizontal = 3
+
+[connection signal="text_changed" from="PropertiesContainer/NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]

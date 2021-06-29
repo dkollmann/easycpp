@@ -5,37 +5,37 @@ extends Tabs
 func setobj(bld :BuildPlatform) -> void:
 	name = bld.name
 	
-	$VBoxContainer/NameContainer/NameLineEdit.text = bld.name
-	$VBoxContainer/NameContainer/EnabledCheckBox.pressed = bld.enabled
-	$VBoxContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed = "Windows" in bld.availableon
-	$VBoxContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed = "X11" in bld.availableon
-	$VBoxContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed = "OSX" in bld.availableon
-	$VBoxContainer/PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
-	$VBoxContainer/PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
-	$VBoxContainer/PropertiesContainer/OutputLineEdit.text = bld.outputname
-	$VBoxContainer/PropertiesContainer/GDNLIBLineEdit.text = bld.gdnlibkey
-	$VBoxContainer/PropertiesContainer/VSToolchainLineEdit.text = bld.vsplatform
+	$PropertiesContainer/NameLineEdit.text = bld.name
+	$PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
+	$PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed = "Windows" in bld.availableon
+	$PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed = "X11" in bld.availableon
+	$PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed = "OSX" in bld.availableon
+	$PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
+	$PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
+	$PropertiesContainer/OutputLineEdit.text = bld.outputname
+	$PropertiesContainer/GDNLIBLineEdit.text = bld.gdnlibkey
+	$PropertiesContainer/VSToolchainLineEdit.text = bld.vsplatform
 
 func createobj() -> BuildPlatform:
 	var bld := BuildPlatform.new()
 	
 	var availableon := []
 	
-	if $VBoxContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed:
+	if $PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed:
 		availableon.append("Windows")
-	if $VBoxContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed:
+	if $PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed:
 		availableon.append("X11")
-	if $VBoxContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed:
+	if $PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed:
 		availableon.append("OSX")
 	
-	bld.name = $VBoxContainer/NameContainer/NameLineEdit.text.strip_edges()
-	bld.enabled = $VBoxContainer/NameContainer/EnabledCheckBox.pressed
+	bld.name = $PropertiesContainer/NameLineEdit.text.strip_edges()
+	bld.enabled = $PropertiesContainer/EnabledCheckBox.pressed
 	bld.availableon = PoolStringArray(availableon).join(" ")
-	bld.arguments = Utils.split_clean($VBoxContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
-	bld.defines = Utils.split_clean($VBoxContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
-	bld.outputname = $VBoxContainer/PropertiesContainer/OutputLineEdit.text.strip_edges()
-	bld.gdnlibkey = $VBoxContainer/PropertiesContainer/GDNLIBLineEdit.text.strip_edges()
-	bld.vsplatform = $VBoxContainer/PropertiesContainer/VSToolchainLineEdit.text.strip_edges()
+	bld.arguments = Utils.split_clean($PropertiesContainer/ArgumentsEdit.text, "\n", false)
+	bld.defines = Utils.split_clean($PropertiesContainer/DefinesEdit.text, "\n", false)
+	bld.outputname = $PropertiesContainer/OutputLineEdit.text.strip_edges()
+	bld.gdnlibkey = $PropertiesContainer/GDNLIBLineEdit.text.strip_edges()
+	bld.vsplatform = $PropertiesContainer/VSToolchainLineEdit.text.strip_edges()
 	
 	return bld
 
