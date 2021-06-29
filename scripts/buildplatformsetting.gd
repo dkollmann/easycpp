@@ -15,7 +15,9 @@ func setobj(bld :BuildPlatform) -> void:
 	$VBoxContainer/PropertiesContainer/GDNLIBLineEdit.text = bld.gdnlibkey
 	$VBoxContainer/PropertiesContainer/VSToolchainLineEdit.text = bld.vsplatform
 
-func updateobj(bld :BuildPlatform) -> void:
+func createobj() -> BuildPlatform:
+	var bld := BuildPlatform.new()
+	
 	var availableon := []
 	
 	if $VBoxContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed:
@@ -33,6 +35,8 @@ func updateobj(bld :BuildPlatform) -> void:
 	bld.outputname = $VBoxContainer/PropertiesContainer/OutputLineEdit.text.strip_edges()
 	bld.gdnlibkey = $VBoxContainer/PropertiesContainer/GDNLIBLineEdit.text.strip_edges()
 	bld.vsplatform = $VBoxContainer/PropertiesContainer/VSToolchainLineEdit.text.strip_edges()
+	
+	return bld
 
 
 func _on_NameLineEdit_text_changed(new_text):

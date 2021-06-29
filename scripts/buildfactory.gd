@@ -57,19 +57,20 @@ func create_pltfm(idx :int, params :Array, all :bool) -> BuildPlatform:
 	return null
 
 
+static func bool_str(v :bool) -> String:
+	return "true" if v else "false"
+
+
 static func makestr_pltfrm(bld :BuildPlatform) -> String:
 	var cfg := [
-		"",
 		bld.name,
-		str(bld.enabled),
+		bool_str(bld.enabled),
 		bld.availableon,
 		PoolStringArray(bld.arguments).join(" "),
 		PoolStringArray(bld.defines).join(" "),
-		bld.availableon,
 		bld.outputname,
 		bld.gdnlibkey,
 		bld.vsplatform,
-		""
 	]
 	
 	return PoolStringArray(cfg).join("|")
@@ -100,13 +101,11 @@ func create_cfg(idx :int, params :Array, all :bool) -> BuildConfiguration:
 
 static func makestr_cfg(bld :BuildConfiguration) -> String:
 	var cfg := [
-		"",
 		bld.name,
-		str(bld.enabled),
+		bool_str(bld.enabled),
 		PoolStringArray(bld.arguments).join(" "),
 		PoolStringArray(bld.defines).join(" "),
-		str(bld.debuglibs),
-		""
+		bool_str(bld.debuglibs),
 	]
 	
 	return PoolStringArray(cfg).join("|")

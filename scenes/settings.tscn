@@ -8,9 +8,12 @@
 [ext_resource path="res://addons/easycpp/scenes/buildplatform.tscn" type="PackedScene" id=6]
 
 [node name="Settings" type="WindowDialog"]
+visible = true
 margin_right = 800.0
 margin_bottom = 600.0
 theme = ExtResource( 3 )
+window_title = "Easy C++ Settings"
+resizable = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -19,26 +22,30 @@ __meta__ = {
 [node name="SettingsContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
 custom_constants/separation = 10
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SettingsContainer"]
-margin_right = 800.0
+margin_right = 784.0
 margin_bottom = 34.0
 alignment = 2
 
 [node name="AllSettingsButton" type="Button" parent="SettingsContainer/HBoxContainer"]
-margin_left = 629.0
-margin_right = 800.0
+margin_left = 613.0
+margin_right = 784.0
 margin_bottom = 34.0
 text = "Show All Settings"
 
 [node name="TabContainer" type="TabContainer" parent="SettingsContainer"]
 margin_top = 44.0
-margin_right = 800.0
-margin_bottom = 600.0
+margin_right = 784.0
+margin_bottom = 540.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -58,13 +65,13 @@ __meta__ = {
 }
 
 [node name="BatchfilesContainer" type="PanelContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer"]
-margin_right = 792.0
+margin_right = 776.0
 margin_bottom = 130.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer"]
 margin_left = 7.0
 margin_top = 7.0
-margin_right = 785.0
+margin_right = 769.0
 margin_bottom = 123.0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -73,13 +80,13 @@ __meta__ = {
 [node name="Header" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer" instance=ExtResource( 4 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_right = 778.0
+margin_right = 762.0
 margin_bottom = 28.0
 text = "Batchfiles"
 
 [node name="GridContainer" type="GridContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer"]
 margin_top = 32.0
-margin_right = 778.0
+margin_right = 762.0
 margin_bottom = 116.0
 size_flags_horizontal = 3
 custom_constants/vseparation = 10
@@ -98,7 +105,7 @@ text = "Batchfile Location:"
 
 [node name="LocationButton" type="OptionButton" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer"]
 margin_left = 304.0
-margin_right = 455.0
+margin_right = 450.0
 margin_bottom = 38.0
 hint_tooltip = "The location where the batchfiles will be saved to."
 size_flags_horizontal = 3
@@ -107,9 +114,9 @@ __meta__ = {
 }
 
 [node name="BuildFolderLabel" type="Label" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer"]
-margin_left = 465.0
+margin_left = 460.0
 margin_top = 5.0
-margin_right = 616.0
+margin_right = 606.0
 margin_bottom = 33.0
 size_flags_horizontal = 3
 text = "Build Folder:"
@@ -117,8 +124,8 @@ text = "Build Folder:"
 [node name="BuildFolderEdit" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer" instance=ExtResource( 2 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 626.0
-margin_right = 777.0
+margin_left = 616.0
+margin_right = 762.0
 margin_bottom = 38.0
 hint_tooltip = "The location of the build folder."
 size_flags_horizontal = 3
@@ -135,25 +142,25 @@ __meta__ = {
 
 [node name="VSContainer" type="PanelContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer"]
 margin_top = 134.0
-margin_right = 792.0
+margin_right = 776.0
 margin_bottom = 218.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer"]
 margin_left = 7.0
 margin_top = 7.0
-margin_right = 785.0
+margin_right = 769.0
 margin_bottom = 77.0
 
 [node name="Header" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer" instance=ExtResource( 4 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_right = 778.0
+margin_right = 762.0
 margin_bottom = 28.0
 text = "Visual Studio"
 
 [node name="GridContainer" type="GridContainer" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer"]
 margin_top = 32.0
-margin_right = 778.0
+margin_right = 762.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 custom_constants/vseparation = 10
@@ -165,14 +172,14 @@ __meta__ = {
 
 [node name="LocationLabel" type="Label" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer"]
 margin_top = 5.0
-margin_right = 187.0
+margin_right = 183.0
 margin_bottom = 33.0
 size_flags_horizontal = 3
 text = "Projects Location:"
 
 [node name="LocationButton" type="OptionButton" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer"]
-margin_left = 197.0
-margin_right = 384.0
+margin_left = 193.0
+margin_right = 376.0
 margin_bottom = 38.0
 hint_tooltip = "The location where the batchfiles will be saved to."
 size_flags_horizontal = 3
@@ -181,22 +188,22 @@ __meta__ = {
 }
 
 [node name="SubfolderLabel" type="Label" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer"]
-margin_left = 394.0
+margin_left = 386.0
 margin_top = 5.0
-margin_right = 581.0
+margin_right = 569.0
 margin_bottom = 33.0
 size_flags_horizontal = 3
 text = "Project Subfolder:"
 
 [node name="SubfolderLineEdit" type="LineEdit" parent="SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer"]
-margin_left = 591.0
-margin_right = 778.0
+margin_left = 579.0
+margin_right = 762.0
 margin_bottom = 38.0
 size_flags_horizontal = 3
 caret_blink = true
 caret_blink_speed = 0.5
 
-[node name="BuildPlatforms" type="Tabs" parent="SettingsContainer/TabContainer"]
+[node name="Build Platforms" type="Tabs" parent="SettingsContainer/TabContainer"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -205,21 +212,21 @@ margin_top = 46.0
 margin_right = -4.0
 margin_bottom = -4.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="SettingsContainer/TabContainer/BuildPlatforms"]
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsContainer/TabContainer/Build Platforms"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Header" parent="SettingsContainer/TabContainer/BuildPlatforms/VBoxContainer" instance=ExtResource( 4 )]
+[node name="Header" parent="SettingsContainer/TabContainer/Build Platforms/VBoxContainer" instance=ExtResource( 4 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
 margin_right = 1016.0
 margin_bottom = 28.0
 text = "Build Platforms"
 
-[node name="TabControl" parent="SettingsContainer/TabContainer/BuildPlatforms/VBoxContainer" instance=ExtResource( 5 )]
+[node name="TabControl" parent="SettingsContainer/TabContainer/Build Platforms/VBoxContainer" instance=ExtResource( 5 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
 margin_top = 32.0
@@ -229,4 +236,25 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 tabtype = ExtResource( 6 )
 
+[node name="ButtonsContainer" type="HBoxContainer" parent="SettingsContainer"]
+margin_top = 550.0
+margin_right = 784.0
+margin_bottom = 584.0
+custom_constants/separation = 10
+alignment = 1
+
+[node name="SaveButton" type="Button" parent="SettingsContainer/ButtonsContainer"]
+margin_left = 322.0
+margin_right = 377.0
+margin_bottom = 34.0
+text = "Save"
+
+[node name="CancelButton" type="Button" parent="SettingsContainer/ButtonsContainer"]
+margin_left = 387.0
+margin_right = 461.0
+margin_bottom = 34.0
+text = "Cancel"
+
 [connection signal="pressed" from="SettingsContainer/HBoxContainer/AllSettingsButton" to="." method="_on_AllSettingsButton_pressed"]
+[connection signal="pressed" from="SettingsContainer/ButtonsContainer/SaveButton" to="." method="_on_SaveButton_pressed"]
+[connection signal="pressed" from="SettingsContainer/ButtonsContainer/CancelButton" to="." method="_on_CancelButton_pressed"]

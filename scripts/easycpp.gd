@@ -227,6 +227,7 @@ func _ready():
 	add_tooltip($MenuContainer/BuildMenuContainer/BuildLibraryButton, "Build the currently selected library.")
 	add_tooltip($MenuContainer/BuildMenuContainer/BuildAllButton, "Build all libraries.")
 	add_tooltip($MenuContainer/BuildMenuContainer/NewLibraryButton, "Create a new GDNative library.")
+	add_tooltip($MenuContainer/BuildMenuContainer/SettingsButton, "The most important settings.")
 	add_tooltip($MenuContainer/BuildMenuContainer/SubmenuButton, "Additional functions...")
 	add_tooltip($LibraryContainer/CurrentLibraryButton, "The current GDNative library which will be built.")
 	
@@ -1591,11 +1592,15 @@ func _on_SettingsButton_pressed():
 	
 	settingswindow.popup()
 
+
 func _on_Settings_close():
 	assert(settingswindow != null)
 	
 	print("Settings closed")
 	
 	remove_child(settingswindow)
+	
+	if settingswindow.save:
+		check_sdk_state()
 	
 	settingswindow = null
