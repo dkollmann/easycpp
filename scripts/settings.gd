@@ -38,8 +38,8 @@ func load_settings(utls :Utils):
 	var platforms := bldfac.parse_csv_pltfrm( ProjectSettings.get(Constants.setting_buildplatforms), true )
 	var configurations := bldfac.parse_csv_cfg( ProjectSettings.get(Constants.setting_buildconfigurations), true )
 	
-	$"SettingsContainer/TabContainer/Build Platforms/VBoxContainer/TabControl".generate_tabs(platforms)
-	$"SettingsContainer/TabContainer/Build Configurations/VBoxContainer/TabControl".generate_tabs(configurations)
+	$"SettingsContainer/TabContainer/Build Platforms/TabControl".generate_tabs(platforms)
+	$"SettingsContainer/TabContainer/Build Configurations/TabControl".generate_tabs(configurations)
 
 
 func save_settings():
@@ -59,7 +59,7 @@ func save_settings():
 		ProjectSettings.set(Constants.setting_vsproj_subfolder, $SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer/SubfolderLineEdit.text.strip_edges())
 	
 	# save build platforms
-	var platforms = $"SettingsContainer/TabContainer/Build Platforms/VBoxContainer/TabControl".generate_objects()
+	var platforms = $"SettingsContainer/TabContainer/Build Platforms/TabControl".generate_objects()
 	
 	var platforms_str := []
 	var bldfac := BuildFactory.new()
@@ -72,7 +72,7 @@ func save_settings():
 	#print(newplatforms)
 	
 	# save build platforms
-	var configurations = $"SettingsContainer/TabContainer/Build Configurations/VBoxContainer/TabControl".generate_objects()
+	var configurations = $"SettingsContainer/TabContainer/Build Configurations/TabControl".generate_objects()
 	
 	var configurations_str := []
 	
