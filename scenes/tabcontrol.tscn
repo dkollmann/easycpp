@@ -24,19 +24,19 @@ margin_right = 1024.0
 margin_bottom = 20.0
 alignment = 2
 
-[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="AddButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 margin_left = 701.0
 margin_right = 770.0
 margin_bottom = 20.0
 text = "Add New"
 
-[node name="Button2" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="DuplicateButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 margin_left = 774.0
 margin_right = 906.0
 margin_bottom = 20.0
 text = "Duplicate Selected"
 
-[node name="Button3" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="DeleteButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 margin_left = 910.0
 margin_right = 1024.0
 margin_bottom = 20.0
@@ -46,3 +46,7 @@ text = "Delete Selected"
 margin_top = 24.0
 margin_right = 1024.0
 margin_bottom = 60.0
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/AddButton" to="." method="_on_AddButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/DuplicateButton" to="." method="_on_DuplicateButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/DeleteButton" to="." method="_on_DeleteButton_pressed"]

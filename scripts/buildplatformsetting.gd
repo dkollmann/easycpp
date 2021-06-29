@@ -39,5 +39,18 @@ func createobj() -> BuildPlatform:
 	return bld
 
 
+func createnewobj() -> BuildPlatform:
+	var bld := BuildPlatform.new()
+	
+	bld.name = "Untitled"
+	bld.enabled = true
+	bld.availableon = "Windows X11 OSX"
+	bld.arguments = []
+	bld.defines = []
+	bld.outputname = "lib%name%.%platform%.%target%.%bits%.xxx"
+	
+	return bld
+
+
 func _on_NameLineEdit_text_changed(new_text):
 	name = new_text
