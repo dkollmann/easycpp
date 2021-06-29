@@ -313,10 +313,10 @@ func check_sdk_state() -> void:
 	temppath = utils.get_project_setting_string(Constants.setting_temppath, temppath, PROPERTY_HINT_GLOBAL_DIR)
 	
 	# handle build folder
-	buildfolderpath = ProjectSettings.globalize_path("res://build")
-	buildfolderpath = utils.get_project_setting_string(Constants.setting_buildfolder, buildfolderpath, PROPERTY_HINT_GLOBAL_DIR)
+	buildfolderpath = ProjectSettings.globalize_path( utils.get_project_setting_string(Constants.setting_buildfolder, "res://build", PROPERTY_HINT_GLOBAL_DIR) )
 	
 	print("Easy C++ temporary folder: \"" + temppath + "\".")
+	print("Easy C++ build folder: \"" + buildfolderpath + "\".")
 	
 	read_build_platforms_configurations()
 	
