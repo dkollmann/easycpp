@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://addons/easycpp/scripts/settings.gd" type="Script" id=1]
 [ext_resource path="res://addons/easycpp/scenes/fileedit.tscn" type="PackedScene" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://addons/easycpp/scenes/groupheader.tscn" type="PackedScene" id=4]
 [ext_resource path="res://addons/easycpp/scenes/tabcontrol.tscn" type="PackedScene" id=5]
 [ext_resource path="res://addons/easycpp/scenes/buildplatform.tscn" type="PackedScene" id=6]
+[ext_resource path="res://addons/easycpp/scenes/buildconfiguration.tscn" type="PackedScene" id=7]
 
 [node name="Settings" type="WindowDialog"]
 visible = true
@@ -235,6 +236,39 @@ margin_bottom = 506.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 tabtype = ExtResource( 6 )
+
+[node name="Build Configurations" type="Tabs" parent="SettingsContainer/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 46.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsContainer/TabContainer/Build Configurations"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Header" parent="SettingsContainer/TabContainer/Build Configurations/VBoxContainer" instance=ExtResource( 4 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 1016.0
+margin_bottom = 28.0
+text = "Build Platforms"
+
+[node name="TabControl" parent="SettingsContainer/TabContainer/Build Configurations/VBoxContainer" instance=ExtResource( 5 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 32.0
+margin_right = 1016.0
+margin_bottom = 506.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+tabtype = ExtResource( 7 )
 
 [node name="ButtonsContainer" type="HBoxContainer" parent="SettingsContainer"]
 margin_top = 550.0
