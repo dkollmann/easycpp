@@ -3,12 +3,10 @@ extends Control
 
 export var tabtype :PackedScene
 
-func generate_tabs(csv :String) -> void:
-	var lines := csv.split("\n", false)
-	
-	for l in lines:
+func generate_tabs(items :Array) -> void:
+	for i in items:
 		var t := tabtype.instance()
 		
-		t.readline(l)
+		t.setobj(i)
 		
 		$VBoxContainer/TabContainer.add_child(t)

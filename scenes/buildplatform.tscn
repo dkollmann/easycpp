@@ -144,3 +144,5 @@ margin_top = 252.0
 margin_right = 1024.0
 margin_bottom = 276.0
 size_flags_horizontal = 3
+
+[connection signal="text_changed" from="VBoxContainer/NameContainer/NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]

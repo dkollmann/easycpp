@@ -1581,7 +1581,8 @@ func _on_SettingsButton_pressed():
 	assert(settingswindow == null)
 	
 	settingswindow = settingsscene.instance()
-	settingswindow.load_settings()
+	settingswindow.set_size(editorbase.get_rect().size * 0.5)
+	settingswindow.load_settings(utils)
 	
 	settingswindow.connect("popup_hide", self, "_on_Settings_close")
 	

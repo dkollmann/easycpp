@@ -2,6 +2,8 @@ tool
 extends Tabs
 
 func setobj(bld :BuildPlatform) -> void:
+	name = bld.name
+	
 	$VBoxContainer/NameContainer/NameLineEdit.text = bld.name
 	$VBoxContainer/NameContainer/EnabledCheckBox.pressed = bld.enabled
 	$VBoxContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed = "Windows" in bld.availableon
@@ -31,3 +33,7 @@ func updateobj(bld :BuildPlatform) -> void:
 	bld.outputname = $VBoxContainer/PropertiesContainer/OutputLineEdit.text.strip_edges()
 	bld.gdnlibkey = $VBoxContainer/PropertiesContainer/GDNLIBLineEdit.text.strip_edges()
 	bld.vsplatform = $VBoxContainer/PropertiesContainer/VSToolchainLineEdit.text.strip_edges()
+
+
+func _on_NameLineEdit_text_changed(new_text):
+	name = new_text
