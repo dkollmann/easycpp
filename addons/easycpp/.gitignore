@@ -1,0 +1,6 @@
+temp/
+
+tools/rit/.vs/
+tools/rit/Debug/
+tools/rit/Release/
+tools/rit/*.user
