@@ -1,5 +1,5 @@
 tool
-extends Tabs
+extends BuildSetting
 
 
 func setobj(bld :BuildConfiguration) -> void:

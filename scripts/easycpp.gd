@@ -112,7 +112,7 @@ const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 
 const linuxpause = "read -p \"Press any key to resume ...\"\n"
 
-var editorbase :Control
+var editorbase :Panel
 
 var vs2015path :String
 var vs2017path :String
