@@ -33,6 +33,7 @@ __meta__ = {
 }
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SettingsContainer"]
+visible = false
 margin_right = 784.0
 margin_bottom = 34.0
 alignment = 2
@@ -44,14 +45,12 @@ margin_bottom = 34.0
 text = "Show All Settings"
 
 [node name="TabContainer" type="TabContainer" parent="SettingsContainer"]
-margin_top = 44.0
 margin_right = 784.0
 margin_bottom = 540.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Settings" type="Tabs" parent="SettingsContainer/TabContainer"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -206,6 +205,7 @@ caret_blink = true
 caret_blink_speed = 0.5
 
 [node name="Build Platforms" type="Tabs" parent="SettingsContainer/TabContainer"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -217,6 +217,7 @@ margin_bottom = -4.0
 tabtype = ExtResource( 6 )
 
 [node name="Build Configurations" type="Tabs" parent="SettingsContainer/TabContainer"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0

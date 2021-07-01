@@ -16,6 +16,8 @@ func _enter_tree():
 	
 	toolwindow = preload("res://addons/easycpp/scenes/tool_window.tscn").instance()
 	
+	assert(toolwindow != null)
+	
 	toolwindow.editorbase = get_editor_interface().get_base_control()
 	
 	add_control_to_dock(DOCK_SLOT_LEFT_UL, toolwindow)
