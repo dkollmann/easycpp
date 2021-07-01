@@ -10,46 +10,59 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="PropertiesContainer" type="GridContainer" parent="."]
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PropertiesContainer" type="GridContainer" parent="ScrollContainer"]
 margin_right = 1024.0
-margin_bottom = 408.0
+margin_bottom = 600.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 custom_constants/vseparation = 4
 custom_constants/hseparation = 4
 columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="NameLabel" type="Label" parent="PropertiesContainer"]
+[node name="NameLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
 margin_top = 5.0
 margin_right = 165.0
 margin_bottom = 19.0
 text = "Name:"
 
-[node name="NameLineEdit" type="LineEdit" parent="PropertiesContainer"]
+[node name="NameLineEdit" type="LineEdit" parent="ScrollContainer/PropertiesContainer"]
 margin_left = 169.0
 margin_right = 1024.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="EnabledLabel" type="Label" parent="PropertiesContainer"]
+[node name="EnabledLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
 margin_top = 33.0
 margin_right = 165.0
 margin_bottom = 47.0
 text = "Enabled:"
 
-[node name="EnabledCheckBox" type="CheckBox" parent="PropertiesContainer"]
+[node name="EnabledCheckBox" type="CheckBox" parent="ScrollContainer/PropertiesContainer"]
 margin_left = 169.0
 margin_top = 28.0
 margin_right = 193.0
 margin_bottom = 52.0
 size_flags_horizontal = 0
 
-[node name="ArgumentsLabel" type="Label" parent="PropertiesContainer"]
+[node name="ArgumentsLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
 margin_top = 120.0
 margin_right = 165.0
 margin_bottom = 151.0
 text = "Arguments:
   (One argument per line.)"
 
-[node name="ArgumentsEdit" type="TextEdit" parent="PropertiesContainer"]
+[node name="ArgumentsEdit" type="TextEdit" parent="ScrollContainer/PropertiesContainer"]
 margin_left = 169.0
 margin_top = 56.0
 margin_right = 1024.0
@@ -57,14 +70,14 @@ margin_bottom = 216.0
 rect_min_size = Vector2( 0, 160 )
 size_flags_horizontal = 3
 
-[node name="DefinesLabel" type="Label" parent="PropertiesContainer"]
+[node name="DefinesLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
 margin_top = 284.0
 margin_right = 165.0
 margin_bottom = 315.0
 text = "Defines:
   (One define per line.)"
 
-[node name="DefinesEdit" type="TextEdit" parent="PropertiesContainer"]
+[node name="DefinesEdit" type="TextEdit" parent="ScrollContainer/PropertiesContainer"]
 margin_left = 169.0
 margin_top = 220.0
 margin_right = 1024.0
@@ -72,13 +85,13 @@ margin_bottom = 380.0
 rect_min_size = Vector2( 0, 160 )
 size_flags_horizontal = 3
 
-[node name="DebugLibLabel" type="Label" parent="PropertiesContainer"]
+[node name="DebugLibLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
 margin_top = 389.0
 margin_right = 165.0
 margin_bottom = 403.0
 text = "Use debug libraries:"
 
-[node name="DebugLibCheckbox" type="CheckBox" parent="PropertiesContainer"]
+[node name="DebugLibCheckbox" type="CheckBox" parent="ScrollContainer/PropertiesContainer"]
 margin_left = 169.0
 margin_top = 384.0
 margin_right = 193.0

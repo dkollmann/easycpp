@@ -5,21 +5,21 @@ extends BuildSetting
 func setobj(bld :BuildConfiguration) -> void:
 	name = bld.name
 	
-	$PropertiesContainer/NameLineEdit.text = bld.name
-	$PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
-	$PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
-	$PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
-	$PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
+	$ScrollContainer/PropertiesContainer/NameLineEdit.text = bld.name
+	$ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
+	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
+	$ScrollContainer/PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
+	$ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
 
 
 func createobj() -> BuildConfiguration:
 	var bld := BuildConfiguration.new()
 	
-	bld.name = $PropertiesContainer/NameLineEdit.text.strip_edges()
-	bld.enabled = $PropertiesContainer/EnabledCheckBox.pressed
-	bld.arguments = Utils.split_clean($PropertiesContainer/ArgumentsEdit.text, "\n", false)
-	bld.defines = Utils.split_clean($PropertiesContainer/DefinesEdit.text, "\n", false)
-	bld.debuglibs = $PropertiesContainer/DebugLibCheckbox.pressed
+	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
+	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
+	bld.arguments = Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
+	bld.defines = Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
+	bld.debuglibs = $ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed
 	
 	return bld
 
