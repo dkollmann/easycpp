@@ -1,6 +1,6 @@
 tool
 extends Object
-class_name Utils
+class_name ECPP_Utils
 
 
 enum System {

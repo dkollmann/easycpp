@@ -17,8 +17,8 @@ func createobj() -> BuildConfiguration:
 	
 	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
 	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
-	bld.arguments = Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
-	bld.defines = Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
+	bld.arguments = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
+	bld.defines = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
 	bld.debuglibs = $ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed
 	
 	return bld

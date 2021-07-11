@@ -188,7 +188,7 @@ func _ready():
 	get_batchfilelocation()
 	get_overwrite_makefiles()
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		# make sure the settings exists
 		get_vsproj_location()
 		get_vsproj_subfolder()
@@ -348,7 +348,7 @@ func check_sdk_state() -> void:
 	if buildcfg == null and len(buildconfigurations) > 0:
 		buildcfg = buildconfigurations[0]
 	
-	var exefilter := "*.exe,*.bat,*.cmd" if utils.system == Utils.System.Windows else "*"
+	var exefilter := "*.exe,*.bat,*.cmd" if utils.system == ECPP_Utils.System.Windows else "*"
 	
 	# prepare check
 	needs_python = buildsystem == BuildSystem.SCons
@@ -394,7 +394,7 @@ func check_sdk_state() -> void:
 	$CompilerButton.clear()
 	
 	match utils.system:
-		Utils.System.Windows:
+		ECPP_Utils.System.Windows:
 			vs2015path = utils.get_project_setting_string(Constants.setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
 			vs2017path = utils.get_project_setting_string(Constants.setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
 			vs2019path = utils.get_project_setting_string(Constants.setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
@@ -412,12 +412,12 @@ func check_sdk_state() -> void:
 			if has_vs2019:
 				$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
 		
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			# always suport gcc and clang
 			$CompilerButton.add_item("GCC", Compiler.GCC)
 			$CompilerButton.add_item("Clang", Compiler.Clang)
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			has_xcode = false
 			var output := []
 			if OS.execute("/usr/bin/xcodebuild", ["-version"], true, output) == 0:
@@ -450,7 +450,7 @@ func check_sdk_state() -> void:
 	
 	selecting_compiler = false
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		has_compiler = compiler >= 0
 	else:
 		has_compiler = false
@@ -497,7 +497,7 @@ func check_sdk_state() -> void:
 	else:
 		$LibraryContainer.visible = false
 		
-		var is_windows :bool = utils.system == Utils.System.Windows
+		var is_windows :bool = utils.system == ECPP_Utils.System.Windows
 		var canfix_python := not is_windows or not pythonpath_windowsstore.empty()
 		var canfix_pip := false
 		var canfix_scons := has_pip
@@ -505,10 +505,10 @@ func check_sdk_state() -> void:
 		var canfix_git := not is_windows
 		
 		match utils.system:
-			Utils.System.Linux:
+			ECPP_Utils.System.Linux:
 				canfix_pip = has_python and pythonpath.ends_with("python3")
 			
-			Utils.System.macOS:
+			ECPP_Utils.System.macOS:
 				canfix_pip = has_python and pythonpath == "/usr/bin/python"
 		
 		$StatusContainer/PythonStatus.visible = needs_python
@@ -532,13 +532,13 @@ func check_sdk_state() -> void:
 static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
 	var searched := false
 	
-	var path := Utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
+	var path := ECPP_Utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
 	if path.empty():
 		searched = true
 		path = findfunc.call_func()
 	
-	if (Utils.folder_exists(path) if isfolder else Utils.file_exists(path)):
+	if (ECPP_Utils.folder_exists(path) if isfolder else ECPP_Utils.file_exists(path)):
 		print("Found " + name + " path: \"" + path + "\".")
 		
 		if searched:
@@ -552,7 +552,7 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 
 func find_executable(exename :String) -> String:
 	var output := []
-	OS.execute("where" if utils.system == Utils.System.Windows else "which", [exename], true, output)
+	OS.execute("where" if utils.system == ECPP_Utils.System.Windows else "which", [exename], true, output)
 	
 	var lines := utils.get_outputlines(output)
 	
@@ -577,7 +577,7 @@ func find_pythonmodule(module :String) -> bool:
 func find_python() -> String:
 	var py := find_executable("python")
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		if not py.empty():
 			if utils.file_exists(py):
 				return py
@@ -596,7 +596,7 @@ func find_python() -> String:
 func find_cmake() -> String:
 	var exe := find_executable("cmake")
 	
-	if exe.empty() and utils.system == Utils.System.Windows:
+	if exe.empty() and utils.system == ECPP_Utils.System.Windows:
 		var p := "C:\\Program Files\\CMake\\bin\\cmake.exe"
 		if utils.file_exists(p):
 			return p
@@ -662,16 +662,16 @@ func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bo
 func run_shell(name :String, exe :String, args :Array = []) -> int:
 	var pause := ""
 	match utils.system:
-		Utils.System.Windows:
+		ECPP_Utils.System.Windows:
 			pause = "pause"
 		
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			pause = linuxpause
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			pass
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		exe = exe.replace("/", "\\")
 		
 		if exe.ends_with(".bat") or exe.ends_with(".cmd"):
@@ -684,7 +684,7 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 	var args_str := utils.arglist_to_string(args2)
 	
 	var batch :Array
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		batch = ["@echo off\n", args_str + "\n", pause]
 	else:
 		batch = [args_str + "\n", pause]
@@ -695,18 +695,18 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 	var terminal_args := []
 	
 	match utils.system:
-		Utils.System.Windows:
+		ECPP_Utils.System.Windows:
 			terminal_exe = runinterminalpath
 			terminal_args = ["--run", batchfile]
 		
-		Utils.System.Linux:
-			var terminal := Utils.get_project_setting_string(Constants.setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
+		ECPP_Utils.System.Linux:
+			var terminal := ECPP_Utils.get_project_setting_string(Constants.setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
 			var cmd := terminal.replace("%command%", "bash \"" + batchfile + "\"")
 			
 			terminal_args = utils.parse_args(cmd, true)
 			terminal_exe = terminal_args.pop_front()
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			terminal_exe = "/usr/bin/open"
 			terminal_args = ["-b", "com.apple.terminal", batchfile]
 	
@@ -754,7 +754,7 @@ func create_batch_temp(name :String, batch :Array) -> String:
 
 
 func get_batch_filename(folder :String, name :String) -> String:
-	return "%s/%s%s" % [folder, name, ".bat" if utils.system == Utils.System.Windows else ".sh"]
+	return "%s/%s%s" % [folder, name, ".bat" if utils.system == ECPP_Utils.System.Windows else ".sh"]
 
 
 func get_overwrite_makefiles() -> bool:
@@ -837,12 +837,12 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	
 	var batch := []
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		batch.append("@echo off\n")
 	
 	batch.append("cd \"" + folder + "\"\n")
 	
-	if utils.system == Utils.System.Windows and not pltfrm.vsplatform.empty():
+	if utils.system == ECPP_Utils.System.Windows and not pltfrm.vsplatform.empty():
 		batch.append("call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n")
 	
 	batch.append_array([
@@ -948,7 +948,7 @@ func create_buildall_batchfiles() -> Dictionary:
 				
 				var batch := []
 				
-				if utils.system == Utils.System.Windows:
+				if utils.system == ECPP_Utils.System.Windows:
 					batch.append("@echo off\n")
 				
 				#batch.append("cd \"" + batchfolder + "\"\n")
@@ -956,7 +956,7 @@ func create_buildall_batchfiles() -> Dictionary:
 				for b in batchfiles:
 					var bfile = b[idx]  #.get_file()
 					
-					if utils.system == Utils.System.Windows:
+					if utils.system == ECPP_Utils.System.Windows:
 						batch.append("call \"" + bfile + "\"\n")
 					else:
 						batch.append("\"" + bfile + "\"\n")
@@ -984,7 +984,7 @@ func center_in_editor(ctrl :Control) -> void:
 
 
 func get_shortpath(path :String) -> String:
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		var output := []
 		OS.execute(shortpathpath, [path], true, output)
 		return output[0].strip_edges(false, true)
@@ -1039,7 +1039,7 @@ func _on_BuildSystemButton_item_selected(index):
 
 
 func _on_PythonStatus_fix_pressed():
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		OS.execute(pythonpath_windowsstore, [])
 	else:
 		install_package("python3")
@@ -1053,10 +1053,10 @@ func _on_PythonStatus_www_pressed():
 
 func _on_PipStatus_fix_pressed():
 	match utils.system:
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			install_package("python3-pip")
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			if pythonpath == "/usr/bin/python":
 				run_shell("install_pip", pythonpath, ["-m", "ensurepip", "--user"])
 	
@@ -1069,10 +1069,10 @@ func _on_PipStatus_www_pressed():
 
 func _on_SConsStatus_fix_pressed():
 	match utils.system:
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			var install := true
 			
 			if allowMacOSSConsFix:
@@ -1113,7 +1113,7 @@ func _on_CmakeStatus_www_pressed():
 
 
 func _on_GitStatus_fix_pressed():
-	if utils.system == Utils.System.Linux:
+	if utils.system == ECPP_Utils.System.Linux:
 		install_package("git")
 		
 		check_sdk_state()
@@ -1125,10 +1125,10 @@ func _on_GitStatus_www_pressed():
 
 func _on_CompilerStatus_fix_pressed():
 	match utils.system:
-		Utils.System.Windows:
+		ECPP_Utils.System.Windows:
 			OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
 		
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			match compiler:
 				Compiler.GCC:
 					install_package("gcc")
@@ -1136,19 +1136,19 @@ func _on_CompilerStatus_fix_pressed():
 				Compiler.Clang:
 					install_package("clang")
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			OS.shell_open("https://apps.apple.com/us/app/xcode/id497799835")
 
 
 func _on_CompilerStatus_www_pressed():
 	match utils.system:
-		Utils.System.Windows:
+		ECPP_Utils.System.Windows:
 			OS.shell_open("https://visualstudio.microsoft.com/vs/older-downloads/")
 		
-		Utils.System.Linux:
+		ECPP_Utils.System.Linux:
 			pass
 		
-		Utils.System.macOS:
+		ECPP_Utils.System.macOS:
 			OS.shell_open("https://developer.apple.com/xcode/resources/")
 
 

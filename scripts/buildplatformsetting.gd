@@ -31,8 +31,8 @@ func createobj() -> BuildPlatform:
 	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
 	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
 	bld.availableon = PoolStringArray(availableon).join(" ")
-	bld.arguments = Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
-	bld.defines = Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
+	bld.arguments = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
+	bld.defines = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
 	bld.outputname = $ScrollContainer/PropertiesContainer/OutputLineEdit.text.strip_edges()
 	bld.gdnlibkey = $ScrollContainer/PropertiesContainer/GDNLIBLineEdit.text.strip_edges()
 	bld.vsplatform = $ScrollContainer/PropertiesContainer/VSToolchainLineEdit.text.strip_edges()

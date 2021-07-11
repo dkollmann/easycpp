@@ -3,7 +3,7 @@ extends WindowDialog
 class_name SettingsWindow
 
 
-var utils :Utils
+var utils :ECPP_Utils
 var save :bool
 
 
@@ -12,7 +12,7 @@ static func set_optionbutton_items(btn :OptionButton, items :Array) -> void:
 		btn.add_item(items[i], i)
 
 
-func load_settings(utls :Utils):
+func load_settings(utls :ECPP_Utils):
 	utils = utls
 	save = false
 	
@@ -24,7 +24,7 @@ func load_settings(utls :Utils):
 	
 	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/OverwriteCheckBox.pressed = ProjectSettings.get(Constants.setting_overwritemakefiles)
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		var vslocbutton := $SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer/LocationButton
 		set_optionbutton_items(vslocbutton, Constants.setting_vsproj_location_items)
 		vslocbutton.selected = ProjectSettings.get(Constants.setting_vsproj_location)
@@ -51,7 +51,7 @@ func save_settings():
 	
 	ProjectSettings.set(Constants.setting_overwritemakefiles, $SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/OverwriteCheckBox.pressed)
 	
-	if utils.system == Utils.System.Windows:
+	if utils.system == ECPP_Utils.System.Windows:
 		var vslocbutton := $SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer/LocationButton
 		
 		ProjectSettings.set(Constants.setting_vsproj_location, vslocbutton.selected)
