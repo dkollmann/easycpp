@@ -1352,10 +1352,14 @@ func _on_GenerateVSButton_pressed():
 		
 		var headerfiles := []
 		var sourcefiles := []
-		utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles)
+		var headerfolders := []
+		var sourcefolders := []
+		utils.find_sourcefiles(sourcesdir, true, headerfiles, sourcefiles, headerfolders, sourcefolders, utils.system == ECPP_Utils.System.Windows)
 		
 		var headerfiles_str := ""
 		var sourcefiles_str := ""
+		var headerfolders_str := PoolStringArray(headerfolders).join(";")
+		var sourcefolders_str := PoolStringArray(sourcefolders).join(";")
 		
 		for h in headerfiles:
 			headerfiles_str += "    <ClInclude Include=\"" + h + "\" />\n"
@@ -1394,6 +1398,8 @@ func _on_GenerateVSButton_pressed():
 				projectnmakes += "    <NMakeReBuildCommandLine>\"" + nmake_clean + "\" &amp;&amp; \"" + nmake_build + "\"</NMakeReBuildCommandLine>\n"
 				projectnmakes += "    <NMakePreprocessorDefinitions>" + preprocs + ";$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>\n"
 				projectnmakes += "    <NMakeIncludeSearchPath>" + gdheaderspath + ";$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>\n"
+				projectnmakes += "    <PublicIncludeDirectories>" + headerfolders_str + "</PublicIncludeDirectories>\n"
+				projectnmakes += "    <PublicModuleDirectories>" + sourcefolders_str + "</PublicModuleDirectories>\n"
 				projectnmakes += "  </PropertyGroup>\n"
 		
 		if f.open(templatespath + "/vsproj/template.vcxproj", File.READ) == OK:

@@ -139,13 +139,21 @@ static func select_file(root :String, files :Array) -> String:
 	return root + "/" + files[0]
 
 
+static func ensure_slash(path :String) -> String:
+	var l = len(path)
+	if path[l-1] == "/":
+		return path
+	
+	return path + "/"
+
+
 static func find_resources(path :String, fileext :String, recursive :bool) -> Array:
-	var folders := [path]
+	var folders := [ensure_slash(path)]
 	var files := []
 	var dir := Directory.new()
 	
 	for f in folders:
-		if dir.file_exists(f + "/.gdignore"):
+		if dir.file_exists(f + ".gdignore"):
 			continue
 		
 		dir.open(f)
@@ -153,10 +161,10 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 		
 		var file := dir.get_next()
 		while file != '':
-			var p = f + "/" + file
+			var p = f + file
 			
 			if dir.dir_exists(p):
-				folders.append(p)
+				folders.append(p + "/")
 			
 			elif file.ends_with(fileext):
 				files.append(p)
@@ -168,29 +176,61 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 	return files
 
 
-static func find_sourcefiles(path :String, recursive :bool, headerfiles :Array, sourcefiles :Array) -> void:
-	var folders := [path]
+static func find_sourcefiles(path :String, recursive :bool,
+							 headerfiles :Array, sourcefiles :Array,
+							 headerfolders :Array = [], sourcefolders :Array = [],
+							 ospaths :bool = false) -> void:
+	var folders := [ensure_slash(path)]
 	var dir := Directory.new()
+	var headerfolders_added := false
+	var sourcefolders_added := false
 	
 	for f in folders:
-		dir.open(f)
-		dir.list_dir_begin(true, true)
+		var error = dir.open(f)
+		assert(error == OK)
+		error = dir.list_dir_begin(true, true)
+		assert(error == OK)
+		
+		headerfolders_added = false
+		sourcefolders_added = false
 		
 		var file := dir.get_next()
 		while file != '':
-			var p = f + "/" + file
+			var p = f + file
 			
 			if dir.dir_exists(p):
-				folders.append(p)
+				folders.append(p + "/")
 			
 			else:
 				var ext := file.get_extension()
 				
 				if ext == "c" or ext == "cc" or ext == "cpp":
-					sourcefiles.append(p)
+					if ospaths:
+						sourcefiles.append(p.replace("/", "\\"))
+					else:
+						sourcefiles.append(p)
+					
+					if not sourcefolders_added:
+						sourcefolders_added = true
+						
+						if ospaths:
+							sourcefolders.append(f.replace("/", "\\"))
+						else:
+							sourcefolders.append(f)
 				
 				elif ext == "h" or ext == "hpp":
-					headerfiles.append(p)
+					if ospaths:
+						headerfiles.append(p.replace("/", "\\"))
+					else:
+						headerfiles.append(p)
+					
+					if not headerfolders_added:
+						headerfolders_added = true
+						
+						if ospaths:
+							headerfolders.append(f.replace("/", "\\"))
+						else:
+							headerfolders.append(f)
 			
 			file = dir.get_next()
 		
@@ -198,7 +238,7 @@ static func find_sourcefiles(path :String, recursive :bool, headerfiles :Array, 
 
 
 static func find_includefolders(path :String, recursive :bool, includes :Array) -> void:
-	var folders := [path]
+	var folders := [ensure_slash(path)]
 	var dir := Directory.new()
 	
 	for f in folders:
@@ -209,10 +249,10 @@ static func find_includefolders(path :String, recursive :bool, includes :Array) 
 		
 		var file := dir.get_next()
 		while file != '':
-			var p = f + "/" + file
+			var p = f + file
 			
 			if dir.dir_exists(p):
-				folders.append(p)
+				folders.append(p + "/")
 			
 			elif not folderadded:
 				var ext := file.get_extension()
