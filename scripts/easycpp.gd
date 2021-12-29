@@ -108,7 +108,9 @@ const templatesres := "res://addons/easycpp/templates"
 
 const gdcpppath_testfile := "/include/core/Godot.hpp"
 const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
-const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
+const gdcppgiturl := "https://github.com/godotengine/godot-cpp.git"
+
+const godotterminalpath := "res://addons/terminal/term.gd"
 
 const linuxpause = "read -p \"Press any key to resume ...\"\n"
 
@@ -174,6 +176,9 @@ var currentgdnlib_name :String
 var godotversion :String
 var random := RandomNumberGenerator.new()
 var settingswindow :SettingsWindow
+
+var godotTerminalControl :Control
+var godotTerminalCommandFunc :FuncRef
 
 
 func _ready():
@@ -659,17 +664,30 @@ func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bo
 	return run_shell("git_clone", gitpath, args) == 0
 
 
+func detectGodotTerminal() -> bool:
+	# check for godot Terminal
+	if not godotTerminalControl and utils.file_exists(godotterminalpath):
+		godotTerminalControl = ECPP_Utils.find_node_method(editorbase, "enter_text")
+		
+		godotTerminalCommandFunc = funcref(godotTerminalControl, "enter_text")
+	
+	return godotTerminalControl != null
+
+
 func run_shell(name :String, exe :String, args :Array = []) -> int:
+	var gdterm := detectGodotTerminal()
 	var pause := ""
-	match utils.system:
-		ECPP_Utils.System.Windows:
-			pause = "pause"
-		
-		ECPP_Utils.System.Linux:
-			pause = linuxpause
-		
-		ECPP_Utils.System.macOS:
-			pass
+	
+	if not gdterm:
+		match utils.system:
+			ECPP_Utils.System.Windows:
+				pause = "pause"
+			
+			ECPP_Utils.System.Linux:
+				pause = linuxpause
+			
+			ECPP_Utils.System.macOS:
+				pass
 	
 	if utils.system == ECPP_Utils.System.Windows:
 		exe = exe.replace("/", "\\")
@@ -691,34 +709,44 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 	
 	var batchfile := create_batch_temp(name, batch)
 	
-	var terminal_exe := ""
-	var terminal_args := []
-	
-	match utils.system:
-		ECPP_Utils.System.Windows:
-			terminal_exe = runinterminalpath
-			terminal_args = ["--run", batchfile]
+	if gdterm:
+		var bfile := batchfile
 		
-		ECPP_Utils.System.Linux:
-			var terminal := ECPP_Utils.get_project_setting_string(Constants.setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
-			var cmd := terminal.replace("%command%", "bash \"" + batchfile + "\"")
+		if utils.system == ECPP_Utils.System.Windows:
+			bfile = bfile.replace("/", "\\")
+			bfile = get_shortpath(bfile)
+		
+		return godotTerminalCommandFunc.call_func('start "' + bfile + '"')
+	
+	else:
+		var terminal_exe := ""
+		var terminal_args := []
+		
+		match utils.system:
+			ECPP_Utils.System.Windows:
+				terminal_exe = runinterminalpath
+				terminal_args = ["--run", batchfile]
 			
-			terminal_args = utils.parse_args(cmd, true)
-			terminal_exe = terminal_args.pop_front()
+			ECPP_Utils.System.Linux:
+				var terminal := ECPP_Utils.get_project_setting_string(Constants.setting_terminalpath, "/usr/bin/gnome-terminal -- %command%")
+				var cmd := terminal.replace("%command%", "bash \"" + batchfile + "\"")
+				
+				terminal_args = utils.parse_args(cmd, true)
+				terminal_exe = terminal_args.pop_front()
+			
+			ECPP_Utils.System.macOS:
+				terminal_exe = "/usr/bin/open"
+				terminal_args = ["-b", "com.apple.terminal", batchfile]
 		
-		ECPP_Utils.System.macOS:
-			terminal_exe = "/usr/bin/open"
-			terminal_args = ["-b", "com.apple.terminal", batchfile]
+		var output := []
+		var res := OS.execute(terminal_exe, terminal_args, true, output)
+		
+		var outlines := utils.get_outputlines(output)
+		
+		for l in outlines:
+			print(l)
 	
-	var output := []
-	var res := OS.execute(terminal_exe, terminal_args, true, output)
-	
-	var outlines := utils.get_outputlines(output)
-	
-	for l in outlines:
-		print(l)
-	
-	return res
+		return res
 
 
 func install_package(package :String) -> int:

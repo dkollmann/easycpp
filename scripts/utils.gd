@@ -139,6 +139,18 @@ static func select_file(root :String, files :Array) -> String:
 	return root + "/" + files[0]
 
 
+static func find_node_method(node :Node, prop :String) -> Node:
+	for c in node.get_children():
+		if c.has_method(prop):
+			return c
+		
+		var cc = find_node_method(c, prop)
+		if cc:
+			return cc
+	
+	return null
+
+
 static func ensure_slash(path :String) -> String:
 	var l = len(path)
 	if path[l-1] == "/":
