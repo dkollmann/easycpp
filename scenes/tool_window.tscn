@@ -1,386 +1,291 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=21 format=3 uid="uid://csk5lxvnrvaao"]
 
-[ext_resource path="res://addons/easycpp/resources/textures/python.png" type="Texture" id=1]
-[ext_resource path="res://addons/easycpp/resources/fonts/NotoSans/NotoSans-Bold.ttf" type="DynamicFontData" id=2]
-[ext_resource path="res://addons/easycpp/resources/textures/pip.png" type="Texture" id=3]
-[ext_resource path="res://addons/easycpp/resources/theme.tres" type="Theme" id=4]
-[ext_resource path="res://addons/easycpp/scripts/easycpp.gd" type="Script" id=5]
-[ext_resource path="res://addons/easycpp/resources/textures/git.png" type="Texture" id=6]
-[ext_resource path="res://addons/easycpp/resources/textures/cpp.png" type="Texture" id=7]
-[ext_resource path="res://addons/easycpp/resources/textures/headers.png" type="Texture" id=8]
-[ext_resource path="res://addons/easycpp/resources/fonts/small.tres" type="DynamicFont" id=9]
-[ext_resource path="res://addons/easycpp/resources/textures/refresh.png" type="Texture" id=10]
-[ext_resource path="res://addons/easycpp/scenes/statusitem.tscn" type="PackedScene" id=11]
-[ext_resource path="res://addons/easycpp/resources/textures/scons.png" type="Texture" id=12]
-[ext_resource path="res://addons/easycpp/resources/textures/build.png" type="Texture" id=13]
-[ext_resource path="res://addons/easycpp/resources/textures/bindings.png" type="Texture" id=14]
-[ext_resource path="res://addons/easycpp/resources/textures/compiler.png" type="Texture" id=15]
-[ext_resource path="res://addons/easycpp/resources/textures/submenu.png" type="Texture" id=16]
-[ext_resource path="res://addons/easycpp/resources/textures/visualstudio.png" type="Texture" id=17]
-[ext_resource path="res://addons/easycpp/resources/textures/newfile.png" type="Texture" id=18]
-[ext_resource path="res://addons/easycpp/resources/textures/cmake.png" type="Texture" id=19]
-[ext_resource path="res://addons/easycpp/resources/textures/qtcreator.png" type="Texture" id=20]
-[ext_resource path="res://addons/easycpp/resources/textures/buildall.png" type="Texture" id=21]
-[ext_resource path="res://addons/easycpp/resources/textures/settings.png" type="Texture" id=22]
-
-[sub_resource type="DynamicFont" id=1]
-size = 30
-font_data = ExtResource( 2 )
+[ext_resource type="Texture2D" uid="uid://bbrdsempelu82" path="res://addons/easycpp/resources/textures/python.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://dd3bcimg0vayl" path="res://addons/easycpp/resources/textures/pip.png" id="3"]
+[ext_resource type="Theme" uid="uid://bt4wko7j4k0fc" path="res://addons/easycpp/resources/theme.tres" id="4"]
+[ext_resource type="Script" path="res://addons/easycpp/scripts/easycpp.gd" id="5"]
+[ext_resource type="Texture2D" uid="uid://wrwwy8nvhp6p" path="res://addons/easycpp/resources/textures/git.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://6ti5ll668w5t" path="res://addons/easycpp/resources/textures/cpp.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://bcbrcevpeva04" path="res://addons/easycpp/resources/textures/headers.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://c1n14fogcofns" path="res://addons/easycpp/resources/textures/refresh.png" id="10"]
+[ext_resource type="PackedScene" path="res://addons/easycpp/scenes/statusitem.tscn" id="11"]
+[ext_resource type="Texture2D" uid="uid://bqemhi5xrns3t" path="res://addons/easycpp/resources/textures/scons.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://ddgap4naenqsj" path="res://addons/easycpp/resources/textures/build.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://b8c1w5tmqq8ou" path="res://addons/easycpp/resources/textures/bindings.png" id="14"]
+[ext_resource type="Texture2D" uid="uid://qef4y8606xxk" path="res://addons/easycpp/resources/textures/compiler.png" id="15"]
+[ext_resource type="Texture2D" uid="uid://laigsjdvlmg7" path="res://addons/easycpp/resources/textures/submenu.png" id="16"]
+[ext_resource type="Texture2D" uid="uid://b5h7uyh24wqy5" path="res://addons/easycpp/resources/textures/visualstudio.png" id="17"]
+[ext_resource type="Texture2D" uid="uid://d0hxshdn1s3mg" path="res://addons/easycpp/resources/textures/newfile.png" id="18"]
+[ext_resource type="Texture2D" uid="uid://bercbkbg80rb5" path="res://addons/easycpp/resources/textures/cmake.png" id="19"]
+[ext_resource type="Texture2D" uid="uid://b1qu0yyee7nyy" path="res://addons/easycpp/resources/textures/qtcreator.png" id="20"]
+[ext_resource type="Texture2D" uid="uid://be581eyxvcfbn" path="res://addons/easycpp/resources/textures/buildall.png" id="21"]
+[ext_resource type="Texture2D" uid="uid://d1ik7d0uy3rfs" path="res://addons/easycpp/resources/textures/settings.png" id="22"]
 
 [node name="Easy C++" type="VBoxContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_right = -724.0
-theme = ExtResource( 4 )
-script = ExtResource( 5 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+theme = ExtResource( "4" )
+script = ExtResource( "5" )
 
 [node name="TitleLabel" type="Label" parent="."]
-margin_right = 380.0
-margin_bottom = 42.0
+offset_right = 1024.0
+offset_bottom = 26.0
 size_flags_horizontal = 3
-custom_fonts/font = SubResource( 1 )
 text = "Easy C++"
-align = 1
 
 [node name="Spacer2" type="Control" parent="."]
-margin_top = 46.0
-margin_bottom = 50.0
-rect_min_size = Vector2( 0, 4 )
+offset_top = 30.0
+offset_bottom = 30.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="BuildSystemLabel" type="Label" parent="."]
 visible = false
-margin_top = 54.0
-margin_right = 300.0
-margin_bottom = 77.0
-custom_fonts/font = ExtResource( 9 )
 text = "Build System:"
 
 [node name="BuildSystemButton" type="OptionButton" parent="."]
 visible = false
-margin_top = 81.0
-margin_right = 300.0
-margin_bottom = 115.0
-text = "SCons"
-items = [ "SCons", null, false, 0, null, "Cmake", null, false, 1, null ]
-selected = 0
 
 [node name="Spacer6" type="Control" parent="."]
 visible = false
-margin_top = 119.0
-margin_bottom = 121.0
-rect_min_size = Vector2( 0, 2 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="CompilerLabel" type="Label" parent="."]
-margin_top = 54.0
-margin_right = 380.0
-margin_bottom = 77.0
-custom_fonts/font = ExtResource( 9 )
+offset_top = 34.0
+offset_right = 1024.0
+offset_bottom = 60.0
 text = "Compiler:"
 
 [node name="CompilerButton" type="OptionButton" parent="."]
-margin_top = 81.0
-margin_right = 380.0
-margin_bottom = 115.0
+offset_top = 64.0
+offset_right = 1024.0
+offset_bottom = 95.0
 size_flags_horizontal = 3
-text = "Visual Studio 2019"
-items = [ "Visual Studio 2019", null, false, 2, null ]
-selected = 0
 
 [node name="Spacer1" type="Control" parent="."]
-margin_top = 119.0
-margin_bottom = 127.0
-rect_min_size = Vector2( 0, 8 )
+offset_top = 99.0
+offset_bottom = 99.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="PlatformLabel" type="Label" parent="."]
-margin_top = 131.0
-margin_right = 380.0
-margin_bottom = 154.0
-custom_fonts/font = ExtResource( 9 )
+offset_top = 103.0
+offset_right = 1024.0
+offset_bottom = 129.0
 text = "Selected Platform:"
 
 [node name="PlatformContainer" type="HBoxContainer" parent="."]
-margin_top = 158.0
-margin_right = 380.0
-margin_bottom = 192.0
-custom_constants/separation = 8
+offset_top = 133.0
+offset_right = 1024.0
+offset_bottom = 164.0
 
 [node name="PlatformButton" type="OptionButton" parent="PlatformContainer"]
-margin_right = 187.0
-margin_bottom = 34.0
+offset_right = 510.0
+offset_bottom = 31.0
 size_flags_horizontal = 3
-text = "Windows (64-bit)"
-items = [ "Windows (64-bit)", null, false, 2, null, "Android (armeabi-v7a)", null, false, 12, null, "Android (arm64-v8a)", null, false, 13, null, "HTML5", null, false, 19, null ]
-selected = 0
 
 [node name="ConfigurationButton" type="OptionButton" parent="PlatformContainer"]
-margin_left = 195.0
-margin_right = 380.0
-margin_bottom = 34.0
+offset_left = 514.0
+offset_right = 1024.0
+offset_bottom = 31.0
 size_flags_horizontal = 3
-text = "Release"
-items = [ "Release", null, false, 2, null, "Debug", null, false, 4, null ]
-selected = 0
 
 [node name="Spacer3" type="Control" parent="."]
-margin_top = 196.0
-margin_bottom = 204.0
-rect_min_size = Vector2( 0, 8 )
+offset_top = 168.0
+offset_bottom = 168.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="MenuContainer" type="HBoxContainer" parent="."]
-margin_top = 208.0
-margin_right = 380.0
-margin_bottom = 242.0
+offset_top = 172.0
+offset_right = 1024.0
+offset_bottom = 204.0
 
 [node name="RefreshButton" type="Button" parent="MenuContainer"]
-margin_right = 36.0
-margin_bottom = 34.0
+offset_right = 32.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 10 )
+icon = ExtResource( "10" )
 
 [node name="Spacer1" type="Control" parent="MenuContainer"]
-margin_left = 40.0
-margin_right = 48.0
-rect_min_size = Vector2( 8, 0 )
+offset_left = 36.0
+offset_right = 36.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="BuildMenuContainer" type="HBoxContainer" parent="MenuContainer"]
-margin_left = 52.0
-margin_right = 380.0
-margin_bottom = 34.0
+offset_left = 40.0
+offset_right = 1024.0
+offset_bottom = 32.0
 size_flags_horizontal = 3
-custom_constants/separation = 4
 
 [node name="BuildBindingsButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_right = 36.0
-margin_bottom = 34.0
+offset_right = 32.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 14 )
+icon = ExtResource( "14" )
 
 [node name="GenerateVSButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 40.0
-margin_right = 76.0
-margin_bottom = 34.0
+offset_left = 36.0
+offset_right = 68.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 17 )
+icon = ExtResource( "17" )
 
 [node name="GenerateQtButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 80.0
-margin_right = 116.0
-margin_bottom = 34.0
+offset_left = 72.0
+offset_right = 104.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 20 )
+icon = ExtResource( "20" )
 
 [node name="BuildLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 120.0
-margin_right = 156.0
-margin_bottom = 34.0
+offset_left = 108.0
+offset_right = 140.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 13 )
+icon = ExtResource( "13" )
 
 [node name="BuildAllButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 160.0
-margin_right = 196.0
-margin_bottom = 34.0
+offset_left = 144.0
+offset_right = 176.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 21 )
+icon = ExtResource( "21" )
 
 [node name="Spacer2" type="Control" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 200.0
-margin_right = 208.0
-rect_min_size = Vector2( 8, 0 )
+offset_left = 180.0
+offset_right = 876.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
 [node name="NewLibraryButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 212.0
-margin_right = 248.0
-margin_bottom = 34.0
+offset_left = 880.0
+offset_right = 912.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 18 )
+icon = ExtResource( "18" )
 
 [node name="SettingsButton" type="Button" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 252.0
-margin_right = 288.0
-margin_bottom = 34.0
+offset_left = 916.0
+offset_right = 948.0
+offset_bottom = 32.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
-icon = ExtResource( 22 )
+icon = ExtResource( "22" )
 
 [node name="SubmenuButton" type="MenuButton" parent="MenuContainer/BuildMenuContainer"]
-margin_left = 292.0
-margin_right = 328.0
-margin_bottom = 34.0
-icon = ExtResource( 16 )
+offset_left = 952.0
+offset_right = 984.0
+offset_bottom = 32.0
+icon = ExtResource( "16" )
 flat = false
-items = [ "Clean Godot Bindings", null, 0, false, false, 0, 0, null, "", false, "Clean Current Library", null, 0, false, false, 1, 0, null, "", false, "Clean all Libraries", null, 0, false, false, 2, 0, null, "", false, "Generate all Batchfiles", null, 0, false, false, 3, 0, null, "", false, "Update GDNativeLibrary", null, 0, false, false, 4, 0, null, "", false ]
 
 [node name="Spacer5" type="Control" parent="."]
-margin_top = 246.0
-margin_bottom = 254.0
-rect_min_size = Vector2( 0, 8 )
+offset_top = 208.0
+offset_bottom = 208.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="StatusContainer" type="VBoxContainer" parent="."]
 visible = false
-margin_top = 258.0
-margin_right = 300.0
-margin_bottom = 558.0
 
-[node name="PythonStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="PythonStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_right = 300.0
-margin_bottom = 34.0
-icon = ExtResource( 1 )
+icon = ExtResource( "1" )
 text = "Python"
 
-[node name="PipStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="PipStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 38.0
-margin_right = 300.0
-margin_bottom = 72.0
-icon = ExtResource( 3 )
+icon = ExtResource( "3" )
 text = "pip"
 
-[node name="SConsStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="SConsStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 76.0
-margin_right = 300.0
-margin_bottom = 110.0
-icon = ExtResource( 12 )
+icon = ExtResource( "12" )
 text = "SCons"
 
-[node name="CmakeStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="CmakeStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 114.0
-margin_right = 300.0
-margin_bottom = 148.0
-icon = ExtResource( 19 )
+icon = ExtResource( "19" )
 text = "Cmake"
 
-[node name="GitStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="GitStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 152.0
-margin_right = 300.0
-margin_bottom = 186.0
-icon = ExtResource( 6 )
+icon = ExtResource( "6" )
 text = "Git SCM"
 
-[node name="CompilerStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="CompilerStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 190.0
-margin_right = 300.0
-margin_bottom = 224.0
-icon = ExtResource( 15 )
+icon = ExtResource( "15" )
 text = "C++ Compiler"
 
-[node name="CppStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="CppStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 228.0
-margin_right = 300.0
-margin_bottom = 262.0
-icon = ExtResource( 7 )
+icon = ExtResource( "7" )
 text = "Godot C++"
 
-[node name="HeaderStatus" parent="StatusContainer" instance=ExtResource( 11 )]
+[node name="HeaderStatus" parent="StatusContainer" instance=ExtResource( "11" )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 266.0
-margin_right = 300.0
-margin_bottom = 300.0
-icon = ExtResource( 8 )
+icon = ExtResource( "8" )
 text = "Godot Headers"
 
 [node name="LibraryContainer" type="VBoxContainer" parent="."]
-margin_top = 258.0
-margin_right = 380.0
-margin_bottom = 346.0
-rect_pivot_offset = Vector2( -694.288, -242 )
+offset_top = 212.0
+offset_right = 1024.0
+offset_bottom = 303.0
 
 [node name="CurrentLibraryLabel" type="Label" parent="LibraryContainer"]
-margin_right = 380.0
-margin_bottom = 23.0
-custom_fonts/font = ExtResource( 9 )
+offset_right = 1024.0
+offset_bottom = 26.0
 text = "Current GDNative Library:"
 
 [node name="CurrentLibraryButton" type="OptionButton" parent="LibraryContainer"]
-margin_top = 27.0
-margin_right = 380.0
-margin_bottom = 61.0
-text = "godot-sqlite"
-items = [ "godot-sqlite", null, false, 0, null, "test", null, false, 1, null ]
-selected = 0
+offset_top = 30.0
+offset_right = 1024.0
+offset_bottom = 61.0
 
 [node name="CurrentLibraryPathLabel" type="Label" parent="LibraryContainer"]
-margin_top = 65.0
-margin_right = 380.0
-margin_bottom = 88.0
-custom_fonts/font = ExtResource( 9 )
+offset_top = 65.0
+offset_right = 1024.0
+offset_bottom = 91.0
 text = "res:///src/godot-sqlite"
-autowrap = true
 
 [node name="Spacer4" type="Control" parent="."]
-margin_top = 350.0
-margin_bottom = 366.0
-rect_min_size = Vector2( 0, 16 )
+offset_top = 307.0
+offset_bottom = 307.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="TooltipPanel" type="PanelContainer" parent="."]
-margin_top = 370.0
-margin_right = 380.0
-margin_bottom = 407.0
-rect_min_size = Vector2( 0, 20 )
+offset_top = 311.0
+offset_right = 1024.0
+offset_bottom = 334.0
 
 [node name="TooltipLabel" type="Label" parent="TooltipPanel"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 373.0
-margin_bottom = 30.0
+offset_right = 1024.0
+offset_bottom = 23.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_fonts/font = ExtResource( 9 )
-autowrap = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="NewLibraryFileDialog" type="FileDialog" parent="."]
-margin_right = 800.0
-margin_bottom = 800.0
-rect_min_size = Vector2( 300, 105 )
-window_title = "Open a Directory"
-resizable = true
 mode = 2
-current_dir = "res://src"
-current_file = "src"
-current_path = "res://src/src"
 
 [connection signal="item_selected" from="BuildSystemButton" to="." method="_on_BuildSystemButton_item_selected"]
 [connection signal="item_selected" from="CompilerButton" to="." method="_on_CompilerButton_item_selected"]

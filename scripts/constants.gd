@@ -1,4 +1,4 @@
-tool
+@tool
 extends Object
 class_name Constants
 

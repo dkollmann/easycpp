@@ -1,4 +1,4 @@
-tool
+@tool
 extends VBoxContainer
 
 enum BuildSystem {
@@ -213,7 +213,7 @@ func _ready():
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Clean all Libraries", Submenu.CleanAll)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Generate all Batchfiles", Submenu.GenerateAllBatchfiles)
 	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().add_item("Update GDNativeLibrary", Submenu.UpdateGDNativeLibrary)
-	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", self, "_on_Submenu_id_pressed")
+	$MenuContainer/BuildMenuContainer/SubmenuButton.get_popup().connect("id_pressed", Callable(self, "_on_Submenu_id_pressed"))
 	
 	# add tooltips
 	add_tooltip($BuildSystemButton, "Select which build system will be used to build your code.")
@@ -231,7 +231,7 @@ func _ready():
 	add_tooltip($MenuContainer/BuildMenuContainer/SubmenuButton, "Additional functions...")
 	add_tooltip($LibraryContainer/CurrentLibraryButton, "The current GDNative library which will be built.")
 	
-	var atfunc := funcref(self, "add_tooltip")
+	var atfunc := Callable(self, "add_tooltip")
 	$StatusContainer/PythonStatus.add_tooltip(atfunc, "Python is required to run SCons.")
 	$StatusContainer/PipStatus.add_tooltip(atfunc, "pip is required to install SCons automatically.")
 	$StatusContainer/SConsStatus.add_tooltip(atfunc, "SCons is the selected build tool.")
@@ -260,8 +260,8 @@ func init_optionbutton_setting(button :OptionButton, setting :String, enumtype, 
 
 
 func add_tooltip(ctrl :Control, tooltip :String) -> void:
-	ctrl.connect("mouse_entered", self, "_on_tooltip_show", [tooltip])
-	ctrl.connect("mouse_exited", self, "_on_tooltip_hide")
+	ctrl.connect("mouse_entered", Callable(self, "_on_tooltip_show"), [tooltip])
+	ctrl.connect("mouse_exited", Callable(self, "_on_tooltip_hide"))
 	
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -282,7 +282,7 @@ func read_build_platforms_configurations():
 	var platforms := ""
 	
 	if not ProjectSettings.has_setting(Constants.setting_buildplatforms):
-		platforms = PoolStringArray(DefaultBuildPlatforms).join("\n")
+		platforms = "\n".join(DefaultBuildPlatforms)
 	
 	platforms = utils.get_project_setting_string(Constants.setting_buildplatforms, platforms, PROPERTY_HINT_MULTILINE_TEXT)
 	
@@ -297,7 +297,7 @@ func read_build_platforms_configurations():
 	var configurations := ""
 	
 	if not ProjectSettings.has_setting(Constants.setting_buildconfigurations):
-		configurations = PoolStringArray(DefaultBuildConfigurations).join("\n")
+		configurations = "\n".join(DefaultBuildConfigurations)
 	
 	configurations = utils.get_project_setting_string(Constants.setting_buildconfigurations, configurations, PROPERTY_HINT_MULTILINE_TEXT)
 	
@@ -358,7 +358,7 @@ func check_sdk_state() -> void:
 	
 	# handle python
 	if needs_python:
-		pythonpath = check_installation("Python", funcref(self, "find_python"), Constants.setting_pythonpath, false, exefilter)
+		pythonpath = check_installation("Python", Callable(self, "find_python"), Constants.setting_pythonpath, false, exefilter)
 		has_python = utils.file_exists(pythonpath)
 	
 	# handle pip
@@ -371,18 +371,18 @@ func check_sdk_state() -> void:
 	
 	# handle Cmake
 	if needs_cmake:
-		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), Constants.setting_cmakepath, false, exefilter)
+		cmakepath = check_installation("Cmake", Callable(self, "find_cmake"), Constants.setting_cmakepath, false, exefilter)
 		has_cmake = utils.file_exists(cmakepath)
 	
 	# handle godot-cpp
-	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
+	gdcpppath = check_installation("godot-cpp", Callable(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
 	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
 	
 	needs_git = not has_gdcpp  # or not has_gdheaders
 	
 	# handle git
 	if needs_git:
-		gitpath = check_installation("Git", funcref(self, "find_git"), Constants.setting_gitpath, false, exefilter)
+		gitpath = check_installation("Git", Callable(self, "find_git"), Constants.setting_gitpath, false, exefilter)
 		has_git = utils.file_exists(gitpath)
 	
 	# handle godot headers
@@ -399,9 +399,9 @@ func check_sdk_state() -> void:
 			vs2017path = utils.get_project_setting_string(Constants.setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
 			vs2019path = utils.get_project_setting_string(Constants.setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
 			
-			has_vs2015 = not find_vcvars(vs2015path).empty()
-			has_vs2017 = not find_vcvars(vs2017path).empty()
-			has_vs2019 = not find_vcvars(vs2019path).empty()
+			has_vs2015 = not find_vcvars(vs2015path).is_empty()
+			has_vs2017 = not find_vcvars(vs2017path).is_empty()
+			has_vs2019 = not find_vcvars(vs2019path).is_empty()
 			
 			if has_vs2015:
 				$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
@@ -420,7 +420,7 @@ func check_sdk_state() -> void:
 		ECPP_Utils.System.macOS:
 			has_xcode = false
 			var output := []
-			if OS.execute("/usr/bin/xcodebuild", ["-version"], true, output) == 0:
+			if OS.execute("/usr/bin/xcodebuild", ["-version"], output, true) == 0:
 				var lines := utils.get_outputlines(output)
 				if len(lines) > 0 and lines[0].begins_with("Xcode"):
 					var xcode = lines[0].strip_edges(false, true)
@@ -432,8 +432,8 @@ func check_sdk_state() -> void:
 	# show or hide Visual Studio project button
 	$MenuContainer/BuildMenuContainer/GenerateVSButton.visible = has_vs2015 or has_vs2017 or has_vs2019
 	
-	gccpath = check_installation("GCC", funcref(self, "find_gcc"), Constants.setting_gccpath, false, exefilter)
-	clangpath = check_installation("Clang", funcref(self, "find_clang"), Constants.setting_clangpath, false, exefilter)
+	gccpath = check_installation("GCC", Callable(self, "find_gcc"), Constants.setting_gccpath, false, exefilter)
+	clangpath = check_installation("Clang", Callable(self, "find_clang"), Constants.setting_clangpath, false, exefilter)
 	
 	has_gcc = utils.file_exists(gccpath)
 	has_clang = utils.file_exists(clangpath)
@@ -443,7 +443,7 @@ func check_sdk_state() -> void:
 	if selected_compiler >= 0 and utils.optionbutton_select_id($CompilerButton, selected_compiler) >= 0:
 		compiler = selected_compiler
 	else:
-		if len($CompilerButton.items) > 0:
+		if $CompilerButton.item_count > 0:
 			compiler = $CompilerButton.get_selected_id()
 		else:
 			compiler = -1
@@ -498,7 +498,7 @@ func check_sdk_state() -> void:
 		$LibraryContainer.visible = false
 		
 		var is_windows :bool = utils.system == ECPP_Utils.System.Windows
-		var canfix_python := not is_windows or not pythonpath_windowsstore.empty()
+		var canfix_python := not is_windows or not pythonpath_windowsstore.is_empty()
 		var canfix_pip := false
 		var canfix_scons := has_pip
 		var canfix_cmake := not is_windows
@@ -529,14 +529,14 @@ func check_sdk_state() -> void:
 		$StatusContainer.visible = true
 
 
-static func check_installation(name :String, findfunc :FuncRef, setting_name :String, isfolder :bool, filter :String = "") -> String:
+static func check_installation(name :String, findfunc :Callable, setting_name :String, isfolder :bool, filter :String = "") -> String:
 	var searched := false
 	
 	var path := ECPP_Utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
-	if path.empty():
+	if path.is_empty():
 		searched = true
-		path = findfunc.call_func()
+		path = findfunc.call()
 	
 	if (ECPP_Utils.folder_exists(path) if isfolder else ECPP_Utils.file_exists(path)):
 		print("Found " + name + " path: \"" + path + "\".")
@@ -552,7 +552,7 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 
 func find_executable(exename :String) -> String:
 	var output := []
-	OS.execute("where" if utils.system == ECPP_Utils.System.Windows else "which", [exename], true, output)
+	OS.execute("where" if utils.system == ECPP_Utils.System.Windows else "which", [exename], output, true)
 	
 	var lines := utils.get_outputlines(output)
 	
@@ -567,7 +567,7 @@ func find_pythonmodule(module :String) -> bool:
 		return false
 	
 	var output := []
-	OS.execute(pythonpath, ["-m", module, "--version"], true, output)
+	OS.execute(pythonpath, ["-m", module, "--version"], output, true)
 	
 	var lines := utils.get_outputlines(output)
 	
@@ -578,7 +578,7 @@ func find_python() -> String:
 	var py := find_executable("python")
 	
 	if utils.system == ECPP_Utils.System.Windows:
-		if not py.empty():
+		if not py.is_empty():
 			if utils.file_exists(py):
 				return py
 				
@@ -596,7 +596,7 @@ func find_python() -> String:
 func find_cmake() -> String:
 	var exe := find_executable("cmake")
 	
-	if exe.empty() and utils.system == ECPP_Utils.System.Windows:
+	if exe.is_empty() and utils.system == ECPP_Utils.System.Windows:
 		var p := "C:\\Program Files\\CMake\\bin\\cmake.exe"
 		if utils.file_exists(p):
 			return p
@@ -623,7 +623,7 @@ func git_defaultbranch() -> String:
 	var branch := ""
 	var output := []
 	
-	OS.execute(gitpath, ["config", "--get", "init.defaultbranch"], true, output)
+	OS.execute(gitpath, ["config", "--get", "init.defaultbranch"], output, true)
 	
 	if len(output) > 0:
 		branch = output[0].strip_edges(false, true)
@@ -636,11 +636,11 @@ func git_fixdefaultbranch() -> void:
 	
 	print("Git default branch: \"" + defbranch + "\".")
 	
-	if defbranch.empty():
+	if defbranch.is_empty():
 		print("Trying to hotfix invalid default branch name issue...")
 		
 		var output := []
-		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], true, output, true)
+		OS.execute(gitpath, ["config", "--global", "init.defaultBranch", "master"], output, true, true)
 		
 		utils.print_outputlines(output)
 
@@ -711,7 +711,7 @@ func run_shell(name :String, exe :String, args :Array = []) -> int:
 			terminal_args = ["-b", "com.apple.terminal", batchfile]
 	
 	var output := []
-	var res := OS.execute(terminal_exe, terminal_args, true, output)
+	var res := OS.execute(terminal_exe, terminal_args, output, true)
 	
 	var outlines := utils.get_outputlines(output)
 	
@@ -726,7 +726,7 @@ func install_package(package :String) -> int:
 
 
 func get_batchfilelocation() -> int:
-	return utils.get_project_setting_enum_keys(Constants.setting_batchfilelocation, PoolStringArray(Constants.setting_batchfilelocation_items).join(","))
+	return utils.get_project_setting_enum_keys(Constants.setting_batchfilelocation, ",".join(Constants.setting_batchfilelocation_items))
 
 
 func get_batchfilefolder() -> String:
@@ -816,7 +816,7 @@ func get_vcvars(comp :int) -> String:
 
 
 func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :String, post :String, folder :String, additionalargs :Array = []) -> String:
-	assert(not name.empty())
+	assert(not name.is_empty())
 	
 	var args := [
 		"-j4",
@@ -831,7 +831,7 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	var fname := get_buildoutput(name, pltfrm, bldcfg).get_basename() + post
 	var cpp := get_shortpath(gdcpppath)
 	var hdr := get_shortpath(gdheaderspath)
-	var argstr := PoolStringArray(args).join(" ")
+	var argstr := " ".join(args)
 	
 	argstr = apply_buildvariables(argstr, name, pltfrm, bldcfg)
 	
@@ -842,7 +842,7 @@ func create_makefile(pltfrm :BuildPlatform, bldcfg :BuildConfiguration, name :St
 	
 	batch.append("cd \"" + folder + "\"\n")
 	
-	if utils.system == ECPP_Utils.System.Windows and not pltfrm.vsplatform.empty():
+	if utils.system == ECPP_Utils.System.Windows and not pltfrm.vsplatform.is_empty():
 		batch.append("call \"" + get_vcvars(compiler) + "\" " + pltfrm.vsplatform + "\n")
 	
 	batch.append_array([
@@ -877,7 +877,7 @@ static func get_buildpreprocessors(pltfrm :BuildPlatform, bldcfg :BuildConfigura
 static func get_buildpreprocessors_str(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
 	var list := get_buildpreprocessors(pltfrm, bldcfg)
 	
-	return PoolStringArray(list).join(";")
+	return ";".join(list)
 
 
 static func get_buildpreprocessors_defines(pltfrm :BuildPlatform, bldcfg :BuildConfiguration) -> String:
@@ -900,7 +900,9 @@ func create_all_makefiles_for_config(platform :BuildPlatform, config :BuildConfi
 		["--clean"]
 	]
 	
-	for i in range(BuildAction.COUNT):
+	const count :int = BuildAction.COUNT
+	
+	for i in range(count):
 		var make := create_makefile(platform, config, lib, BuildActionStrings[i], folder, additionalargs + addargs[i])
 		
 		batchfiles[ get_buildconfig_index(platform, config, i) ] = make
@@ -937,13 +939,15 @@ func create_buildall_batchfiles() -> Dictionary:
 	var batchfolder := get_batchfilefolder()
 	var buildallfiles := {}
 	
+	const count :int = BuildAction.COUNT
+	
 	for p in buildplatforms:
 		for c in buildconfigurations:
 			var fbase := get_buildoutput("all", p, c).get_basename()
 			if fbase.begins_with("lib"):
 				fbase = fbase.substr(3)
 			
-			for a in range(BuildAction.COUNT):
+			for a in range(count):
 				var idx := get_buildconfig_index(p, c, a)
 				
 				var batch := []
@@ -979,20 +983,21 @@ func run_makefile_dict_current(dict :Dictionary, action :int) -> int:
 	return run_makefile_dict(dict, platform, buildcfg, action)
 
 
-func center_in_editor(ctrl :Control) -> void:
+func center_in_editor(ctrl :Window) -> void:
 	ctrl.set_position( (editorbase.get_rect().size - ctrl.get_rect().size) / 2 )
 
 
 func get_shortpath(path :String) -> String:
 	if utils.system == ECPP_Utils.System.Windows:
 		var output := []
-		OS.execute(shortpathpath, [path], true, output)
+		OS.execute(shortpathpath, [path], output, true)
 		return output[0].strip_edges(false, true)
 	
 	return path
 
 
 func update_gdnlib(gdnlibpath :String) -> bool:
+	'''
 	var gdnlibname := gdnlibpath.get_base_dir().get_file()
 	var gdnlibrespath :String = gdnlibpath.get_base_dir() + "/bin/" + gdnlibname + ".gdnlib"
 	var gdnlibres :GDNativeLibrary
@@ -1016,6 +1021,8 @@ func update_gdnlib(gdnlibpath :String) -> bool:
 	
 	print("Saving \"" + gdnlibrespath + "\"...")
 	return ResourceSaver.save(gdnlibrespath, gdnlibres, ResourceSaver.FLAG_CHANGE_PATH) == OK
+	'''
+	return false
 
 
 func _on_tooltip_show(text :String) -> void:
@@ -1087,10 +1094,12 @@ func _on_SConsStatus_fix_pressed():
 					print("Found incorrectly installed SCons at \"" + scons_bad + "\"...")
 					print("Moving to \"" + scons_good + "\"...")
 					
-					if OS.execute("/bin/mv", [site + "/scons", site + "/scons__"], true) == 0:
+					var output := []
+					
+					if OS.execute("/bin/mv", [site + "/scons", site + "/scons__"], output, true) == 0:
 						print("Renamed incorrect SCons folder...")
 						
-						if OS.execute("/bin/mv", [site + "/scons__/SCons", scons_good], true) == 0:
+						if OS.execute("/bin/mv", [site + "/scons__/SCons", scons_good], output, true) == 0:
 							print("Moved SCons to correct folder \"" + scons_good + "\"...")
 			
 			if install:
@@ -1126,7 +1135,9 @@ func _on_GitStatus_www_pressed():
 func _on_CompilerStatus_fix_pressed():
 	match utils.system:
 		ECPP_Utils.System.Windows:
-			OS.execute(toolspath + "/vs_wdexpress.exe", [], false)
+			var output := []
+			
+			OS.execute(toolspath + "/vs_wdexpress.exe", [], output, false)
 		
 		ECPP_Utils.System.Linux:
 			match compiler:
@@ -1257,7 +1268,7 @@ func _on_NewLibraryFileDialog_dir_selected(dir :String):
 
 
 func get_vsproj_location() -> int:
-	return utils.get_project_setting_enum_keys(Constants.setting_vsproj_location, PoolStringArray(Constants.setting_vsproj_location_items).join(","))
+	return utils.get_project_setting_enum_keys(Constants.setting_vsproj_location, ",".join(Constants.setting_vsproj_location_items))
 
 
 func get_vsproj_subfolder() -> String:
@@ -1303,7 +1314,7 @@ func _on_GenerateVSButton_pressed():
 	
 	# sort the build configurations
 	var vsbuildconfigurations := buildconfigurations.duplicate()
-	vsbuildconfigurations.sort_custom(BuildBase, "sort")
+	vsbuildconfigurations.sort_custom(Callable(BuildBase, "sort"))
 	
 	# generate the project configurations
 	var projectconfigs := ""
@@ -1358,8 +1369,8 @@ func _on_GenerateVSButton_pressed():
 		
 		var headerfiles_str := ""
 		var sourcefiles_str := ""
-		var headerfolders_str := PoolStringArray(headerfolders).join(";")
-		var sourcefolders_str := PoolStringArray(sourcefolders).join(";")
+		var headerfolders_str := ";".join(headerfolders)
+		var sourcefolders_str := ";".join(sourcefolders)
 		
 		for h in headerfiles:
 			headerfiles_str += "    <ClInclude Include=\"" + h + "\" />\n"
@@ -1550,10 +1561,10 @@ func _on_GenerateQtButton_pressed():
 	var config_content := get_buildpreprocessors_defines(platform, buildcfg)
 	
 	var includes_path := base + ".includes"
-	var includes_content := PoolStringArray(includes).join("\n")
+	var includes_content := "\n".join(includes)
 	
 	var files_path := base + ".files"
-	var files_content := PoolStringArray(headerfiles + sourcefiles).join("\n")
+	var files_content := "\n".join(headerfiles + sourcefiles)
 	
 	if f.open(creator_path, File.WRITE) == OK:
 		f.store_string(creator_content)
@@ -1587,11 +1598,11 @@ func _on_GenerateQtButton_pressed():
 func _on_SettingsButton_pressed():
 	assert(settingswindow == null)
 	
-	settingswindow = settingsscene.instance()
+	settingswindow = settingsscene.instantiate()
 	settingswindow.set_size(editorbase.get_rect().size * 0.5)
 	settingswindow.load_settings(utils)
 	
-	settingswindow.connect("popup_hide", self, "_on_Settings_close")
+	settingswindow.connect("popup_hide", Callable(self, "_on_Settings_close"))
 	
 	add_child(settingswindow)
 	center_in_editor(settingswindow)

@@ -1,3 +1,3 @@
-tool
-extends Tabs
+@tool
+extends TabContainer
 class_name BuildSetting

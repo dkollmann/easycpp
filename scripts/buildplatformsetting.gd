@@ -1,4 +1,4 @@
-tool
+@tool
 extends BuildSetting
 
 
@@ -10,8 +10,8 @@ func setobj(bld :BuildPlatform) -> void:
 	$ScrollContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed = "Windows" in bld.availableon
 	$ScrollContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed = "X11" in bld.availableon
 	$ScrollContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed = "OSX" in bld.availableon
-	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
-	$ScrollContainer/PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
+	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = "\n".join(bld.arguments)
+	$ScrollContainer/PropertiesContainer/DefinesEdit.text = "\n".join(bld.defines)
 	$ScrollContainer/PropertiesContainer/OutputLineEdit.text = bld.outputname
 	$ScrollContainer/PropertiesContainer/GDNLIBLineEdit.text = bld.gdnlibkey
 	$ScrollContainer/PropertiesContainer/VSToolchainLineEdit.text = bld.vsplatform
@@ -30,7 +30,7 @@ func createobj() -> BuildPlatform:
 	
 	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
 	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
-	bld.availableon = PoolStringArray(availableon).join(" ")
+	bld.availableon = " ".join(availableon)
 	bld.arguments = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
 	bld.defines = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
 	bld.outputname = $ScrollContainer/PropertiesContainer/OutputLineEdit.text.strip_edges()

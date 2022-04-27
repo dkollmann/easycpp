@@ -1,4 +1,4 @@
-tool
+@tool
 extends Object
 class_name ECPP_Utils
 
@@ -23,11 +23,11 @@ func _init():
 
 
 static func file_exists(file :String) -> bool:
-	return not file.empty() and File.new().file_exists(file)
+	return not file.is_empty() and File.new().file_exists(file)
 
 
 static func folder_exists(folder :String) -> bool:
-	return not folder.empty() and Directory.new().dir_exists(folder)
+	return not folder.is_empty() and Directory.new().dir_exists(folder)
 
 
 static func make_dir(path :String) -> void:
@@ -50,10 +50,12 @@ static func get_userfolder() -> String:
 
 
 func copy_files(from :String, to :String) -> bool:
+	var output := []
+	
 	if system == System.Windows:
-		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], true) == 0
+		return OS.execute("xcopy", ["/y", "/e", from.replace("/", "\\"), to.replace("/", "\\")], output, true) == 0
 	else:
-		return OS.execute("cp", ["-R", from + "/.", to], true) == 0
+		return OS.execute("cp", ["-R", from + "/.", to], output, true) == 0
 
 
 static func get_project_setting(name :String, type :int, defvalue, hint :int = PROPERTY_HINT_NONE, hintstr :String = ""):
@@ -157,7 +159,7 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 			continue
 		
 		dir.open(f)
-		dir.list_dir_begin(true, true)
+		dir.list_dir_begin()
 		
 		var file := dir.get_next()
 		while file != '':
@@ -177,9 +179,9 @@ static func find_resources(path :String, fileext :String, recursive :bool) -> Ar
 
 
 static func find_sourcefiles(path :String, recursive :bool,
-							 headerfiles :Array, sourcefiles :Array,
-							 headerfolders :Array = [], sourcefolders :Array = [],
-							 ospaths :bool = false) -> void:
+								headerfiles :Array, sourcefiles :Array,
+								headerfolders :Array = [], sourcefolders :Array = [],
+								ospaths :bool = false) -> void:
 	var folders := [ensure_slash(path)]
 	var dir := Directory.new()
 	var headerfolders_added := false
@@ -188,7 +190,7 @@ static func find_sourcefiles(path :String, recursive :bool,
 	for f in folders:
 		var error = dir.open(f)
 		assert(error == OK)
-		error = dir.list_dir_begin(true, true)
+		error = dir.list_dir_begin()
 		assert(error == OK)
 		
 		headerfolders_added = false
@@ -243,7 +245,7 @@ static func find_includefolders(path :String, recursive :bool, includes :Array) 
 	
 	for f in folders:
 		dir.open(f)
-		dir.list_dir_begin(true, true)
+		dir.list_dir_begin()
 		
 		var folderadded := false
 		
@@ -280,7 +282,7 @@ static func get_projectname() -> String:
 	return ProjectSettings.get_setting("application/config/name")
 
 
-static func split_clean(text :String, delimiter :String, allow_empty :bool = true) -> PoolStringArray:
+static func split_clean(text :String, delimiter :String, allow_empty :bool = true) -> PackedStringArray:
 	var values := text.split(delimiter, allow_empty)
 	
 	for i in range(len(values)):
@@ -309,7 +311,7 @@ static func parse_csvdata(csv :String) -> Array:
 	
 	# check if all keys are valid
 	for k in keys:
-		if k.empty():
+		if k.is_empty():
 			return data
 	
 	# check datasets
@@ -387,7 +389,7 @@ func arglist_to_string(args :Array) -> String:
 		if " " in a and sep in a:
 			args2[i] = '"' + a + '"'
 	
-	return PoolStringArray(args2).join(" ")
+	return " ".join(args2)
 
 
 static func parse_args_dict(args :String, out :Dictionary, allow_nokey :bool) -> bool:
@@ -466,15 +468,17 @@ static func join_dict(d1 :Dictionary, d2 :Dictionary) -> Dictionary:
 
 
 func make_executable(exe :String) -> int:
+	var output := []
+	
 	match system:
 		System.Windows:
 			return 0
 		
 		System.Linux:
-			return OS.execute("/usr/bin/chmod", ["+x", exe], true)
+			return OS.execute("/usr/bin/chmod", ["+x", exe], output, true)
 		
 		System.macOS:
-			return OS.execute("/bin/chmod", ["+x", exe], true)
+			return OS.execute("/bin/chmod", ["+x", exe], output, true)
 	
 	return -100
 

@@ -1,4 +1,4 @@
-tool
+@tool
 extends BuildSetting
 
 
@@ -7,8 +7,8 @@ func setobj(bld :BuildConfiguration) -> void:
 	
 	$ScrollContainer/PropertiesContainer/NameLineEdit.text = bld.name
 	$ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
-	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = PoolStringArray(bld.arguments).join("\n")
-	$ScrollContainer/PropertiesContainer/DefinesEdit.text = PoolStringArray(bld.defines).join("\n")
+	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = "\n".join(bld.arguments)
+	$ScrollContainer/PropertiesContainer/DefinesEdit.text = "\n".join(bld.defines)
 	$ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
 
 

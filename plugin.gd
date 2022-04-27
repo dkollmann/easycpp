@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 var toolwindow :Control
@@ -14,7 +14,7 @@ func _enter_tree():
 		
 		return
 	
-	toolwindow = preload("res://addons/easycpp/scenes/tool_window.tscn").instance()
+	toolwindow = preload("res://addons/easycpp/scenes/tool_window.tscn").instantiate()
 	
 	assert(toolwindow != null)
 	

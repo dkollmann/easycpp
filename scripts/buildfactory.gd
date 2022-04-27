@@ -1,9 +1,9 @@
-tool
+@tool
 extends Object
 class_name BuildFactory
 
 
-static func parse_csv(csv :String, all :bool, createfunc :FuncRef) -> Array:
+static func parse_csv(csv :String, all :bool, createfunc :Callable) -> Array:
 	var lst := []
 	var lines := csv.split("\n", false)
 	
@@ -14,7 +14,7 @@ static func parse_csv(csv :String, all :bool, createfunc :FuncRef) -> Array:
 			continue
 		
 		var params := ECPP_Utils.split_clean(l, "|", true)
-		var b :BuildBase = createfunc.call_func(i, params, all)
+		var b :BuildBase = createfunc.call(i, params, all)
 		
 		if b != null:
 			lst.append(b)
@@ -23,11 +23,11 @@ static func parse_csv(csv :String, all :bool, createfunc :FuncRef) -> Array:
 
 
 func parse_csv_pltfrm(csv :String, all :bool = false) -> Array:
-	return parse_csv(csv, all, funcref(self, "create_pltfm"))
+	return parse_csv(csv, all, Callable(self, "create_pltfm"))
 
 
 func parse_csv_cfg(csv :String, all :bool = false) -> Array:
-	return parse_csv(csv, all, funcref(self, "create_cfg"))
+	return parse_csv(csv, all, Callable(self, "create_cfg"))
 
 
 func create_pltfm(idx :int, params :Array, all :bool) -> BuildPlatform:
@@ -66,14 +66,14 @@ static func makestr_pltfrm(bld :BuildPlatform) -> String:
 		bld.name,
 		bool_str(bld.enabled),
 		bld.availableon,
-		PoolStringArray(bld.arguments).join(" "),
-		PoolStringArray(bld.defines).join(" "),
+		" ".join(bld.arguments),
+		" ".join(bld.defines),
 		bld.outputname,
 		bld.gdnlibkey,
 		bld.vsplatform,
 	]
 	
-	return PoolStringArray(cfg).join("|")
+	return "|".join(cfg)
 
 
 func create_cfg(idx :int, params :Array, all :bool) -> BuildConfiguration:
@@ -103,9 +103,9 @@ static func makestr_cfg(bld :BuildConfiguration) -> String:
 	var cfg := [
 		bld.name,
 		bool_str(bld.enabled),
-		PoolStringArray(bld.arguments).join(" "),
-		PoolStringArray(bld.defines).join(" "),
+		" ".join(bld.arguments),
+		" ".join(bld.defines),
 		bool_str(bld.debuglibs),
 	]
 	
-	return PoolStringArray(cfg).join("|")
+	return "|".join(cfg)

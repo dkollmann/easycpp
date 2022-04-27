@@ -1,5 +1,5 @@
-tool
-extends WindowDialog
+@tool
+extends Window
 class_name SettingsWindow
 
 
@@ -67,7 +67,7 @@ func save_settings():
 	for bld in platforms:
 		platforms_str.append( bldfac.makestr_pltfrm(bld) )
 	
-	var newplatforms := PoolStringArray(platforms_str).join("\n")
+	var newplatforms := "\n".join(platforms_str)
 	
 	#print(newplatforms)
 	
@@ -79,7 +79,7 @@ func save_settings():
 	for bld in configurations:
 		configurations_str.append( bldfac.makestr_cfg(bld) )
 	
-	var newconfigurations := PoolStringArray(configurations_str).join("\n")
+	var newconfigurations := "\n".join(configurations_str)
 	
 	#print(newplatforms)
 	

@@ -1,7 +1,7 @@
-tool
+@tool
 extends Control
 
-export var tabtype :PackedScene
+@export var tabtype :PackedScene
 
 
 var tabs :Array = []
