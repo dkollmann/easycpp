@@ -984,7 +984,7 @@ func run_makefile_dict_current(dict :Dictionary, action :int) -> int:
 
 
 func center_in_editor(ctrl :Window) -> void:
-	ctrl.set_position( (editorbase.get_rect().size - ctrl.get_rect().size) / 2 )
+	ctrl.position = (Vector2i(editorbase.size) - ctrl.size) / 2
 
 
 func get_shortpath(path :String) -> String:
@@ -1602,7 +1602,7 @@ func _on_SettingsButton_pressed():
 	settingswindow.set_size(editorbase.get_rect().size * 0.5)
 	settingswindow.load_settings(utils)
 	
-	settingswindow.connect("popup_hide", Callable(self, "_on_Settings_close"))
+	settingswindow.connect("close_requested", Callable(self, "_on_Settings_close"))
 	
 	add_child(settingswindow)
 	center_in_editor(settingswindow)

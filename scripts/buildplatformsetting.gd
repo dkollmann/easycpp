@@ -6,10 +6,10 @@ func setobj(bld :BuildPlatform) -> void:
 	name = bld.name
 	
 	$ScrollContainer/PropertiesContainer/NameLineEdit.text = bld.name
-	$ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
-	$ScrollContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed = "Windows" in bld.availableon
-	$ScrollContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed = "X11" in bld.availableon
-	$ScrollContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed = "OSX" in bld.availableon
+	$ScrollContainer/PropertiesContainer/EnabledCheckBox.button_pressed = bld.enabled
+	$ScrollContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.button_pressed = "Windows" in bld.availableon
+	$ScrollContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.button_pressed = "X11" in bld.availableon
+	$ScrollContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.button_pressed = "OSX" in bld.availableon
 	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = "\n".join(bld.arguments)
 	$ScrollContainer/PropertiesContainer/DefinesEdit.text = "\n".join(bld.defines)
 	$ScrollContainer/PropertiesContainer/OutputLineEdit.text = bld.outputname
@@ -21,15 +21,15 @@ func createobj() -> BuildPlatform:
 	
 	var availableon := []
 	
-	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.pressed:
+	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/WindowsCheckBox.button_pressed:
 		availableon.append("Windows")
-	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.pressed:
+	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/LinuxCheckBox.button_pressed:
 		availableon.append("X11")
-	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.pressed:
+	if $ScrollContainer/PropertiesContainer/AvailableOnContainer/MacOSCheckBox.button_pressed:
 		availableon.append("OSX")
 	
 	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
-	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
+	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.button_pressed
 	bld.availableon = " ".join(availableon)
 	bld.arguments = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
 	bld.defines = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)

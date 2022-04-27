@@ -18,7 +18,7 @@ func update_tabs(remove :bool = true) -> void:
 
 func generate_tabs(items :Array) -> void:
 	for i in items:
-		var t := tabtype.instance()
+		var t := tabtype.instantiate()
 		
 		t.setobj(i)
 		
@@ -37,7 +37,7 @@ func generate_objects() -> Array:
 
 
 func _on_AddButton_pressed():
-	var t := tabtype.instance()
+	var t := tabtype.instantiate()
 	
 	var bld = t.createnewobj()
 	
@@ -52,7 +52,7 @@ func _on_DuplicateButton_pressed():
 	var idx = $VBoxContainer/TabContainer.current_tab
 	var bld = tabs[idx].createobj()
 	
-	var t := tabtype.instance()
+	var t := tabtype.instantiate()
 	
 	bld.name += " copy"
 	t.setobj(bld)
@@ -69,4 +69,4 @@ func _on_DeleteButton_pressed():
 	
 	$VBoxContainer/TabContainer.remove_child( tabs[idx] )
 	
-	tabs.remove(idx)
+	tabs.remove_at(idx)

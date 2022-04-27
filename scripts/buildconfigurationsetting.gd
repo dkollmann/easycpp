@@ -6,20 +6,20 @@ func setobj(bld :BuildConfiguration) -> void:
 	name = bld.name
 	
 	$ScrollContainer/PropertiesContainer/NameLineEdit.text = bld.name
-	$ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed = bld.enabled
+	$ScrollContainer/PropertiesContainer/EnabledCheckBox.button_pressed = bld.enabled
 	$ScrollContainer/PropertiesContainer/ArgumentsEdit.text = "\n".join(bld.arguments)
 	$ScrollContainer/PropertiesContainer/DefinesEdit.text = "\n".join(bld.defines)
-	$ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed = bld.debuglibs
+	$ScrollContainer/PropertiesContainer/DebugLibCheckbox.button_pressed = bld.debuglibs
 
 
 func createobj() -> BuildConfiguration:
 	var bld := BuildConfiguration.new()
 	
 	bld.name = $ScrollContainer/PropertiesContainer/NameLineEdit.text.strip_edges()
-	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.pressed
+	bld.enabled = $ScrollContainer/PropertiesContainer/EnabledCheckBox.button_pressed
 	bld.arguments = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/ArgumentsEdit.text, "\n", false)
 	bld.defines = ECPP_Utils.split_clean($ScrollContainer/PropertiesContainer/DefinesEdit.text, "\n", false)
-	bld.debuglibs = $ScrollContainer/PropertiesContainer/DebugLibCheckbox.pressed
+	bld.debuglibs = $ScrollContainer/PropertiesContainer/DebugLibCheckbox.button_pressed
 	
 	return bld
 

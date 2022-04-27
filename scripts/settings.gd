@@ -22,7 +22,7 @@ func load_settings(utls :ECPP_Utils):
 	
 	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/BuildFolderEdit.filepath = ProjectSettings.get(Constants.setting_buildfolder)
 	
-	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/OverwriteCheckBox.pressed = ProjectSettings.get(Constants.setting_overwritemakefiles)
+	$SettingsContainer/TabContainer/Settings/VBoxContainer/BatchfilesContainer/VBoxContainer/GridContainer/OverwriteCheckBox.button_pressed = ProjectSettings.get(Constants.setting_overwritemakefiles)
 	
 	if utils.system == ECPP_Utils.System.Windows:
 		var vslocbutton := $SettingsContainer/TabContainer/Settings/VBoxContainer/VSContainer/VBoxContainer/GridContainer/LocationButton

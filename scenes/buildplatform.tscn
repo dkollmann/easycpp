@@ -1,154 +1,150 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://br7sr0jbglnob"]
 
-[ext_resource path="res://addons/easycpp/scripts/buildplatformsetting.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://addons/easycpp/scripts/buildplatformsetting.gd" id="1"]
 
-[node name="BuildPlatform" type="Tabs"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="BuildPlatform" type="TabContainer"]
+script = ExtResource( "1" )
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-scroll_horizontal_enabled = false
-__meta__ = {
-"_edit_use_anchors_": false
-}
+offset_top = 31.0
 
 [node name="PropertiesContainer" type="GridContainer" parent="ScrollContainer"]
-margin_right = 1024.0
-margin_bottom = 600.0
+offset_right = 505.0
+offset_bottom = 318.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_constants/vseparation = 4
-custom_constants/hseparation = 4
 columns = 2
 
 [node name="NameLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 5.0
-margin_right = 165.0
-margin_bottom = 19.0
+offset_top = 2.0
+offset_right = 198.0
+offset_bottom = 28.0
 text = "Name:"
 
 [node name="NameLineEdit" type="LineEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_right = 1024.0
-margin_bottom = 24.0
+offset_left = 202.0
+offset_right = 505.0
+offset_bottom = 31.0
 size_flags_horizontal = 3
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="EnabledLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 33.0
-margin_right = 165.0
-margin_bottom = 47.0
+offset_top = 37.0
+offset_right = 198.0
+offset_bottom = 63.0
 text = "Enabled:"
 
 [node name="EnabledCheckBox" type="CheckBox" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 28.0
-margin_right = 193.0
-margin_bottom = 52.0
+offset_left = 202.0
+offset_top = 35.0
+offset_right = 226.0
+offset_bottom = 66.0
 size_flags_horizontal = 0
 
 [node name="AvailableOnLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 61.0
-margin_right = 165.0
-margin_bottom = 75.0
+offset_top = 72.0
+offset_right = 198.0
+offset_bottom = 98.0
 text = "Available on:"
 
 [node name="AvailableOnContainer" type="HBoxContainer" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 56.0
-margin_right = 1024.0
-margin_bottom = 80.0
+offset_left = 202.0
+offset_top = 70.0
+offset_right = 505.0
+offset_bottom = 101.0
 size_flags_horizontal = 3
 
 [node name="WindowsCheckBox" type="CheckBox" parent="ScrollContainer/PropertiesContainer/AvailableOnContainer"]
-margin_right = 86.0
-margin_bottom = 24.0
+offset_right = 99.0
+offset_bottom = 31.0
 text = "Windows"
 
 [node name="LinuxCheckBox" type="CheckBox" parent="ScrollContainer/PropertiesContainer/AvailableOnContainer"]
-margin_left = 90.0
-margin_right = 189.0
-margin_bottom = 24.0
+offset_left = 103.0
+offset_right = 217.0
+offset_bottom = 31.0
 text = "Linux / X11"
 
 [node name="MacOSCheckBox" type="CheckBox" parent="ScrollContainer/PropertiesContainer/AvailableOnContainer"]
-margin_left = 193.0
-margin_right = 266.0
-margin_bottom = 24.0
+offset_left = 221.0
+offset_right = 303.0
+offset_bottom = 31.0
 text = "macOS"
 
 [node name="ArgumentsLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 148.0
-margin_right = 165.0
-margin_bottom = 179.0
+offset_top = 105.0
+offset_right = 198.0
+offset_bottom = 157.0
 text = "Arguments:
   (One argument per line.)"
 
 [node name="ArgumentsEdit" type="TextEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 84.0
-margin_right = 1024.0
-margin_bottom = 244.0
-rect_min_size = Vector2( 0, 160 )
+offset_left = 202.0
+offset_top = 105.0
+offset_right = 505.0
+offset_bottom = 157.0
 size_flags_horizontal = 3
 
 [node name="DefinesLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 312.0
-margin_right = 165.0
-margin_bottom = 343.0
+offset_top = 161.0
+offset_right = 198.0
+offset_bottom = 213.0
 text = "Defines:
   (One define per line.)"
 
 [node name="DefinesEdit" type="TextEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 248.0
-margin_right = 1024.0
-margin_bottom = 408.0
-rect_min_size = Vector2( 0, 160 )
+offset_left = 202.0
+offset_top = 161.0
+offset_right = 505.0
+offset_bottom = 213.0
 size_flags_horizontal = 3
 
 [node name="OutputLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 417.0
-margin_right = 165.0
-margin_bottom = 431.0
+offset_top = 219.0
+offset_right = 198.0
+offset_bottom = 245.0
 text = "Output:"
 
 [node name="OutputLineEdit" type="LineEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 412.0
-margin_right = 1024.0
-margin_bottom = 436.0
+offset_left = 202.0
+offset_top = 217.0
+offset_right = 505.0
+offset_bottom = 248.0
 size_flags_horizontal = 3
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="GDNLIBLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 445.0
-margin_right = 165.0
-margin_bottom = 459.0
+offset_top = 254.0
+offset_right = 198.0
+offset_bottom = 280.0
 text = "GDNLIB Key:"
 
 [node name="GDNLIBLineEdit" type="LineEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 440.0
-margin_right = 1024.0
-margin_bottom = 464.0
+offset_left = 202.0
+offset_top = 252.0
+offset_right = 505.0
+offset_bottom = 283.0
 size_flags_horizontal = 3
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="VSToolchainLabel" type="Label" parent="ScrollContainer/PropertiesContainer"]
-margin_top = 473.0
-margin_right = 165.0
-margin_bottom = 487.0
+offset_top = 289.0
+offset_right = 198.0
+offset_bottom = 315.0
 text = "Visual Studio Toolchain:"
 
 [node name="VSToolchainLineEdit" type="LineEdit" parent="ScrollContainer/PropertiesContainer"]
-margin_left = 169.0
-margin_top = 468.0
-margin_right = 1024.0
-margin_bottom = 492.0
+offset_left = 202.0
+offset_top = 287.0
+offset_right = 505.0
+offset_bottom = 318.0
 size_flags_horizontal = 3
+caret_blink = true
+caret_blink_speed = 0.5
 
 [connection signal="text_changed" from="ScrollContainer/PropertiesContainer/NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]
