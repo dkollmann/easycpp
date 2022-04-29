@@ -1603,11 +1603,19 @@ func _on_SettingsButton_pressed():
 	settingswindow.load_settings(utils)
 	
 	settingswindow.connect("close_requested", Callable(self, "_on_Settings_close"))
+	settingswindow.connect("visibility_changed", Callable(self, "_on_Settings_hide"))
 	
 	add_child(settingswindow)
 	center_in_editor(settingswindow)
 	
 	settingswindow.popup()
+
+
+func _on_Settings_hide():
+	assert(settingswindow != null)
+	
+	if not settingswindow.visible:
+		_on_Settings_close()
 
 
 func _on_Settings_close():
