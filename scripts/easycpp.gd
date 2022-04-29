@@ -106,8 +106,8 @@ const toolsres := "res://addons/easycpp/tools"
 const tempres := "res://addons/easycpp/temp"
 const templatesres := "res://addons/easycpp/templates"
 
-const gdcpppath_testfile := "/include/core/Godot.hpp"
-const gdheaderspath_testfile := "/nativescript/godot_nativescript.h"
+const gdcpppath_testfile := "/include/godot_cpp/godot.hpp"
+const gdheaderspath_testfile := "/godot/gdnative_interface.h"
 const gdcppgiturl = "https://github.com/godotengine/godot-cpp.git"
 
 const linuxpause = "read -p \"Press any key to resume ...\"\n"
@@ -172,6 +172,8 @@ var currentgdnlib :String
 var currentgdnlib_name :String
 
 var godotversion :String
+var godotversiontag :String
+
 var random := RandomNumberGenerator.new()
 var settingswindow :SettingsWindow
 
@@ -181,6 +183,13 @@ func _ready():
 	
 	var ver := Engine.get_version_info()
 	godotversion = str(ver.major) + "." + str(ver.minor)
+	
+	godotversiontag = godotversion
+	
+	var gittag := utils.get_project_setting_string(Constants.setting_gitversiontag)
+	
+	if not gittag.is_empty():
+		godotversiontag = gittag
 	
 	random.randomize()
 	
@@ -1165,7 +1174,7 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
-		git_clone(gdcppgiturl, gdcpppath, godotversion)
+		git_clone(gdcppgiturl, gdcpppath, godotversiontag)
 		
 	check_sdk_state()
 

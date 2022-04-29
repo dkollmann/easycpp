@@ -29,3 +29,5 @@ const setting_overwritemakefiles := "Easy C++/Overwrite existing make files"
 
 const setting_batchfilelocation_items := ["Temporary Folder", "Build Folder"]
 const setting_vsproj_location_items := ["Temporary Folder", "Project Folder", "Build Folder"]
+
+const setting_gitversiontag := "Easy C++/Godot Git Version Tag"
