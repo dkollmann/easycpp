@@ -269,7 +269,7 @@ func init_optionbutton_setting(button :OptionButton, setting :String, enumtype, 
 
 
 func add_tooltip(ctrl :Control, tooltip :String) -> void:
-	ctrl.connect("mouse_entered", Callable(self, "_on_tooltip_show"), [tooltip])
+	ctrl.connect("mouse_entered", Callable(self, "_on_tooltip_show").bind(tooltip))
 	ctrl.connect("mouse_exited", Callable(self, "_on_tooltip_hide"))
 	
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
