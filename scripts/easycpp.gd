@@ -752,7 +752,7 @@ func create_batch_build(name :String, batch :Array) -> String:
 	if not get_overwrite_makefiles():
 		var fname := get_batch_filename(buildfolderpath, name)
 		
-		if File.new().file_exists(fname):
+		if File.file_exists(fname):
 			return fname
 	
 	return create_batch_dir(buildfolderpath, name, batch)
@@ -1011,7 +1011,7 @@ func update_gdnlib(gdnlibpath :String) -> bool:
 	var gdnlibrespath :String = gdnlibpath.get_base_dir() + "/bin/" + gdnlibname + ".gdnlib"
 	var gdnlibres :GDNativeLibrary
 	
-	if File.new().file_exists(gdnlibrespath):
+	if File.file_exists(gdnlibrespath):
 		print("Loading \"" + gdnlibrespath + "\"...")
 		
 		gdnlibres = load(gdnlibrespath)

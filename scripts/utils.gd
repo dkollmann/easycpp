@@ -23,7 +23,7 @@ func _init():
 
 
 static func file_exists(file :String) -> bool:
-	return not file.is_empty() and File.new().file_exists(file)
+	return not file.is_empty() and File.file_exists(file)
 
 
 static func folder_exists(folder :String) -> bool:
