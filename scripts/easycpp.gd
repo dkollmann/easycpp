@@ -1084,35 +1084,34 @@ func _on_PipStatus_www_pressed():
 
 
 func _on_SConsStatus_fix_pressed():
-	match utils.system:
-		ECPP_Utils.System.Linux:
-			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
+	if utils.system == ECPP_Utils.System.macOS:
+		var install := true
 		
-		ECPP_Utils.System.macOS:
-			var install := true
+		if allowMacOSSConsFix:
+			var site := utils.get_userfolder() + "/Library/Python/2.7/lib/python/site-packages"
+			var scons_bad := site + "/scons/SCons"
+			var scons_good := site + "/SCons"
 			
-			if allowMacOSSConsFix:
-				var site := utils.get_userfolder() + "/Library/Python/2.7/lib/python/site-packages"
-				var scons_bad := site + "/scons/SCons"
-				var scons_good := site + "/SCons"
+			var dir := Directory.new()
+			if dir.dir_exists(scons_bad):
+				install = false
 				
-				var dir := Directory.new()
-				if dir.dir_exists(scons_bad):
-					install = false
+				print("Found incorrectly installed SCons at \"" + scons_bad + "\"...")
+				print("Moving to \"" + scons_good + "\"...")
+				
+				var output := []
+				
+				if OS.execute("/bin/mv", [site + "/scons", site + "/scons__"], output, true) == 0:
+					print("Renamed incorrect SCons folder...")
 					
-					print("Found incorrectly installed SCons at \"" + scons_bad + "\"...")
-					print("Moving to \"" + scons_good + "\"...")
-					
-					var output := []
-					
-					if OS.execute("/bin/mv", [site + "/scons", site + "/scons__"], output, true) == 0:
-						print("Renamed incorrect SCons folder...")
-						
-						if OS.execute("/bin/mv", [site + "/scons__/SCons", scons_good], output, true) == 0:
-							print("Moved SCons to correct folder \"" + scons_good + "\"...")
-			
-			if install:
-				run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "pathlib", "--user"])
+					if OS.execute("/bin/mv", [site + "/scons__/SCons", scons_good], output, true) == 0:
+						print("Moved SCons to correct folder \"" + scons_good + "\"...")
+		
+		if install:
+			run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons", "pathlib", "--user"])
+	
+	else:
+		run_shell("install_scons", pythonpath, ["-m", "pip", "install", "SCons"])
 	
 	check_sdk_state()
 
