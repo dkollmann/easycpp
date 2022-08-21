@@ -63,6 +63,7 @@ enum Compiler {
 	VisualStudio2015,
 	VisualStudio2017,
 	VisualStudio2019,
+	VisualStudio2022,
 	GCC,
 	Clang,
 	Xcode
@@ -72,6 +73,7 @@ const CompilerNames := [
 	"vs2015",
 	"vs2017",
 	"vs2019",
+	"vs2022",
 	"gcc",
 	"clang",
 	"xcode"
@@ -117,6 +119,7 @@ var editorbase #:Control
 var vs2015path :String
 var vs2017path :String
 var vs2019path :String
+var vs2022path :String
 
 var gccpath :String
 var clangpath :String
@@ -137,6 +140,7 @@ var gdheaderspath :String
 var has_vs2015 := false
 var has_vs2017 := false
 var has_vs2019 := false
+var has_vs2022 := false
 
 var has_gcc := false
 var has_clang := false
@@ -185,11 +189,6 @@ func _ready():
 	godotversion = str(ver.major) + "." + str(ver.minor)
 	
 	godotversiontag = godotversion
-	
-	var gittag := utils.get_project_setting_string(Constants.setting_gitversiontag)
-	
-	if not gittag.is_empty():
-		godotversiontag = gittag
 	
 	random.randomize()
 	
@@ -407,10 +406,12 @@ func check_sdk_state() -> void:
 			vs2015path = utils.get_project_setting_string(Constants.setting_vs2015path, "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0", PROPERTY_HINT_GLOBAL_DIR)
 			vs2017path = utils.get_project_setting_string(Constants.setting_vs2017path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017", PROPERTY_HINT_GLOBAL_DIR)
 			vs2019path = utils.get_project_setting_string(Constants.setting_vs2019path, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019", PROPERTY_HINT_GLOBAL_DIR)
+			vs2022path = utils.get_project_setting_string(Constants.setting_vs2022path, "C:\\Program Files\\Microsoft Visual Studio\\2022", PROPERTY_HINT_GLOBAL_DIR)
 			
 			has_vs2015 = not find_vcvars(vs2015path).is_empty()
 			has_vs2017 = not find_vcvars(vs2017path).is_empty()
 			has_vs2019 = not find_vcvars(vs2019path).is_empty()
+			has_vs2022 = not find_vcvars(vs2022path).is_empty()
 			
 			if has_vs2015:
 				$CompilerButton.add_item("Visual Studio 2015", Compiler.VisualStudio2015)
@@ -420,7 +421,10 @@ func check_sdk_state() -> void:
 			
 			if has_vs2019:
 				$CompilerButton.add_item("Visual Studio 2019", Compiler.VisualStudio2019)
-		
+			
+			if has_vs2022:
+				$CompilerButton.add_item("Visual Studio 2022", Compiler.VisualStudio2022)
+			
 		ECPP_Utils.System.Linux:
 			# always suport gcc and clang
 			$CompilerButton.add_item("GCC", Compiler.GCC)
@@ -663,7 +667,7 @@ func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bo
 	
 	utils.make_dir(targetpath)
 	
-	var args := ["clone", "--recurse-submodules", "--branch", branch, sourceurl, targetpath]
+	var args := ["clone", "--recurse-submodules", "--branch", branch, sourceurl, "\"" + targetpath + "\""]
 	
 	return run_shell("git_clone", gitpath, args) == 0
 
@@ -1173,6 +1177,11 @@ func _on_CompilerStatus_www_pressed():
 
 func _on_CppStatus_fix_pressed():
 	if has_git:
+		var gittag := utils.get_project_setting_string(Constants.setting_gitversiontag)
+		
+		if not gittag.is_empty():
+			godotversiontag = gittag
+		
 		git_clone(gdcppgiturl, gdcpppath, godotversiontag)
 		
 	check_sdk_state()
