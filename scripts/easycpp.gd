@@ -824,7 +824,11 @@ func get_vcvars(comp :int) -> String:
 		
 		Compiler.VisualStudio2019:
 			return find_vcvars(vs2019path)
+		
+		Compiler.VisualStudio2022:
+			return find_vcvars(vs2022path)
 	
+	assert(false, "Unhandled compiler!!")
 	return ""
 
 
