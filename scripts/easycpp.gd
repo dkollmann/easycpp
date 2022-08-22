@@ -543,7 +543,7 @@ static func check_installation(name :String, findfunc :FuncRef, setting_name :St
 	
 	var path := ECPP_Utils.get_project_setting_string(setting_name, "", PROPERTY_HINT_GLOBAL_DIR if isfolder else PROPERTY_HINT_GLOBAL_FILE, filter)
 	
-	if path.empty():
+	if path.empty() or not (ECPP_Utils.folder_exists(path) if isfolder else ECPP_Utils.file_exists(path)):
 		searched = true
 		path = findfunc.call_func()
 	
