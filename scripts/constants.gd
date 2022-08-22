@@ -24,6 +24,7 @@ const setting_clangpath := "Easy C++/Clang Path"
 const setting_vs2015path := "Easy C++/Visual Studio/Visual Studio 2015 Path"
 const setting_vs2017path := "Easy C++/Visual Studio/Visual Studio 2017 Path"
 const setting_vs2019path := "Easy C++/Visual Studio/Visual Studio 2019 Path"
+const setting_vs2022path := "Easy C++/Visual Studio/Visual Studio 2022 Path"
 
 const setting_overwritemakefiles := "Easy C++/Overwrite existing make files"
 
