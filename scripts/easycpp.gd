@@ -378,25 +378,28 @@ func check_sdk_state() -> void:
 		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), Constants.setting_cmakepath, false, exefilter)
 		has_cmake = utils.file_exists(cmakepath)
 	
-	needs_git = true # not has_gdcpp  # or not has_gdheaders
+	# handle godot-cpp
+	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
+	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
+	
+	# handle godot headers
+	gdheaderspath = gdcpppath + "/godot-headers"
+	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
+	
+	needs_git = not has_gdcpp or utils.folder_exists(gdcpppath + "/.git")  # or not has_gdheaders
 	
 	# handle git
 	if needs_git:
 		gitpath = check_installation("Git", funcref(self, "find_git"), Constants.setting_gitpath, false, exefilter)
 		has_git = utils.file_exists(gitpath)
 	
-	# handle godot-cpp
-	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
-	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
-	
-	if has_gdcpp:
-		var gdcpp_tag = git_gettag(gdcpppath)
+	if has_gdcpp and has_git:
+		var gdcpp_tag := git_gettag(gdcpppath)
 		
-		print("Found Godot CPP tagged version: " + gdcpp_tag)
-	
-	# handle godot headers
-	gdheaderspath = gdcpppath + "/godot-headers"
-	has_gdheaders = utils.file_exists(gdheaderspath + gdheaderspath_testfile)
+		print("Found Godot CPP tagged version: '" + gdcpp_tag + "'")
+		
+		if gdcpp_tag != godotversion:
+			print("  Expected tagged version: '" + godotversion + "'")
 	
 	# handle compiler
 	var selected_compiler := compiler
@@ -674,6 +677,9 @@ func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bo
 
 
 func git_gettag(path :String) -> String:
+	if not has_git:
+		return ""
+	
 	var batchlines := [
 		"cd \"" + path + "\"\n",
 		"\"" + gitpath + "\" log --max-count=1 --decorate=full --no-color"
