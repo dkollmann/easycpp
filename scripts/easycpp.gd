@@ -355,6 +355,12 @@ func check_sdk_state() -> void:
 	var exefilter := "*.exe,*.bat,*.cmd" if utils.system == ECPP_Utils.System.Windows else "*"
 	
 	# prepare check
+	has_python = false
+	has_pip = false
+	has_scons = false
+	has_cmake = false
+	has_git = false
+	
 	needs_python = buildsystem == BuildSystem.SCons
 	needs_pip    = buildsystem == BuildSystem.SCons
 	needs_scons  = buildsystem == BuildSystem.SCons
