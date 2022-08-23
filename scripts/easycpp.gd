@@ -378,16 +378,21 @@ func check_sdk_state() -> void:
 		cmakepath = check_installation("Cmake", funcref(self, "find_cmake"), Constants.setting_cmakepath, false, exefilter)
 		has_cmake = utils.file_exists(cmakepath)
 	
-	# handle godot-cpp
-	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
-	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
-	
-	needs_git = not has_gdcpp  # or not has_gdheaders
+	needs_git = true # not has_gdcpp  # or not has_gdheaders
 	
 	# handle git
 	if needs_git:
 		gitpath = check_installation("Git", funcref(self, "find_git"), Constants.setting_gitpath, false, exefilter)
 		has_git = utils.file_exists(gitpath)
+	
+	# handle godot-cpp
+	gdcpppath = check_installation("godot-cpp", funcref(self, "find_godotcpp"), Constants.setting_gdcpppath, true)
+	has_gdcpp = utils.file_exists(gdcpppath + gdcpppath_testfile)
+	
+	if has_gdcpp:
+		var gdcpp_tag = git_gettag(gdcpppath)
+		
+		print("Found Godot CPP tagged version: " + gdcpp_tag)
 	
 	# handle godot headers
 	gdheaderspath = gdcpppath + "/godot-headers"
@@ -666,6 +671,34 @@ func git_clone(sourceurl :String, targetpath :String, branch :String, tryfix :bo
 	var args := ["clone", "--recurse-submodules", "--branch", branch, sourceurl, "\"" + targetpath + "\""]
 	
 	return run_shell("git_clone", gitpath, args) == 0
+
+
+func git_gettag(path :String) -> String:
+	var batchlines := [
+		"cd \"" + path + "\"\n",
+		"\"" + gitpath + "\" log --max-count=1 --decorate=full --no-color"
+	]
+	
+	var batch := create_batch_temp("getgittag", batchlines)
+	
+	var output := []
+	OS.execute(batch, [], true, output, true)
+	
+	var lines := utils.get_outputlines(output)
+	
+	for line in lines:
+		var p1 = line.find("HEAD ->")
+		if p1 >= 0:
+			var p2 = line.find(",", p1)
+			if p2 > p1:
+				p1 += 7
+				var tagref = line.substr(p1, p2 - p1).strip_edges()
+				
+				var base = tagref.find_last("/")
+				if base >= 0:
+					return tagref.substr(base + 1)
+	
+	return ""
 
 
 func run_shell(name :String, exe :String, args :Array = []) -> int:
